@@ -16,7 +16,7 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
     <img
       src={logoSrc}
       alt="ONficina"
-      className={`${sizeMap[size]} w-auto object-contain ${className}`}
+      className={`${sizeMap[size]} w-auto object-contain px-0 py-0 my-0 mx-0 ${className}`}
     />
   );
 };
