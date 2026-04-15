@@ -1,6 +1,36 @@
-const Admin = () => (
-  <div className="flex min-h-screen items-center justify-center bg-background">
-    <p className="text-muted-foreground">Painel administrativo — em construção</p>
-  </div>
-);
+import { useState } from "react";
+import DemoLayout from "@/components/demo/DemoLayout";
+import DemoOS from "@/components/demo/DemoOS";
+import DemoServicos from "@/components/demo/DemoServicos";
+import DemoColaboradores from "@/components/demo/DemoColaboradores";
+import DemoAgenda from "@/components/demo/DemoAgenda";
+import DemoVeiculos from "@/components/demo/DemoVeiculos";
+import DemoEmAtendimento from "@/components/demo/DemoEmAtendimento";
+import DemoFinanceiro from "@/components/demo/DemoFinanceiro";
+import DemoRelatorios from "@/components/demo/DemoRelatorios";
+import DemoTreinamentos from "@/components/demo/DemoTreinamentos";
+
+const pages: Record<string, React.ComponentType> = {
+  os: DemoOS,
+  servicos: DemoServicos,
+  colaboradores: DemoColaboradores,
+  agenda: DemoAgenda,
+  veiculos: DemoVeiculos,
+  emAtendimento: DemoEmAtendimento,
+  financeiro: DemoFinanceiro,
+  relatorios: DemoRelatorios,
+  treinamentos: DemoTreinamentos,
+};
+
+const Admin = () => {
+  const [activeKey, setActiveKey] = useState("os");
+  const Page = pages[activeKey] || DemoOS;
+
+  return (
+    <DemoLayout activeKey={activeKey} onNavigate={setActiveKey}>
+      <Page />
+    </DemoLayout>
+  );
+};
+
 export default Admin;
