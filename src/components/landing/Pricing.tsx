@@ -4,40 +4,44 @@ import { Check } from "lucide-react";
 const plans = [
   {
     name: "Essencial",
-    price: "R$ 149",
+    desc: "Para oficinas que estão começando a se organizar",
+    price: "149",
     period: "/mês",
     popular: false,
     features: [
       "Até 50 OS por mês",
       "1 usuário",
-      "Cadastro de clientes e veículos",
+      "Cadastro de clientes",
       "Relatórios básicos",
-      "Suporte por e-mail",
+      "Suporte por email",
     ],
   },
   {
     name: "Profissional",
-    price: "R$ 299",
+    desc: "Para oficinas que querem crescer com controle",
+    price: "299",
     period: "/mês",
     popular: true,
     features: [
       "OS ilimitadas",
       "Até 5 usuários",
-      "Financeiro completo",
+      "Controle financeiro completo",
       "Relatórios avançados",
-      "Notificações WhatsApp",
+      "Envio de fotos por WhatsApp",
       "Suporte prioritário",
     ],
   },
   {
     name: "Empresarial",
-    price: "R$ 499",
+    desc: "Para redes e oficinas de grande porte",
+    price: "499",
     period: "/mês",
     popular: false,
     features: [
       "Tudo do Profissional",
       "Usuários ilimitados",
       "Multi-filiais",
+      "API de integração",
       "Gerente de conta dedicado",
       "Treinamento da equipe",
     ],
@@ -46,7 +50,7 @@ const plans = [
 
 const Pricing = () => {
   return (
-    <section id="planos" className="py-24 bg-card/50">
+    <section id="planos" className="bg-muted py-24">
       <div className="container mx-auto px-4">
         <div className="mb-12 text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
@@ -56,7 +60,7 @@ const Pricing = () => {
             Planos que cabem no seu bolso
           </h2>
           <p className="text-muted-foreground">
-            Comece grátis por 14 dias. Sem compromisso.
+            Comece grátis por 14 dias. Sem compromisso, sem cartão de crédito.
           </p>
         </div>
 
@@ -64,22 +68,25 @@ const Pricing = () => {
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-2xl border p-8 transition-all duration-300 ${
+              className={`relative rounded-2xl border bg-background p-8 transition-all duration-300 ${
                 plan.popular
-                  ? "border-primary/50 bg-card shadow-lg shadow-primary/10 scale-[1.03]"
-                  : "border-border/50 bg-card hover:border-primary/20"
+                  ? "border-foreground shadow-lg"
+                  : "border-border hover:shadow-md"
               }`}
             >
               {plan.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-bold text-primary-foreground">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-foreground px-4 py-1 text-xs font-bold text-background">
                   Mais popular
                 </div>
               )}
 
-              <h3 className="mb-2 text-xl font-bold">{plan.name}</h3>
-              <div className="mb-6">
-                <span className="text-4xl font-bold">{plan.price}</span>
-                <span className="text-muted-foreground">{plan.period}</span>
+              <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{plan.desc}</p>
+
+              <div className="mt-6 mb-8">
+                <span className="text-sm text-muted-foreground">R$ </span>
+                <span className="text-5xl font-bold text-foreground">{plan.price}</span>
+                <span className="text-sm text-muted-foreground">{plan.period}</span>
               </div>
 
               <ul className="mb-8 space-y-3">
@@ -93,10 +100,10 @@ const Pricing = () => {
 
               <Link
                 to="/cadastro"
-                className={`block w-full rounded-full py-3 text-center text-sm font-semibold transition-all ${
+                className={`block w-full rounded-full py-3.5 text-center text-sm font-semibold transition-all ${
                   plan.popular
-                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                    : "border border-border text-foreground hover:bg-secondary"
+                    ? "bg-foreground text-background hover:bg-foreground/90"
+                    : "border border-border text-foreground hover:bg-muted"
                 }`}
               >
                 Começar teste grátis
