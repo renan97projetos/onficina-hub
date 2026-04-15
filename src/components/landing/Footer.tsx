@@ -2,8 +2,8 @@ import Logo from "@/components/Logo";
 
 const Footer = () => {
   return (
-    <footer className="border-t border-border py-16">
-      <div className="container mx-auto px-4">
+    <footer className="border-t border-white/10 py-16">
+      <div className="container mx-auto max-w-[1280px] px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
           <div className="col-span-2 md:col-span-2">
             <Logo size="sm" />
@@ -40,7 +40,7 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 md:flex-row">
+        <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 md:flex-row">
           <p className="text-xs text-muted-foreground">
             © 2026 ONficina. Todos os direitos reservados.
           </p>

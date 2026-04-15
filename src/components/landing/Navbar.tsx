@@ -3,8 +3,8 @@ import Logo from "@/components/Logo";
 
 const Navbar = () => {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-background/80 backdrop-blur-xl">
+      <div className="container mx-auto flex h-16 max-w-[1280px] items-center justify-between px-6 lg:px-8">
         <Link to="/" className="flex items-center gap-2">
           <Logo size="sm" />
         </Link>
@@ -15,9 +15,6 @@ const Navbar = () => {
           </a>
           <a href="#como-funciona" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             Como funciona
-          </a>
-          <a href="#depoimentos" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-            Depoimentos
           </a>
           <a href="#planos" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
             Preços
@@ -30,7 +27,8 @@ const Navbar = () => {
           </Link>
           <Link
             to="/cadastro"
-            className="rounded-full bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition-all hover:bg-foreground/90"
+            className="rounded-full px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
+            style={{ background: 'linear-gradient(180deg, #f97316, #ea580c)' }}
           >
             Começar agora
           </Link>

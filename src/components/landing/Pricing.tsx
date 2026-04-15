@@ -5,7 +5,7 @@ const plans = [
   {
     name: "Essencial",
     desc: "Para oficinas que estão começando a se organizar",
-    price: "149",
+    price: "—",
     period: "/mês",
     popular: false,
     features: [
@@ -19,7 +19,7 @@ const plans = [
   {
     name: "Profissional",
     desc: "Para oficinas que querem crescer com controle",
-    price: "299",
+    price: "—",
     period: "/mês",
     popular: true,
     features: [
@@ -34,7 +34,7 @@ const plans = [
   {
     name: "Empresarial",
     desc: "Para redes e oficinas de grande porte",
-    price: "499",
+    price: "—",
     period: "/mês",
     popular: false,
     features: [
@@ -50,13 +50,13 @@ const plans = [
 
 const Pricing = () => {
   return (
-    <section id="planos" className="bg-muted py-24">
-      <div className="container mx-auto px-4">
+    <section id="planos" className="py-24">
+      <div className="container mx-auto max-w-[1280px] px-6 lg:px-8">
         <div className="mb-12 text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
             Preços
           </p>
-          <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+          <h2 className="mb-4 text-3xl font-extrabold sm:text-4xl">
             Planos que cabem no seu bolso
           </h2>
           <p className="text-muted-foreground">
@@ -68,14 +68,14 @@ const Pricing = () => {
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-2xl border bg-background p-8 transition-all duration-300 ${
+              className={`relative rounded-2xl border bg-card p-8 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${
                 plan.popular
-                  ? "border-foreground shadow-lg"
-                  : "border-border hover:shadow-md"
+                  ? "border-primary shadow-lg shadow-primary/10"
+                  : "border-white/10"
               }`}
             >
               {plan.popular && (
-                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-foreground px-4 py-1 text-xs font-bold text-background">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-bold text-primary-foreground" style={{ background: 'linear-gradient(180deg, #f97316, #ea580c)' }}>
                   Mais popular
                 </div>
               )}
@@ -102,9 +102,10 @@ const Pricing = () => {
                 to="/cadastro"
                 className={`block w-full rounded-full py-3.5 text-center text-sm font-semibold transition-all ${
                   plan.popular
-                    ? "bg-foreground text-background hover:bg-foreground/90"
-                    : "border border-border text-foreground hover:bg-muted"
+                    ? "text-primary-foreground hover:brightness-110"
+                    : "border border-white/20 text-foreground hover:bg-white/5"
                 }`}
+                style={plan.popular ? { background: 'linear-gradient(180deg, #f97316, #ea580c)' } : undefined}
               >
                 Começar teste grátis
               </Link>

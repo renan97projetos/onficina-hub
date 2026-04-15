@@ -35,13 +35,13 @@ const benefits = [
 
 const Benefits = () => {
   return (
-    <section id="recursos" className="py-24">
-      <div className="container mx-auto px-4">
+    <section id="recursos" className="bg-[#111111] py-24">
+      <div className="container mx-auto max-w-[1280px] px-6 lg:px-8">
         <div className="mb-6 max-w-2xl">
           <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
             Recursos
           </p>
-          <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+          <h2 className="mb-4 text-3xl font-extrabold sm:text-4xl">
             Tudo que sua oficina precisa para crescer
           </h2>
           <p className="text-muted-foreground">
@@ -53,10 +53,10 @@ const Benefits = () => {
           {benefits.map((b, i) => (
             <div
               key={i}
-              className="rounded-2xl border border-border bg-background p-6 transition-all duration-300 hover:shadow-md"
+              className="rounded-2xl border border-white/10 bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
             >
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-border">
-                <b.icon className="h-5 w-5 text-foreground" />
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-white/10 bg-white/5">
+                <b.icon className="h-5 w-5 text-primary" />
               </div>
               <h3 className="mb-2 text-base font-semibold text-foreground">{b.title}</h3>
               <p className="text-sm leading-relaxed text-muted-foreground">{b.description}</p>
