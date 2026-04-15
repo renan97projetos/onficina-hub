@@ -6,7 +6,7 @@ interface LogoProps {
 }
 
 const sizeMap = {
-  sm: "h-40",
+  sm: "h-30",
   md: "h-14",
   lg: "h-24",
 };
