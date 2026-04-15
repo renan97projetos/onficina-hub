@@ -15,6 +15,7 @@ import Avaliacao from "./pages/Avaliacao";
 import Pagamento from "./pages/Pagamento";
 import PagamentoRetorno from "./pages/PagamentoRetorno";
 import PainelAssinatura from "./pages/PainelAssinatura";
+import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/pagamento" element={<Pagamento />} />
           <Route path="/pagamento/retorno" element={<PagamentoRetorno />} />
           <Route path="/painel/assinatura" element={<PainelAssinatura />} />
+          <Route path="/demo" element={<Demo />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
