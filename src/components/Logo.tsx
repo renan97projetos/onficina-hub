@@ -1,4 +1,4 @@
-import logoSrc from "@/assets/logo-onficina.png";
+import { Car } from "lucide-react";
 
 interface LogoProps {
   className?: string;
@@ -6,18 +6,21 @@ interface LogoProps {
 }
 
 const sizeMap = {
-  sm: "h-28",
-  md: "h-14",
-  lg: "h-24",
+  sm: { text: "text-xl", icon: 18 },
+  md: { text: "text-2xl", icon: 22 },
+  lg: { text: "text-4xl", icon: 32 },
 };
 
 const Logo = ({ className = "", size = "md" }: LogoProps) => {
+  const s = sizeMap[size];
   return (
-    <img
-      src={logoSrc}
-      alt="ONficina"
-      className={`${sizeMap[size]} w-auto object-contain px-0 py-0 my-0 mx-0 ${className}`}
-    />
+    <div className={`flex items-center gap-1.5 ${className}`}>
+      <span className={`${s.text} font-extrabold tracking-tight`}>
+        <span className="text-primary">ON</span>
+        <span className="text-foreground">ficina</span>
+      </span>
+      <Car size={s.icon} className="text-primary" />
+    </div>
   );
 };
 
