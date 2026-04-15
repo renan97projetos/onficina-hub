@@ -39,6 +39,7 @@ const App = () => (
           <Route path="/pagamento" element={<Pagamento />} />
           <Route path="/pagamento/retorno" element={<PagamentoRetorno />} />
           <Route path="/painel/assinatura" element={<PainelAssinatura />} />
+          <Route path="/demo" element={<Demo />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
