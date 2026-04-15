@@ -1,8 +1,17 @@
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Logo from "@/components/Logo";
 import {
-  FileText, Wrench, Users, Calendar, Car,
-  Activity, DollarSign, BarChart3, LogOut, Eye, RefreshCw, GraduationCap,
+  FileText,
+  Wrench,
+  Users,
+  Calendar,
+  Car,
+  Activity,
+  DollarSign,
+  BarChart3,
+  LogOut,
+  RefreshCw,
+  GraduationCap,
 } from "lucide-react";
 
 const navItems = [
@@ -11,7 +20,7 @@ const navItems = [
   { icon: Users, label: "Colaboradores", key: "colaboradores" },
   { icon: Calendar, label: "Agenda", key: "agenda" },
   { icon: Car, label: "Veículos", key: "veiculos" },
-  { icon: Activity, label: "Em Atendimento", key: "atendimento" },
+  { icon: Activity, label: "Em Atendimento", key: "emAtendimento" },
   { icon: DollarSign, label: "Financeiro", key: "financeiro" },
   { icon: BarChart3, label: "Relatórios", key: "relatorios" },
 ];
@@ -27,32 +36,32 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Top header */}
-      <header className="border-b border-white/10 bg-[#111]">
+      <header className="border-b border-border bg-card">
         <div className="flex h-14 items-center justify-between px-4 lg:px-6">
           <div className="flex items-center gap-3">
             <Logo size="sm" />
-            <span className="text-sm font-medium text-muted-foreground">Painel Admin</span>
+            <span className="text-sm font-medium text-muted-foreground">Sistema ONficina</span>
           </div>
           <div className="flex items-center gap-2">
-            <button className="rounded-lg p-2 text-muted-foreground hover:bg-white/5">
+            <button type="button" className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
               <RefreshCw className="h-4 w-4" />
             </button>
             <button
+              type="button"
               onClick={() => navigate("/")}
-              className="flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-sm text-muted-foreground hover:bg-white/5"
+              className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <LogOut className="h-4 w-4" /> Sair
             </button>
           </div>
         </div>
 
-        {/* Navigation tabs */}
         <nav className="flex items-center overflow-x-auto px-4 lg:px-6">
           <div className="flex items-center gap-1">
             {navItems.map((item) => (
               <button
                 key={item.key}
+                type="button"
                 onClick={() => onNavigate(item.key)}
                 className={`flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
                   activeKey === item.key
@@ -66,9 +75,9 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
             ))}
           </div>
 
-          {/* Separador + Treinamentos */}
-          <div className="ml-auto flex items-center gap-2 pl-4 border-l border-white/10 ml-4">
+          <div className="ml-4 flex items-center gap-2 border-l border-border pl-4">
             <button
+              type="button"
               onClick={() => onNavigate("treinamentos")}
               className={`flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
                 activeKey === "treinamentos"
@@ -83,23 +92,7 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
         </nav>
       </header>
 
-      {/* Demo banner */}
-      <div className="border-b border-primary/20 bg-primary/5 px-4 py-2 lg:px-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Eye className="h-4 w-4 text-primary" />
-            <span className="text-xs text-muted-foreground">Modo demonstração — dados fictícios</span>
-          </div>
-          <Link to="/cadastro" className="rounded-lg bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground hover:brightness-110">
-            Criar minha conta
-          </Link>
-        </div>
-      </div>
-
-      {/* Content */}
-      <main className="p-4 lg:p-6">
-        {children}
-      </main>
+      <main className="p-4 lg:p-6">{children}</main>
     </div>
   );
 };
