@@ -2,15 +2,19 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "@/components/Logo";
 import {
-  LayoutDashboard, FileText, Users, Car, DollarSign,
-  BarChart3, Settings, LogOut, Search, Bell, Eye, Menu,
+  LayoutDashboard, FileText, Wrench, Users, Calendar, Car, UserCheck,
+  Activity, DollarSign, BarChart3, Settings, LogOut, Search, Bell, Eye, Menu,
 } from "lucide-react";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Dashboard", key: "dashboard" },
-  { icon: FileText, label: "Ordens de Serviço", key: "os" },
+  { icon: FileText, label: "Orçamentos", key: "os" },
+  { icon: Wrench, label: "Serviços", key: "servicos" },
+  { icon: Users, label: "Colaboradores", key: "colaboradores" },
+  { icon: Calendar, label: "Agenda", key: "agenda" },
   { icon: Car, label: "Veículos", key: "veiculos" },
-  { icon: Users, label: "Clientes", key: "clientes" },
+  { icon: UserCheck, label: "Clientes", key: "clientes" },
+  { icon: Activity, label: "Em Atendimento", key: "atendimento" },
   { icon: DollarSign, label: "Financeiro", key: "financeiro" },
   { icon: BarChart3, label: "Relatórios", key: "relatorios" },
   { icon: Settings, label: "Configurações", key: "config" },
@@ -35,12 +39,12 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
           {collapsed && <span className="mx-auto text-lg font-bold text-primary">ON</span>}
         </div>
 
-        <nav className="flex-1 space-y-1 p-3">
+        <nav className="flex-1 space-y-0.5 overflow-y-auto p-3">
           {navItems.map((item) => (
             <button
               key={item.key}
               onClick={() => onNavigate(item.key)}
-              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                 activeKey === item.key
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-white/5 hover:text-foreground"
@@ -55,13 +59,13 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
         <div className="border-t border-white/10 p-3">
           {!collapsed && (
             <div className="mb-3 rounded-lg bg-primary/5 border border-primary/20 p-3">
-              <p className="text-xs font-semibold text-primary">Plano Profissional</p>
+              <p className="text-xs font-semibold text-primary">Plano Pro</p>
               <p className="text-xs text-muted-foreground">Trial — 12 dias restantes</p>
             </div>
           )}
           <button
             onClick={() => navigate("/")}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-white/5 hover:text-foreground"
           >
             <LogOut className="h-4 w-4 shrink-0" />
             {!collapsed && <span>Sair do demo</span>}
@@ -78,8 +82,8 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
               <Menu className="h-4 w-4" />
             </button>
             {/* Mobile nav */}
-            <div className="flex md:hidden items-center gap-2 overflow-x-auto">
-              {navItems.slice(0, 5).map((item) => (
+            <div className="flex md:hidden items-center gap-1 overflow-x-auto">
+              {navItems.slice(0, 6).map((item) => (
                 <button
                   key={item.key}
                   onClick={() => onNavigate(item.key)}
