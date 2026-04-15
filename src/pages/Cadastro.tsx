@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Check, Eye, EyeOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 import Logo from "@/components/Logo";
