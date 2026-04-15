@@ -1,8 +1,9 @@
 import { useState } from "react";
 import {
   FileText, Wrench, Users, Calendar, Car, Activity,
-  DollarSign, BarChart3, Play, ChevronRight, CheckCircle2, Clock, BookOpen,
+  DollarSign, BarChart3, Play, ChevronRight, Clock, BookOpen,
 } from "lucide-react";
+import SimulatedScreenOrcamentos from "./training/SimulatedScreenOrcamentos";
 
 /* ───── Módulos de treinamento ───── */
 const modulos = [
