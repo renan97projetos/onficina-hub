@@ -7,8 +7,8 @@ interface LogoProps {
 
 const sizeMap = {
   sm: "h-28",
-  md: "h-44",
-  lg: "h-24",
+  md: "h-14",
+  lg: "h-44",
 };
 
 const Logo = ({ className = "", size = "md" }: LogoProps) => {
