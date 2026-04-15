@@ -1,0 +1,54 @@
+import { FileText, Send, Wrench, CreditCard } from "lucide-react";
+
+const steps = [
+  {
+    icon: FileText,
+    title: "Cliente solicita orçamento",
+    description: "Formulário online com fotos do veículo e descrição do dano.",
+  },
+  {
+    icon: Send,
+    title: "Oficina envia proposta",
+    description: "Defina valor, serviços e envie o orçamento por WhatsApp e e-mail.",
+  },
+  {
+    icon: Wrench,
+    title: "Serviço com acompanhamento",
+    description: "Cliente acompanha cada etapa em tempo real pelo celular.",
+  },
+  {
+    icon: CreditCard,
+    title: "Pagamento e avaliação",
+    description: "Pagamento online ou presencial. Avaliação no Google automática.",
+  },
+];
+
+const HowItWorks = () => {
+  return (
+    <section className="border-t border-border py-24">
+      <div className="container mx-auto px-4">
+        <div className="mb-16 text-center">
+          <h2 className="mb-4 text-3xl font-bold sm:text-4xl">Como funciona</h2>
+          <p className="text-muted-foreground">Simples, rápido e profissional.</p>
+        </div>
+
+        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+          {steps.map((step, i) => (
+            <div key={i} className="relative text-center">
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+                <step.icon className="h-7 w-7 text-primary" />
+              </div>
+              <div className="mb-1 text-xs font-bold uppercase tracking-widest text-primary">
+                Passo {i + 1}
+              </div>
+              <h3 className="mb-2 text-lg font-semibold">{step.title}</h3>
+              <p className="text-sm text-muted-foreground">{step.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default HowItWorks;
