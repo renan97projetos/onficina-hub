@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import Logo from "@/components/Logo";
 import {
   FileText, Wrench, Users, Calendar, Car,
-  Activity, DollarSign, BarChart3, LogOut, Eye, RefreshCw,
+  Activity, DollarSign, BarChart3, LogOut, Eye, RefreshCw, GraduationCap,
 } from "lucide-react";
 
 const navItems = [
@@ -48,21 +48,38 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
         </div>
 
         {/* Navigation tabs */}
-        <nav className="flex items-center gap-1 overflow-x-auto px-4 lg:px-6">
-          {navItems.map((item) => (
+        <nav className="flex items-center overflow-x-auto px-4 lg:px-6">
+          <div className="flex items-center gap-1">
+            {navItems.map((item) => (
+              <button
+                key={item.key}
+                onClick={() => onNavigate(item.key)}
+                className={`flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+                  activeKey === item.key
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <item.icon className="h-4 w-4" />
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Separador + Treinamentos */}
+          <div className="ml-auto flex items-center gap-2 pl-4 border-l border-white/10 ml-4">
             <button
-              key={item.key}
-              onClick={() => onNavigate(item.key)}
+              onClick={() => onNavigate("treinamentos")}
               className={`flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
-                activeKey === item.key
+                activeKey === "treinamentos"
                   ? "border-primary text-primary"
                   : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
-              <item.icon className="h-4 w-4" />
-              {item.label}
+              <GraduationCap className="h-4 w-4" />
+              Treinamentos
             </button>
-          ))}
+          </div>
         </nav>
       </header>
 
