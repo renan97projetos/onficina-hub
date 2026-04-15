@@ -65,7 +65,12 @@ const Cadastro = () => {
           </div>
           <div>
             <label className="mb-1.5 block text-sm font-medium">Senha</label>
-            <input type="password" className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none focus:border-primary" />
+            <div className="relative">
+              <input type={showPassword ? "text" : "password"} className="w-full rounded-lg border border-input bg-background px-4 py-3 pr-10 text-sm outline-none focus:border-primary" />
+              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
           </div>
 
           {/* Plan selector */}
