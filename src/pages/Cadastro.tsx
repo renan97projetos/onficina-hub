@@ -4,9 +4,24 @@ import { Check } from "lucide-react";
 import Logo from "@/components/Logo";
 
 const plans = [
-  { name: "Básico", monthlyPrice: 97, yearlyPrice: 970 },
-  { name: "Pro", monthlyPrice: 197, yearlyPrice: 1970 },
-  { name: "Premium", monthlyPrice: 297, yearlyPrice: 2970 },
+  {
+    name: "Básico",
+    monthlyPrice: 97,
+    yearlyPrice: 970,
+    features: ["Pipeline completo", "Até 2 colaboradores", "Notificações", "Financeiro básico"],
+  },
+  {
+    name: "Pro",
+    monthlyPrice: 197,
+    yearlyPrice: 1970,
+    features: ["Tudo do Básico", "Até 5 colaboradores", "Agendamento", "CRM", "Relatórios avançados"],
+  },
+  {
+    name: "Premium",
+    monthlyPrice: 297,
+    yearlyPrice: 2970,
+    features: ["Tudo do Pro", "Colaboradores ilimitados", "Landing page", "WhatsApp Business API"],
+  },
 ];
 
 const Cadastro = () => {
@@ -67,7 +82,7 @@ const Cadastro = () => {
                   onClick={() => setAnnual(true)}
                   className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all ${annual ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                 >
-                  Anual
+                  Anual (-17%)
                 </button>
               </div>
             </div>
@@ -87,6 +102,14 @@ const Cadastro = () => {
                     R$ {annual ? Math.round(p.yearlyPrice / 12) : p.monthlyPrice}
                     <span className="text-xs font-normal text-muted-foreground">/mês</span>
                   </div>
+                  <ul className="mt-2 space-y-1">
+                    {p.features.map((f) => (
+                      <li key={f} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <Check className="h-3 w-3 text-primary shrink-0" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
                 </button>
               ))}
             </div>
