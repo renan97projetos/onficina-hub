@@ -42,9 +42,9 @@ const Hero = () => {
                 Testar grátis por 14 dias
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
-              <button className="flex items-center justify-center gap-2 rounded-full border border-white/20 bg-transparent px-8 py-4 text-base font-semibold text-foreground transition-all hover:bg-white/5">
-                Ver demonstração
-              </button>
+              <a href="#como-funciona" className="flex items-center justify-center gap-2 rounded-full border border-white/20 bg-transparent px-8 py-4 text-base font-semibold text-foreground transition-all hover:bg-white/5">
+                Como funciona
+              </a>
             </div>
 
             <p className="mt-6 text-sm text-muted-foreground">
