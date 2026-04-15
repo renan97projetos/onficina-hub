@@ -279,23 +279,29 @@ const DemoTreinamentos = () => {
             </div>
           </div>
 
-          {/* Vídeo placeholder */}
-          <div className="mb-6 overflow-hidden rounded-xl border border-white/10 bg-black aspect-video flex items-center justify-center relative group cursor-pointer">
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
-            <div className="flex flex-col items-center gap-3 z-10">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30 group-hover:bg-primary/30 transition-colors">
-                <Play className="h-7 w-7 text-primary ml-1" />
+          {/* Vídeo / Simulação */}
+          <div className="mb-6">
+            {moduloAtivo === "orcamentos" ? (
+              <SimulatedScreenOrcamentos />
+            ) : (
+              <div className="overflow-hidden rounded-xl border border-white/10 bg-black aspect-video flex items-center justify-center relative group cursor-pointer">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
+                <div className="flex flex-col items-center gap-3 z-10">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/20 border border-primary/30 group-hover:bg-primary/30 transition-colors">
+                    <Play className="h-7 w-7 text-primary ml-1" />
+                  </div>
+                  <span className="text-sm text-muted-foreground">Em breve — {modulo.duracao}</span>
+                </div>
+                <div className="absolute bottom-3 left-4 z-10">
+                  <span className="text-xs text-muted-foreground">{modulo.titulo}</span>
+                </div>
+                <div className="absolute bottom-3 right-4 z-10">
+                  <span className="text-[10px] text-muted-foreground bg-white/10 px-2 py-0.5 rounded">
+                    {modulo.duracao}
+                  </span>
+                </div>
               </div>
-              <span className="text-sm text-muted-foreground">Assistir treinamento — {modulo.duracao}</span>
-            </div>
-            <div className="absolute bottom-3 left-4 z-10">
-              <span className="text-xs text-muted-foreground">{modulo.titulo}</span>
-            </div>
-            <div className="absolute bottom-3 right-4 z-10">
-              <span className="text-[10px] text-muted-foreground bg-white/10 px-2 py-0.5 rounded">
-                {modulo.duracao}
-              </span>
-            </div>
+            )}
           </div>
 
           {/* Lista de tópicos */}
