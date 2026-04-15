@@ -15,6 +15,7 @@ import Avaliacao from "./pages/Avaliacao";
 import Pagamento from "./pages/Pagamento";
 import PagamentoRetorno from "./pages/PagamentoRetorno";
 import PainelAssinatura from "./pages/PainelAssinatura";
+import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
