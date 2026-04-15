@@ -1,23 +1,25 @@
 ---
 name: Design tokens
-description: Dark blue theme palette for premium SaaS aesthetic
+description: Dark theme #0a0a0a with orange primary, Inter font, grain texture hero
 type: design
 ---
 ## Color System
-- Background: #0F172A (hsl 222 47% 11%)
-- Card/surfaces: #1F2937 (hsl 220 40% 13%)
-- Elevated surface: hsl 220 35% 14%
-- Primary: #3B82F6 (hsl 217 91% 60%) — blue, interactive elements only
-- Primary hover: #2563EB (hsl 217 91% 55%)
-- Text primary: #F9FAFB (hsl 210 20% 98%)
-- Text secondary: #9CA3AF (hsl 218 11% 65%)
-- Border: hsl 220 30% 18%
+- Background: #0a0a0a (hsl 0 0% 4%)
+- Alternate sections: #111111 (hsl 0 0% 7%)
+- Card/surfaces: #111111 (hsl 0 0% 7%)
+- Primary: #f97316 (hsl 25 95% 53%) — orange, interactive elements
+- Primary gradient: linear-gradient(180deg, #f97316, #ea580c)
+- Text primary: #fafafa (hsl 0 0% 98%)
+- Text secondary: #a1a1aa (hsl 240 4% 65%)
+- Borders: white/10
 
 ## Typography
-- Font: Inter, system-ui, sans-serif
-- Headings: font-weight 700
+- Body: Inter via Google Fonts
+- Headings: Inter weight 800, tracking -0.025em
 
 ## Rules
-- Blue only on interactive elements (buttons, links, highlights)
-- Keep visual clean and minimal — no color pollution
-- Dark theme with subtle blue tint
+- Orange only on interactive elements (buttons, links, icons, highlights)
+- Dark theme throughout, no white/light backgrounds
+- Cards: border-white/10, hover: -translate-y-0.5 + shadow-lg
+- Badges: bg-white/5 border-white/10
+- Max content width: 1280px centered

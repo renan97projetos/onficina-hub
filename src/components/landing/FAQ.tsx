@@ -20,7 +20,7 @@ const faqs = [
   },
   {
     q: "Meus dados estão seguros?",
-    a: "Sim. Utilizamos criptografia de ponta a ponta e infraestrutura segura com backups diários.",
+    a: "Sim. Todos os dados ficam armazenados em servidores com criptografia e backup automático diário. Você pode exportar suas informações a qualquer momento.",
   },
 ];
 
@@ -28,20 +28,20 @@ const FAQ = () => {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="py-24">
-      <div className="container mx-auto px-4">
+    <section id="faq" className="bg-[#111111] py-24">
+      <div className="container mx-auto max-w-[1280px] px-6 lg:px-8">
         <div className="mb-16 text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
             FAQ
           </p>
-          <h2 className="mb-4 text-3xl font-bold sm:text-4xl">Perguntas frequentes</h2>
+          <h2 className="mb-4 text-3xl font-extrabold sm:text-4xl">Perguntas frequentes</h2>
         </div>
 
         <div className="mx-auto max-w-2xl space-y-3">
           {faqs.map((faq, i) => (
             <div
               key={i}
-              className="rounded-xl border border-border/50 bg-card overflow-hidden transition-colors hover:border-primary/20"
+              className="rounded-xl border border-white/10 bg-card overflow-hidden transition-colors hover:border-primary/20"
             >
               <button
                 onClick={() => setOpen(open === i ? null : i)}
