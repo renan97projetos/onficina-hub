@@ -282,7 +282,7 @@ const DemoTreinamentos = () => {
           {/* Vídeo / Simulação */}
           <div className="mb-6">
             {moduloAtivo === "orcamentos" ? (
-              <SimulatedScreenOrcamentos />
+              <SimulatedScreenOrcamentos activeTopicIndex={topicoAberto} />
             ) : (
               <div className="overflow-hidden rounded-xl border border-white/10 bg-black aspect-video flex items-center justify-center relative group cursor-pointer">
                 <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
