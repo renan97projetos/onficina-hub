@@ -49,16 +49,20 @@ const Pricing = () => {
   const [annual, setAnnual] = useState(false);
 
   return (
-    <section id="planos" className="border-t border-border py-24">
+    <section id="planos" className="py-24">
       <div className="container mx-auto px-4">
         <div className="mb-12 text-center">
-          <h2 className="mb-4 text-3xl font-bold sm:text-4xl">Planos</h2>
+          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
+            Planos
+          </p>
+          <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+            Escolha o plano ideal para sua oficina
+          </h2>
           <p className="mb-8 text-muted-foreground">
-            Escolha o plano ideal para sua oficina.
+            Todos incluem 14 dias de teste grátis, sem cartão de crédito.
           </p>
 
-          {/* Toggle */}
-          <div className="inline-flex items-center gap-3 rounded-full border border-border bg-card p-1">
+          <div className="inline-flex items-center gap-1 rounded-full border border-border bg-card p-1">
             <button
               onClick={() => setAnnual(false)}
               className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
@@ -83,10 +87,10 @@ const Pricing = () => {
           {plans.map((plan) => (
             <div
               key={plan.name}
-              className={`relative rounded-2xl border p-8 transition-all ${
+              className={`relative rounded-2xl border p-8 transition-all duration-300 ${
                 plan.popular
-                  ? "border-primary bg-card shadow-lg shadow-primary/10 scale-105"
-                  : "border-border bg-card hover:border-primary/30"
+                  ? "border-primary/50 bg-card shadow-lg shadow-primary/10 scale-[1.03]"
+                  : "border-border/50 bg-card hover:border-primary/20"
               }`}
             >
               {plan.popular && (
@@ -121,8 +125,8 @@ const Pricing = () => {
                 to="/cadastro"
                 className={`block w-full rounded-xl py-3 text-center text-sm font-semibold transition-all ${
                   plan.popular
-                    ? "bg-primary text-primary-foreground hover:brightness-110"
-                    : "border border-border text-foreground hover:bg-surface-elevated"
+                    ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                    : "border border-border text-foreground hover:bg-secondary"
                 }`}
               >
                 Começar teste grátis

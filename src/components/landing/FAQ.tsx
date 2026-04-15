@@ -18,15 +18,22 @@ const faqs = [
     q: "Quanto tempo leva para configurar?",
     a: "Menos de 10 minutos. Cadastre sua oficina, adicione seus serviços e colaboradores e comece a usar.",
   },
+  {
+    q: "Meus dados estão seguros?",
+    a: "Sim. Utilizamos criptografia de ponta a ponta e infraestrutura segura com backups diários.",
+  },
 ];
 
 const FAQ = () => {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="border-t border-border py-24">
+    <section id="faq" className="py-24">
       <div className="container mx-auto px-4">
         <div className="mb-16 text-center">
+          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
+            FAQ
+          </p>
           <h2 className="mb-4 text-3xl font-bold sm:text-4xl">Perguntas frequentes</h2>
         </div>
 
@@ -34,7 +41,7 @@ const FAQ = () => {
           {faqs.map((faq, i) => (
             <div
               key={i}
-              className="rounded-xl border border-border bg-card overflow-hidden"
+              className="rounded-xl border border-border/50 bg-card overflow-hidden transition-colors hover:border-primary/20"
             >
               <button
                 onClick={() => setOpen(open === i ? null : i)}
@@ -42,13 +49,13 @@ const FAQ = () => {
               >
                 <span className="font-medium">{faq.q}</span>
                 <ChevronDown
-                  className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${
+                  className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform duration-200 ${
                     open === i ? "rotate-180" : ""
                   }`}
                 />
               </button>
               {open === i && (
-                <div className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">
+                <div className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground animate-fade-in">
                   {faq.a}
                 </div>
               )}

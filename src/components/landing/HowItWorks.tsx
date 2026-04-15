@@ -9,7 +9,7 @@ const steps = [
   {
     icon: Send,
     title: "Oficina envia proposta",
-    description: "Defina valor, serviços e envie o orçamento por WhatsApp e e-mail.",
+    description: "Defina valor, serviços e envie por WhatsApp e e-mail.",
   },
   {
     icon: Wrench,
@@ -25,24 +25,28 @@ const steps = [
 
 const HowItWorks = () => {
   return (
-    <section className="border-t border-border py-24">
+    <section className="py-24">
       <div className="container mx-auto px-4">
         <div className="mb-16 text-center">
-          <h2 className="mb-4 text-3xl font-bold sm:text-4xl">Como funciona</h2>
-          <p className="text-muted-foreground">Simples, rápido e profissional.</p>
+          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
+            Como funciona
+          </p>
+          <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
+            4 passos para uma oficina organizada
+          </h2>
         </div>
 
         <div className="mx-auto grid max-w-5xl grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((step, i) => (
             <div key={i} className="relative text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
-                <step.icon className="h-7 w-7 text-primary" />
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
+                <step.icon className="h-6 w-6 text-primary" />
               </div>
-              <div className="mb-1 text-xs font-bold uppercase tracking-widest text-primary">
+              <div className="mb-2 text-xs font-bold uppercase tracking-widest text-primary">
                 Passo {i + 1}
               </div>
               <h3 className="mb-2 text-lg font-semibold">{step.title}</h3>
-              <p className="text-sm text-muted-foreground">{step.description}</p>
+              <p className="text-sm leading-relaxed text-muted-foreground">{step.description}</p>
             </div>
           ))}
         </div>
