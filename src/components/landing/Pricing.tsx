@@ -1,86 +1,63 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Check } from "lucide-react";
 
 const plans = [
   {
-    name: "Básico",
-    monthlyPrice: 97,
-    yearlyPrice: 970,
+    name: "Essencial",
+    price: "R$ 149",
+    period: "/mês",
     popular: false,
     features: [
-      "Pipeline de orçamentos completo",
-      "Até 2 colaboradores",
-      "Notificações WhatsApp e e-mail",
-      "Relatório financeiro básico",
+      "Até 50 OS por mês",
+      "1 usuário",
+      "Cadastro de clientes e veículos",
+      "Relatórios básicos",
       "Suporte por e-mail",
     ],
   },
   {
-    name: "Pro",
-    monthlyPrice: 197,
-    yearlyPrice: 1970,
+    name: "Profissional",
+    price: "R$ 299",
+    period: "/mês",
     popular: true,
     features: [
-      "Tudo do Básico",
-      "Até 5 colaboradores",
-      "Agendamento online",
-      "CRM de clientes e veículos",
+      "OS ilimitadas",
+      "Até 5 usuários",
+      "Financeiro completo",
       "Relatórios avançados",
+      "Notificações WhatsApp",
       "Suporte prioritário",
     ],
   },
   {
-    name: "Premium",
-    monthlyPrice: 297,
-    yearlyPrice: 2970,
+    name: "Empresarial",
+    price: "R$ 499",
+    period: "/mês",
     popular: false,
     features: [
-      "Tudo do Pro",
-      "Colaboradores ilimitados",
-      "Landing page personalizada",
-      "WhatsApp Business API",
+      "Tudo do Profissional",
+      "Usuários ilimitados",
+      "Multi-filiais",
       "Gerente de conta dedicado",
+      "Treinamento da equipe",
     ],
   },
 ];
 
 const Pricing = () => {
-  const [annual, setAnnual] = useState(false);
-
   return (
-    <section id="planos" className="py-24">
+    <section id="planos" className="py-24 bg-card/50">
       <div className="container mx-auto px-4">
         <div className="mb-12 text-center">
           <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-primary">
-            Planos
+            Preços
           </p>
           <h2 className="mb-4 text-3xl font-bold sm:text-4xl">
-            Escolha o plano ideal para sua oficina
+            Planos que cabem no seu bolso
           </h2>
-          <p className="mb-8 text-muted-foreground">
-            Todos incluem 14 dias de teste grátis, sem cartão de crédito.
+          <p className="text-muted-foreground">
+            Comece grátis por 14 dias. Sem compromisso.
           </p>
-
-          <div className="inline-flex items-center gap-1 rounded-full border border-border bg-card p-1">
-            <button
-              onClick={() => setAnnual(false)}
-              className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
-                !annual ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Mensal
-            </button>
-            <button
-              onClick={() => setAnnual(true)}
-              className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${
-                annual ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Anual
-              <span className="ml-1.5 text-xs opacity-75">-17%</span>
-            </button>
-          </div>
         </div>
 
         <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
@@ -101,15 +78,8 @@ const Pricing = () => {
 
               <h3 className="mb-2 text-xl font-bold">{plan.name}</h3>
               <div className="mb-6">
-                <span className="text-4xl font-bold">
-                  R$ {annual ? Math.round(plan.yearlyPrice / 12) : plan.monthlyPrice}
-                </span>
-                <span className="text-muted-foreground">/mês</span>
-                {annual && (
-                  <div className="mt-1 text-xs text-muted-foreground">
-                    R$ {plan.yearlyPrice.toLocaleString("pt-BR")}/ano
-                  </div>
-                )}
+                <span className="text-4xl font-bold">{plan.price}</span>
+                <span className="text-muted-foreground">{plan.period}</span>
               </div>
 
               <ul className="mb-8 space-y-3">
@@ -123,7 +93,7 @@ const Pricing = () => {
 
               <Link
                 to="/cadastro"
-                className={`block w-full rounded-xl py-3 text-center text-sm font-semibold transition-all ${
+                className={`block w-full rounded-full py-3 text-center text-sm font-semibold transition-all ${
                   plan.popular
                     ? "bg-primary text-primary-foreground hover:bg-primary/90"
                     : "border border-border text-foreground hover:bg-secondary"
