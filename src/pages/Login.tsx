@@ -31,38 +31,48 @@ const Login = () => {
   // Dev bypass — acesso rápido para desenvolvimento
   const handleDevAccess = async () => {
     setLoading(true);
-    const devEmail = "dev@onficina.com";
+    const devEmail = "admin@onficina.dev";
     const devPassword = "dev123456";
 
-    // Tenta logar; se não existir, cria a conta
+    // Tenta logar primeiro
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: devEmail,
       password: devPassword,
     });
 
-    if (signInError) {
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: devEmail,
-        password: devPassword,
-      });
+    if (!signInError) {
+      navigate("/admin");
+      return;
+    }
 
-      if (signUpError) {
-        toast({ title: "Erro", description: signUpError.message, variant: "destructive" });
-        setLoading(false);
-        return;
-      }
+    // Se não existir, cria (auto-confirm está ativo)
+    const { data, error: signUpError } = await supabase.auth.signUp({
+      email: devEmail,
+      password: devPassword,
+    });
 
-      // Tenta logar novamente após criar
-      const { error } = await supabase.auth.signInWithPassword({
-        email: devEmail,
-        password: devPassword,
-      });
+    if (signUpError) {
+      toast({ title: "Erro", description: signUpError.message, variant: "destructive" });
+      setLoading(false);
+      return;
+    }
 
-      if (error) {
-        toast({ title: "Conta criada!", description: "Verifique o e-mail para confirmar (ou desative a confirmação no Cloud).", variant: "destructive" });
-        setLoading(false);
-        return;
-      }
+    // Se o signup já logou automaticamente
+    if (data.session) {
+      navigate("/admin");
+      return;
+    }
+
+    // Tenta logar após criar
+    const { error } = await supabase.auth.signInWithPassword({
+      email: devEmail,
+      password: devPassword,
+    });
+
+    if (error) {
+      toast({ title: "Erro", description: error.message, variant: "destructive" });
+      setLoading(false);
+      return;
     }
 
     navigate("/admin");
