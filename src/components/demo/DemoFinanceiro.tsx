@@ -39,7 +39,7 @@ const DemoFinanceiro = () => {
         description="Os recebimentos, recibos, pagamentos parciais, movimentações de caixa e operações do PDV vão aparecer aqui conforme você registrar dados reais no sistema."
         primaryAction="Abrir PDV"
         secondaryAction="Registrar recebimento"
-        helperText="Os totais estão zerados porque removi todos os dados fictícios deste módulo."
+        helperText="Os totais estão zerados porque este módulo está pronto para receber apenas os seus lançamentos reais."
       />
     </>
   );

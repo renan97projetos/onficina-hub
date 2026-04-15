@@ -13,7 +13,7 @@ const DemoServicos = () => (
     <EmptyModuleState
       icon={Wrench}
       title="Nenhum serviço cadastrado"
-      description="Cadastre os serviços reais da sua oficina para montar o fluxo de execução, o atendimento e os orçamentos sem dados fictícios."
+      description="Cadastre os serviços reais da sua oficina para montar o fluxo de execução, o atendimento e os orçamentos com sua própria base."
       primaryAction="Adicionar serviço"
       secondaryAction="Definir ordem de execução"
     />
