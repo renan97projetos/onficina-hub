@@ -234,30 +234,31 @@ const OSSheetContent = ({ os, onClose }: Props) => {
       <div className="flex-1 overflow-y-auto">
         <div className="grid gap-6 p-6 lg:grid-cols-2">
           {/* Left column: actions */}
-          <div className="space-y-4">
+          <div className="space-y-5">
             <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Ações</h3>
 
-            {/* Edit button for applicable stages */}
+            {/* Edit & value change buttons */}
             {(isFullEdit || isLimitedEdit) && (
-              <button onClick={() => { setEditValor(String(os.valor_total)); setEditObs(os.observacoes || ""); setEditColaborador(os.colaborador_id || ""); setEditPrazo(os.prazo_estimado ? new Date(os.prazo_estimado).toISOString().slice(0, 16) : ""); setEditOpen(true); }}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted">
-                <Pencil className="h-4 w-4" /> Alterar OS
-              </button>
-            )}
+              <div className="space-y-3">
+                <button onClick={() => { setEditValor(String(os.valor_total)); setEditObs(os.observacoes || ""); setEditColaborador(os.colaborador_id || ""); setEditPrazo(os.prazo_estimado ? new Date(os.prazo_estimado).toISOString().slice(0, 16) : ""); setEditOpen(true); }}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors">
+                  <Pencil className="h-4 w-4" /> Alterar OS
+                </button>
 
-            {/* Value change button (em_atendimento only) */}
-            {os.stage === "em_atendimento" && (
-              <button onClick={() => { setNovoValor(String(os.valor_total)); setMotivoValor(""); setValorChangeOpen(true); }}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-amber-700/40 bg-amber-900/10 px-4 py-2 text-sm font-medium text-amber-400 hover:bg-amber-900/20">
-                <DollarSign className="h-4 w-4" /> Registrar alteração de valor
-              </button>
+                {os.stage === "em_atendimento" && (
+                  <button onClick={() => { setNovoValor(String(os.valor_total)); setMotivoValor(""); setValorChangeOpen(true); }}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-700/40 bg-amber-900/10 px-4 py-3 text-sm font-medium text-amber-400 hover:bg-amber-900/20 transition-colors">
+                    <DollarSign className="h-4 w-4" /> Registrar alteração de valor
+                  </button>
+                )}
+              </div>
             )}
 
             {/* CRIADO */}
             {os.stage === "criado" && (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <button onClick={() => avancarEtapa("aguardando_carro", "OS confirmada → Aguardando carro")}
-                  className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:brightness-110">
+                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
                   Confirmar OS → Aguardar carro
                 </button>
                 <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
@@ -266,9 +267,9 @@ const OSSheetContent = ({ os, onClose }: Props) => {
 
             {/* AGUARDANDO_CARRO */}
             {os.stage === "aguardando_carro" && (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <button onClick={() => avancarEtapa("em_atendimento", "Carro chegou → Em atendimento")}
-                  className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:brightness-110">
+                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
                   Confirmar chegada → Em atendimento
                 </button>
                 <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
@@ -277,10 +278,10 @@ const OSSheetContent = ({ os, onClose }: Props) => {
 
             {/* EM_ATENDIMENTO */}
             {os.stage === "em_atendimento" && (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <h4 className="text-sm font-semibold text-foreground">Serviços</h4>
                 {os.os_servicos?.map((srv) => (
-                  <div key={srv.id} className="rounded-lg border border-border bg-background p-3">
+                  <div key={srv.id} className="rounded-xl border border-border bg-background p-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-foreground">{srv.nome_servico || "Serviço"}</span>
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
@@ -308,40 +309,42 @@ const OSSheetContent = ({ os, onClose }: Props) => {
                   </div>
                 ))}
 
-                <div className="flex gap-2">
+                <div className="flex gap-3 pt-1">
                   <button onClick={() => { navigator.clipboard.writeText(clienteUrl); toast.success("Link do cliente copiado"); }}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs font-medium text-foreground hover:bg-muted">
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-3 text-xs font-medium text-foreground hover:bg-muted transition-colors">
                     <Copy className="h-3.5 w-3.5" /> Link do cliente
                   </button>
                   <button onClick={() => { navigator.clipboard.writeText(tecnicoUrl); toast.success("Link do técnico copiado"); }}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs font-medium text-foreground hover:bg-muted">
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-3 text-xs font-medium text-foreground hover:bg-muted transition-colors">
                     <Copy className="h-3.5 w-3.5" /> Link do técnico
                   </button>
                 </div>
 
-                <button onClick={() => avancarEtapa("pagamento", "Atendimento finalizado → Pagamento")}
-                  disabled={!allServicosCompleted}
-                  className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed">
-                  Finalizar atendimento → Pagamento
-                </button>
-                {!allServicosCompleted && (
-                  <p className="text-xs text-yellow-400">Conclua todos os serviços antes de avançar.</p>
-                )}
+                <div className="pt-2">
+                  <button onClick={() => avancarEtapa("pagamento", "Atendimento finalizado → Pagamento")}
+                    disabled={!allServicosCompleted}
+                    className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                    Finalizar atendimento → Pagamento
+                  </button>
+                  {!allServicosCompleted && (
+                    <p className="mt-2 text-xs text-yellow-400">Conclua todos os serviços antes de avançar.</p>
+                  )}
+                </div>
                 <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
               </div>
             )}
 
             {/* PAGAMENTO */}
             {os.stage === "pagamento" && (
-              <div className="space-y-4">
-                <div className="rounded-lg border border-border bg-background p-4">
-                  <p className="text-xs text-muted-foreground">Valor total</p>
+              <div className="space-y-5">
+                <div className="rounded-xl border border-border bg-background p-5">
+                  <p className="text-xs text-muted-foreground mb-1">Valor total</p>
                   <p className="text-2xl font-bold text-foreground">R$ {Number(os.valor_total).toFixed(2)}</p>
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-muted-foreground">Forma de pagamento</label>
+                  <label className="mb-2 block text-xs font-medium text-muted-foreground">Forma de pagamento</label>
                   <select value={pagamentoForma} onChange={(e) => setPagamentoForma(e.target.value)}
-                    className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary">
+                    className="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus:border-primary">
                     <option value="">Selecione...</option>
                     <option value="dinheiro">Dinheiro</option>
                     <option value="pix">PIX</option>
@@ -356,7 +359,7 @@ const OSSheetContent = ({ os, onClose }: Props) => {
                     pagamento_confirmado: true,
                     pagamento_confirmado_em: new Date().toISOString(),
                   })}
-                  className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed">
+                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                   <CreditCard className="mr-2 inline h-4 w-4" /> Confirmar pagamento → Entrega
                 </button>
                 <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
@@ -365,8 +368,8 @@ const OSSheetContent = ({ os, onClose }: Props) => {
 
             {/* ENTREGA */}
             {os.stage === "entrega" && (
-              <div className="space-y-4">
-                <div className="rounded-lg border border-border bg-background p-4 space-y-2">
+              <div className="space-y-5">
+                <div className="rounded-xl border border-border bg-background p-5 space-y-2">
                   <p className="text-xs text-muted-foreground">Resumo</p>
                   <p className="text-sm text-foreground">
                     <strong>Valor:</strong> R$ {Number(os.valor_total).toFixed(2)} • <strong>Forma:</strong> {os.pagamento_forma || "—"}
@@ -378,17 +381,17 @@ const OSSheetContent = ({ os, onClose }: Props) => {
 
                 {/* Exit photos upload */}
                 <div>
-                  <h4 className="mb-2 text-sm font-semibold text-foreground flex items-center gap-2">
+                  <h4 className="mb-3 text-sm font-semibold text-foreground flex items-center gap-2">
                     <Camera className="h-4 w-4" /> Fotos de saída
                   </h4>
-                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-background px-4 py-4 text-sm text-muted-foreground hover:border-primary hover:text-foreground transition-colors">
+                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-background px-4 py-5 text-sm text-muted-foreground hover:border-primary hover:text-foreground transition-colors">
                     <Camera className="h-5 w-5" />
                     Selecionar fotos de saída
                     <input type="file" accept="image/*" multiple onChange={handleFotoSaidaChange} className="hidden" />
                   </label>
                   {fotoSaidaPreviews.length > 0 && (
                     <>
-                      <div className="mt-2 grid grid-cols-4 gap-2">
+                      <div className="mt-3 grid grid-cols-4 gap-2">
                         {fotoSaidaPreviews.map((src, i) => (
                           <div key={i} className="group relative aspect-square overflow-hidden rounded-lg border border-border">
                             <img src={src} alt={`Saída ${i + 1}`} className="h-full w-full object-cover" />
@@ -400,14 +403,14 @@ const OSSheetContent = ({ os, onClose }: Props) => {
                         ))}
                       </div>
                       <button onClick={uploadFotosSaida} disabled={uploadingSaida}
-                        className="mt-2 w-full rounded-lg border border-primary bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50">
+                        className="mt-3 w-full rounded-xl border border-primary bg-primary/10 px-3 py-2.5 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50">
                         {uploadingSaida ? "Enviando..." : "Salvar fotos de saída"}
                       </button>
                     </>
                   )}
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 rounded-xl border border-border bg-background p-4">
                   <Checkbox id="notif" checked={notificado} onCheckedChange={(v) => setNotificado(!!v)} />
                   <label htmlFor="notif" className="text-sm text-foreground">
                     Cliente foi notificado via WhatsApp que o veículo está pronto
@@ -420,7 +423,7 @@ const OSSheetContent = ({ os, onClose }: Props) => {
                     await supabase.from("ordens_servico").update({ cliente_notificado_entrega: true }).eq("id", os.id);
                     await avancarEtapa("finalizado", "Veículo entregue ao cliente");
                   }}
-                  className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed">
+                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                   <Truck className="mr-2 inline h-4 w-4" /> Confirmar entrega → Finalizado
                 </button>
               </div>
@@ -428,23 +431,23 @@ const OSSheetContent = ({ os, onClose }: Props) => {
 
             {/* FINALIZADO */}
             {os.stage === "finalizado" && (
-              <div className="rounded-lg border border-border bg-background p-4">
-                <CheckCircle2 className="mb-2 h-6 w-6 text-green-400" />
+              <div className="rounded-xl border border-border bg-background p-5">
+                <CheckCircle2 className="mb-3 h-7 w-7 text-green-400" />
                 <p className="text-sm font-semibold text-foreground">OS finalizada</p>
-                <p className="text-xs text-muted-foreground">Sem ações disponíveis.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Sem ações disponíveis.</p>
               </div>
             )}
 
             {/* RECUSADO */}
             {os.stage === "recusado" && (
-              <div className="space-y-3">
-                <div className="rounded-lg border border-red-800/40 bg-red-900/10 p-4">
-                  <XCircle className="mb-2 h-6 w-6 text-red-400" />
+              <div className="space-y-4">
+                <div className="rounded-xl border border-red-800/40 bg-red-900/10 p-5">
+                  <XCircle className="mb-3 h-7 w-7 text-red-400" />
                   <p className="text-sm font-semibold text-red-400">OS recusada</p>
-                  <p className="mt-1 text-xs text-muted-foreground">{os.motivo_recusa || "Motivo não informado"}</p>
+                  <p className="mt-2 text-xs text-muted-foreground">{os.motivo_recusa || "Motivo não informado"}</p>
                 </div>
                 <button onClick={reabrirOS}
-                  className="w-full rounded-lg border border-border bg-background px-4 py-2.5 text-sm font-medium text-foreground hover:bg-muted">
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors">
                   Reabrir OS
                 </button>
               </div>
