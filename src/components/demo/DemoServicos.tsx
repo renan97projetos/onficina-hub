@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Plus, Wrench, Pencil, Trash2, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import EmptyModuleState from "./EmptyModuleState";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Servico = Tables<"servicos_catalogo">;
