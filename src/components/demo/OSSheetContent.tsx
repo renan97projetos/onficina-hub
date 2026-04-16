@@ -398,6 +398,26 @@ Qualquer dúvida estamos à disposição. Obrigado pela confiança! 🚗`;
     return `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}`;
   }
 
+  function buildWhatsappPronto() {
+    const nome = os.clientes?.nome || "";
+    const marca = os.veiculos?.marca || "";
+    const modelo = os.veiculos?.modelo || "";
+    const placa = os.veiculos?.placa || "";
+    const tel = os.clientes?.telefone?.replace(/\D/g, "") || "";
+
+    const msg =
+`Olá, ${nome}! 🚗✨
+
+Boa notícia! Seu veículo *${marca} ${modelo} - ${placa}* está *pronto para retirada* aqui na *${oficinaNome}*.
+
+Pode vir buscar quando preferir — estamos te esperando! 😊
+
+Qualquer dúvida, é só chamar.`;
+
+    if (!tel) return null;
+    return `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}`;
+  }
+
   function buildWhatsappFinalizacao() {
     const nome = os.clientes?.nome || "";
     const marca = os.veiculos?.marca || "";
