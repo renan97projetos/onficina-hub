@@ -293,7 +293,7 @@ const OSFormModal = ({ open, onOpenChange }: Props) => {
                         <Input type="number" value={selectedServicos[srv.id]} className="w-28"
                           onChange={(e) => setSelectedServicos((p) => ({ ...p, [srv.id]: parseFloat(e.target.value) || 0 }))} />
                       ) : (
-                        <span className="text-sm text-muted-foreground">R$ {srv.preco_base.toFixed(2)}</span>
+                        <span className="text-sm text-muted-foreground">{srv.preco_base > 0 ? `R$ ${srv.preco_base.toFixed(2)}` : "Definir valor"}</span>
                       )}
                     </div>
                   );
