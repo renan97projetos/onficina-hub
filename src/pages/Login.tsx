@@ -156,15 +156,6 @@ const Login = () => {
           </Link>
         </p>
 
-        <div className="border-t border-border pt-4">
-          <button
-            onClick={handleDevAccess}
-            disabled={loading}
-            className="w-full rounded-lg border border-dashed border-primary/30 py-2.5 text-xs font-medium text-muted-foreground transition-all hover:border-primary hover:text-primary disabled:opacity-50"
-          >
-            🔧 Acesso dev
-          </button>
-        </div>
       </div>
     </div>
   );
