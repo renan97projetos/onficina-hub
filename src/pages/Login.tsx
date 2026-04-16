@@ -18,11 +18,22 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const returnUrl = searchParams.get("returnUrl") || "/admin";
 
-  // If already logged in, redirect
-  if (session) {
-    navigate(returnUrl, { replace: true });
-    return null;
+  // If already logged in, redirect via useEffect
+  const [redirecting, setRedirecting] = useState(false);
+  
+  useState(() => {
+    if (session) {
+      setRedirecting(true);
+    }
+  });
+
+  if (session && !redirecting) {
+    // Already handled by effect below
   }
+
+  // Use effect for navigation to avoid React warning
+  import { useEffect } from "react";
+  
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

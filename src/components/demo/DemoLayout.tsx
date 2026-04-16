@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import Logo from "@/components/Logo";
 import {
   FileText,
@@ -32,6 +33,12 @@ interface DemoLayoutProps {
 
 const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
   const navigate = useNavigate();
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -47,7 +54,7 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
             </button>
             <button
               type="button"
-              onClick={() => navigate("/")}
+              onClick={handleLogout}
               className="flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             >
               <LogOut className="h-4 w-4" /> Sair
