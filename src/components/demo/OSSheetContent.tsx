@@ -309,6 +309,15 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const tecnicoUrl = `${window.location.origin}/tecnico/${os.id}`;
   const whatsappUrl = os.clientes?.telefone ? `https://wa.me/55${os.clientes.telefone.replace(/\D/g, "")}` : null;
 
+  const avaliacaoUrl = `${window.location.origin}/avaliacao?os=${os.id}`;
+  const oficinaNome = oficina?.nome || "nossa oficina";
+
+  function buildWhatsappAvaliacao() {
+    const msg = `Olá ${os.clientes?.nome || ""}! Obrigado por confiar na ${oficinaNome}. Ficamos felizes em atender você. Deixe sua avaliação aqui: ${avaliacaoUrl}`;
+    const tel = os.clientes?.telefone?.replace(/\D/g, "") || "";
+    return `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}`;
+  }
+
   const fotosEntradaUrls = (os.fotos_entrada as string[] | null) || [];
   const fotosSaidaUrls = (os.fotos_saida as string[] | null) || [];
 
