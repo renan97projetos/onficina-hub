@@ -85,10 +85,10 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
             <button
               type="button"
               onClick={() => onNavigate("treinamentos")}
-              className={`flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+              className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
                 activeKey === "treinamentos"
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-primary/15 text-primary hover:bg-primary/25"
               }`}
             >
               <GraduationCap className="h-4 w-4" />
