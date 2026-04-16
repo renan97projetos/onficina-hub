@@ -455,7 +455,7 @@ const OSSheetContent = ({ os, onClose }: Props) => {
           </div>
 
           {/* Right column: info */}
-          <div className="space-y-4 rounded-xl bg-muted/60 p-5 border border-border">
+          <div className="space-y-4 rounded-xl border border-primary/15 bg-primary/5 p-5">
             <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Informações</h3>
 
             {/* Client info */}
