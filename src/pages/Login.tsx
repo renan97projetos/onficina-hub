@@ -15,9 +15,12 @@ const Login = () => {
   const { toast } = useToast();
   const { session } = useAuth();
 
+  const [searchParams] = useSearchParams();
+  const returnUrl = searchParams.get("returnUrl") || "/admin";
+
   // If already logged in, redirect
   if (session) {
-    navigate("/admin", { replace: true });
+    navigate(returnUrl, { replace: true });
     return null;
   }
 
