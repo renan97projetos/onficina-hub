@@ -163,6 +163,7 @@ export type Database = {
         Row: {
           auth_user_id: string | null
           created_at: string
+          google_review_url: string | null
           id: string
           nome: string
           plano: string
@@ -172,6 +173,7 @@ export type Database = {
         Insert: {
           auth_user_id?: string | null
           created_at?: string
+          google_review_url?: string | null
           id?: string
           nome: string
           plano?: string
@@ -181,6 +183,7 @@ export type Database = {
         Update: {
           auth_user_id?: string | null
           created_at?: string
+          google_review_url?: string | null
           id?: string
           nome?: string
           plano?: string
