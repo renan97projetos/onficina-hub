@@ -70,7 +70,9 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const [fotosSaida, setFotosSaida] = useState<File[]>([]);
   const [fotoSaidaPreviews, setFotoSaidaPreviews] = useState<string[]>([]);
   const [uploadingSaida, setUploadingSaida] = useState(false);
-  const [savingServicoId, setSavingServicoId] = useState<string | null>(null);
+  const [avaliacaoDialogOpen, setAvaliacaoDialogOpen] = useState(false);
+
+  const savingServicoId_state = savingServicoId;
 
   const { data: movimentacoes = [] } = useQuery({
     queryKey: ["os_movimentacoes", os.id],
