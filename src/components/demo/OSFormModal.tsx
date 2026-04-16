@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -12,9 +12,10 @@ import type { Tables } from "@/integrations/supabase/types";
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  clienteId?: string;
 }
 
-const OSFormModal = ({ open, onOpenChange }: Props) => {
+const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) => {
   const { oficina_id } = useAuth();
   const queryClient = useQueryClient();
 
@@ -84,6 +85,14 @@ const OSFormModal = ({ open, onOpenChange }: Props) => {
     },
     enabled: open && !!oficina_id,
   });
+
+  // Pre-select cliente quando vem do CRM
+  useEffect(() => {
+    if (open && presetClienteId) {
+      setNovoCliente(false);
+      setClienteId(presetClienteId);
+    }
+  }, [open, presetClienteId]);
 
   const valorTotal = Object.values(selectedServicos).reduce((sum, v) => sum + v, 0);
   const tempoTotal = Object.keys(selectedServicos).reduce((sum, id) => {
