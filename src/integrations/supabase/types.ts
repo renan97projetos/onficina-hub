@@ -84,6 +84,36 @@ export type Database = {
           },
         ]
       }
+      financeiro_lancamentos: {
+        Row: {
+          created_at: string
+          data: string
+          descricao: string
+          id: string
+          oficina_id: string
+          tipo: string
+          valor: number
+        }
+        Insert: {
+          created_at?: string
+          data?: string
+          descricao: string
+          id?: string
+          oficina_id: string
+          tipo?: string
+          valor?: number
+        }
+        Update: {
+          created_at?: string
+          data?: string
+          descricao?: string
+          id?: string
+          oficina_id?: string
+          tipo?: string
+          valor?: number
+        }
+        Relationships: []
+      }
       oficinas: {
         Row: {
           auth_user_id: string | null
