@@ -103,37 +103,39 @@ const Acompanhar = () => {
         </div>
 
         {/* Tracker */}
-        <div className="mb-12">
-          <div className="flex items-center justify-between">
-            {STAGES_ORDER.map((stage, i) => {
-              const Icon = stage.icon;
-              const isPast = i < currentIdx;
-              const isCurrent = i === currentIdx;
-              return (
-                <div key={stage.key} className="flex flex-col items-center gap-1">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                    isPast ? "bg-green-600" : isCurrent ? "bg-primary" : "bg-muted"
-                  }`}>
-                    {isPast ? (
-                      <Check className="h-5 w-5 text-white" />
-                    ) : (
-                      <Icon className={`h-5 w-5 ${isCurrent ? "text-primary-foreground" : "text-muted-foreground"}`} />
-                    )}
+        <div className="mb-8 pb-12">
+          <div className="relative">
+            <div className="flex items-center justify-between">
+              {STAGES_ORDER.map((stage, i) => {
+                const Icon = stage.icon;
+                const isPast = i < currentIdx;
+                const isCurrent = i === currentIdx;
+                return (
+                  <div key={stage.key} className="relative z-10 flex flex-col items-center gap-1 bg-background px-1">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-full ${
+                      isPast ? "bg-green-600" : isCurrent ? "bg-primary" : "bg-muted"
+                    }`}>
+                      {isPast ? (
+                        <Check className="h-5 w-5 text-white" />
+                      ) : (
+                        <Icon className={`h-5 w-5 ${isCurrent ? "text-primary-foreground" : "text-muted-foreground"}`} />
+                      )}
+                    </div>
+                    <span className={`text-[10px] text-center leading-tight ${
+                      isCurrent ? "font-bold text-primary" : isPast ? "text-green-400" : "text-muted-foreground"
+                    }`}>
+                      {stage.label}
+                    </span>
                   </div>
-                  <span className={`text-[10px] text-center leading-tight ${
-                    isCurrent ? "font-bold text-primary" : isPast ? "text-green-400" : "text-muted-foreground"
-                  }`}>
-                    {stage.label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-          {/* Connector lines */}
-          <div className="relative -mt-[54px] mb-[30px] flex items-center px-5">
-            {STAGES_ORDER.slice(0, -1).map((_, i) => (
-              <div key={i} className={`h-0.5 flex-1 ${i < currentIdx ? "bg-green-600" : "bg-muted"}`} />
-            ))}
+                );
+              })}
+            </div>
+
+            <div className="absolute left-5 right-5 top-5 flex items-center">
+              {STAGES_ORDER.slice(0, -1).map((_, i) => (
+                <div key={i} className={`h-0.5 flex-1 ${i < currentIdx ? "bg-green-600" : "bg-muted"}`} />
+              ))}
+            </div>
           </div>
         </div>
 
