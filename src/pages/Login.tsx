@@ -36,7 +36,7 @@ const Login = () => {
       return;
     }
 
-    navigate("/admin");
+    navigate(returnUrl);
   };
 
   // Dev bypass
