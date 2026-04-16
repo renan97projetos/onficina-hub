@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   FileText, Car, Wrench, CreditCard, Truck, CheckCircle2, Circle, Check,
@@ -30,6 +30,7 @@ const MESSAGES: Record<string, string> = {
 const Acompanhar = () => {
   const { token } = useParams<{ token: string }>();
   const queryClient = useQueryClient();
+  const [osId, setOsId] = useState<string | null>(null);
 
   const { data: os, isLoading, error } = useQuery({
     queryKey: ["acompanhar", token],
@@ -45,17 +46,27 @@ const Acompanhar = () => {
     enabled: !!token,
   });
 
-  // Realtime
+  // Track OS id for realtime
   useEffect(() => {
-    if (!token) return;
+    if (os?.id) setOsId(os.id);
+  }, [os?.id]);
+
+  // Realtime filtered by OS id
+  useEffect(() => {
+    if (!osId) return;
     const channel = supabase
-      .channel(`acompanhar-${token}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "ordens_servico" }, () => {
+      .channel(`acompanhar-${osId}`)
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "ordens_servico",
+        filter: `id=eq.${osId}`,
+      }, () => {
         queryClient.invalidateQueries({ queryKey: ["acompanhar", token] });
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [token, queryClient]);
+  }, [osId, token, queryClient]);
 
   if (isLoading) {
     return (

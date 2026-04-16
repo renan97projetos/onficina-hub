@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Camera, X } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 interface Props {
@@ -39,6 +40,11 @@ const OSFormModal = ({ open, onOpenChange }: Props) => {
   // Assignment
   const [colaboradorId, setColaboradorId] = useState("");
   const [observacoes, setObservacoes] = useState("");
+  const [prazoManual, setPrazoManual] = useState("");
+
+  // Photos
+  const [fotosEntrada, setFotosEntrada] = useState<File[]>([]);
+  const [fotoPreviews, setFotoPreviews] = useState<string[]>([]);
 
   const [saving, setSaving] = useState(false);
 
@@ -85,12 +91,46 @@ const OSFormModal = ({ open, onOpenChange }: Props) => {
     return sum + (srv?.tempo_medio_horas || 0);
   }, 0);
 
+  // Compute default prazo when services change
+  const defaultPrazo = tempoTotal > 0
+    ? new Date(Date.now() + tempoTotal * 3600000).toISOString().slice(0, 16)
+    : "";
+
   function toggleServico(id: string, precoBase: number) {
     setSelectedServicos((prev) => {
       const next = { ...prev };
       if (next[id] !== undefined) { delete next[id]; } else { next[id] = precoBase; }
       return next;
     });
+  }
+
+  function handleFotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    setFotosEntrada((prev) => [...prev, ...files]);
+    files.forEach((f) => {
+      const reader = new FileReader();
+      reader.onload = () => setFotoPreviews((prev) => [...prev, reader.result as string]);
+      reader.readAsDataURL(f);
+    });
+    e.target.value = "";
+  }
+
+  function removeFoto(index: number) {
+    setFotosEntrada((prev) => prev.filter((_, i) => i !== index));
+    setFotoPreviews((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  async function uploadFotos(osId: string): Promise<string[]> {
+    const urls: string[] = [];
+    for (const file of fotosEntrada) {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${osId}/entrada/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const { error } = await supabase.storage.from("os-fotos").upload(path, file);
+      if (error) { console.error("Upload error:", error); continue; }
+      const { data: urlData } = supabase.storage.from("os-fotos").getPublicUrl(path);
+      urls.push(urlData.publicUrl);
+    }
+    return urls;
   }
 
   async function handleSave() {
@@ -127,7 +167,8 @@ const OSFormModal = ({ open, onOpenChange }: Props) => {
       if (servicoIds.length === 0) { toast.error("Selecione pelo menos um serviço"); setSaving(false); return; }
 
       // 4. Create OS
-      const prazoEstimado = tempoTotal > 0 ? new Date(Date.now() + tempoTotal * 3600000).toISOString() : null;
+      const prazoFinal = prazoManual || defaultPrazo || null;
+      const prazoEstimado = prazoFinal ? new Date(prazoFinal).toISOString() : null;
       const { data: osData, error: osError } = await supabase.from("ordens_servico").insert({
         oficina_id, cliente_id: cid, veiculo_id: vid, colaborador_id: colaboradorId || null,
         valor_total: valorTotal, observacoes: observacoes.trim() || null,
@@ -135,7 +176,15 @@ const OSFormModal = ({ open, onOpenChange }: Props) => {
       }).select("id").single();
       if (osError) throw osError;
 
-      // 5. Insert os_servicos
+      // 5. Upload entry photos
+      if (fotosEntrada.length > 0) {
+        const urls = await uploadFotos(osData.id);
+        if (urls.length > 0) {
+          await supabase.from("ordens_servico").update({ fotos_entrada: urls }).eq("id", osData.id);
+        }
+      }
+
+      // 6. Insert os_servicos
       const osServicos = servicoIds.map((sid) => {
         const srv = servicos.find((s) => s.id === sid)!;
         return {
@@ -145,7 +194,7 @@ const OSFormModal = ({ open, onOpenChange }: Props) => {
       });
       await supabase.from("os_servicos").insert(osServicos);
 
-      // 6. Movimentação
+      // 7. Movimentação
       await supabase.from("os_movimentacoes").insert({ os_id: osData.id, stage_novo: "criado", descricao: "OS criada" });
 
       queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
@@ -163,6 +212,7 @@ const OSFormModal = ({ open, onOpenChange }: Props) => {
     setClienteId(""); setNovoCliente(false); setNomeCliente(""); setTelefoneCliente("");
     setEmailCliente(""); setVeiculoId(""); setNovoVeiculo(false); setPlaca(""); setMarca("");
     setModelo(""); setCor(""); setAno(""); setSelectedServicos({}); setColaboradorId(""); setObservacoes("");
+    setPrazoManual(""); setFotosEntrada([]); setFotoPreviews([]);
   }
 
   return (
@@ -265,13 +315,43 @@ const OSFormModal = ({ open, onOpenChange }: Props) => {
                 <option value="">Responsável (opcional)</option>
                 {colaboradores.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
               </select>
-              <div className="text-xs text-muted-foreground self-center">
-                {tempoTotal > 0 && `Prazo estimado: ${tempoTotal}h a partir de agora`}
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">Prazo estimado</label>
+                <Input
+                  type="datetime-local"
+                  value={prazoManual || defaultPrazo}
+                  onChange={(e) => setPrazoManual(e.target.value)}
+                />
               </div>
             </div>
             <textarea value={observacoes} onChange={(e) => setObservacoes(e.target.value)}
               placeholder="Observações (opcional)" rows={3}
               className="mt-3 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+          </section>
+
+          {/* ENTRY PHOTOS */}
+          <section>
+            <h3 className="mb-3 text-sm font-bold uppercase tracking-wide text-muted-foreground">
+              <Camera className="inline h-4 w-4 mr-1" /> Fotos de entrada
+            </h3>
+            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-background px-4 py-6 text-sm text-muted-foreground hover:border-primary hover:text-foreground transition-colors">
+              <Camera className="h-5 w-5" />
+              Clique para selecionar fotos do veículo
+              <input type="file" accept="image/*" multiple onChange={handleFotoChange} className="hidden" />
+            </label>
+            {fotoPreviews.length > 0 && (
+              <div className="mt-3 grid grid-cols-4 gap-2">
+                {fotoPreviews.map((src, i) => (
+                  <div key={i} className="group relative aspect-square overflow-hidden rounded-lg border border-border">
+                    <img src={src} alt={`Foto ${i + 1}`} className="h-full w-full object-cover" />
+                    <button onClick={() => removeFoto(i)}
+                      className="absolute right-1 top-1 rounded-full bg-black/60 p-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <X className="h-3.5 w-3.5 text-white" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
 
           {/* SUBMIT */}

@@ -6,13 +6,15 @@ import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import {
   Phone, Copy, Clock, Circle, CheckCircle2, XCircle,
-  AlertTriangle, CreditCard, Truck, ChevronRight,
+  AlertTriangle, CreditCard, Truck, ChevronRight, Camera, X, Pencil, DollarSign,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { OSWithRelations } from "./DemoOS";
 import type { Tables } from "@/integrations/supabase/types";
@@ -38,6 +40,25 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const [pagamentoForma, setPagamentoForma] = useState(os.pagamento_forma || "");
   const [notificado, setNotificado] = useState(os.cliente_notificado_entrega || false);
 
+  // Edit OS dialog
+  const [editOpen, setEditOpen] = useState(false);
+  const [editValor, setEditValor] = useState(String(os.valor_total));
+  const [editObs, setEditObs] = useState(os.observacoes || "");
+  const [editColaborador, setEditColaborador] = useState(os.colaborador_id || "");
+  const [editPrazo, setEditPrazo] = useState(os.prazo_estimado ? new Date(os.prazo_estimado).toISOString().slice(0, 16) : "");
+  const [editSaving, setEditSaving] = useState(false);
+
+  // Value change dialog (em_atendimento only)
+  const [valorChangeOpen, setValorChangeOpen] = useState(false);
+  const [novoValor, setNovoValor] = useState("");
+  const [motivoValor, setMotivoValor] = useState("");
+  const [valorSaving, setValorSaving] = useState(false);
+
+  // Exit photos
+  const [fotosSaida, setFotosSaida] = useState<File[]>([]);
+  const [fotoSaidaPreviews, setFotoSaidaPreviews] = useState<string[]>([]);
+  const [uploadingSaida, setUploadingSaida] = useState(false);
+
   const { data: movimentacoes = [] } = useQuery({
     queryKey: ["os_movimentacoes", os.id],
     queryFn: async () => {
@@ -49,6 +70,17 @@ const OSSheetContent = ({ os, onClose }: Props) => {
       return data || [];
     },
   });
+
+  const { data: colaboradores = [] } = useQuery({
+    queryKey: ["colaboradores_sheet"],
+    queryFn: async () => {
+      const { data } = await supabase.from("colaboradores").select("*").eq("ativo", true).order("nome");
+      return data || [];
+    },
+  });
+
+  const isFullEdit = os.stage === "criado" || os.stage === "aguardando_carro";
+  const isLimitedEdit = os.stage === "em_atendimento" || os.stage === "pagamento" || os.stage === "entrega";
 
   async function avancarEtapa(stageNovo: string, descricao: string, extra?: Record<string, unknown>) {
     await supabase.from("ordens_servico").update({ stage: stageNovo, ...extra }).eq("id", os.id);
@@ -78,10 +110,108 @@ const OSSheetContent = ({ os, onClose }: Props) => {
     await avancarEtapa("criado", "OS reaberta");
   }
 
+  // Save edit
+  async function handleSaveEdit() {
+    setEditSaving(true);
+    try {
+      const updates: Record<string, unknown> = {
+        valor_total: parseFloat(editValor) || 0,
+        observacoes: editObs.trim() || null,
+      };
+      if (isFullEdit) {
+        updates.colaborador_id = editColaborador || null;
+        updates.prazo_estimado = editPrazo ? new Date(editPrazo).toISOString() : null;
+      }
+      await supabase.from("ordens_servico").update(updates).eq("id", os.id);
+      queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+      toast.success("OS atualizada");
+      setEditOpen(false);
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao atualizar");
+    } finally {
+      setEditSaving(false);
+    }
+  }
+
+  // Save value change with reason
+  async function handleSaveValorChange() {
+    if (!motivoValor.trim()) { toast.error("Informe o motivo da alteração"); return; }
+    const nv = parseFloat(novoValor);
+    if (isNaN(nv) || nv < 0) { toast.error("Informe um valor válido"); return; }
+    setValorSaving(true);
+    try {
+      const valorAnterior = Number(os.valor_total);
+      await supabase.from("ordens_servico").update({ valor_total: nv }).eq("id", os.id);
+      await supabase.from("os_movimentacoes").insert({
+        os_id: os.id,
+        descricao: `Valor alterado de R$${valorAnterior.toFixed(2)} para R$${nv.toFixed(2)}: ${motivoValor.trim()}`,
+        valor_anterior: valorAnterior,
+        valor_novo: nv,
+      });
+      queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+      queryClient.invalidateQueries({ queryKey: ["os_movimentacoes", os.id] });
+      toast.success("Valor atualizado");
+      setValorChangeOpen(false);
+      setNovoValor("");
+      setMotivoValor("");
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao alterar valor");
+    } finally {
+      setValorSaving(false);
+    }
+  }
+
+  // Exit photo handlers
+  function handleFotoSaidaChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    setFotosSaida((prev) => [...prev, ...files]);
+    files.forEach((f) => {
+      const reader = new FileReader();
+      reader.onload = () => setFotoSaidaPreviews((prev) => [...prev, reader.result as string]);
+      reader.readAsDataURL(f);
+    });
+    e.target.value = "";
+  }
+
+  function removeFotoSaida(index: number) {
+    setFotosSaida((prev) => prev.filter((_, i) => i !== index));
+    setFotoSaidaPreviews((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  async function uploadFotosSaida() {
+    if (fotosSaida.length === 0) return;
+    setUploadingSaida(true);
+    try {
+      const urls: string[] = [];
+      for (const file of fotosSaida) {
+        const ext = file.name.split(".").pop() || "jpg";
+        const path = `${os.id}/saida/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error } = await supabase.storage.from("os-fotos").upload(path, file);
+        if (error) { console.error(error); continue; }
+        const { data: urlData } = supabase.storage.from("os-fotos").getPublicUrl(path);
+        urls.push(urlData.publicUrl);
+      }
+      const existing = (os.fotos_saida as string[] | null) || [];
+      const all = [...existing, ...urls];
+      await supabase.from("ordens_servico").update({ fotos_saida: all }).eq("id", os.id);
+      queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+      toast.success(`${urls.length} foto(s) de saída salvas`);
+      setFotosSaida([]);
+      setFotoSaidaPreviews([]);
+    } catch (err: any) {
+      toast.error(err.message || "Erro no upload");
+    } finally {
+      setUploadingSaida(false);
+    }
+  }
+
   const allServicosCompleted = os.os_servicos?.every((s) => s.status === "concluido") ?? false;
   const clienteUrl = `${window.location.origin}/acompanhar/${os.token_cliente}`;
   const tecnicoUrl = `${window.location.origin}/tecnico/${os.id}`;
   const whatsappUrl = os.clientes?.telefone ? `https://wa.me/55${os.clientes.telefone.replace(/\D/g, "")}` : null;
+
+  const fotosEntradaUrls = (os.fotos_entrada as string[] | null) || [];
+  const fotosSaidaUrls = (os.fotos_saida as string[] | null) || [];
 
   return (
     <div className="flex h-full flex-col">
@@ -105,6 +235,22 @@ const OSSheetContent = ({ os, onClose }: Props) => {
           {/* Left column: actions */}
           <div className="space-y-4">
             <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Ações</h3>
+
+            {/* Edit button for applicable stages */}
+            {(isFullEdit || isLimitedEdit) && (
+              <button onClick={() => { setEditValor(String(os.valor_total)); setEditObs(os.observacoes || ""); setEditColaborador(os.colaborador_id || ""); setEditPrazo(os.prazo_estimado ? new Date(os.prazo_estimado).toISOString().slice(0, 16) : ""); setEditOpen(true); }}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted">
+                <Pencil className="h-4 w-4" /> Alterar OS
+              </button>
+            )}
+
+            {/* Value change button (em_atendimento only) */}
+            {os.stage === "em_atendimento" && (
+              <button onClick={() => { setNovoValor(String(os.valor_total)); setMotivoValor(""); setValorChangeOpen(true); }}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-amber-700/40 bg-amber-900/10 px-4 py-2 text-sm font-medium text-amber-400 hover:bg-amber-900/20">
+                <DollarSign className="h-4 w-4" /> Registrar alteração de valor
+              </button>
+            )}
 
             {/* CRIADO */}
             {os.stage === "criado" && (
@@ -229,6 +375,37 @@ const OSSheetContent = ({ os, onClose }: Props) => {
                   </p>
                 </div>
 
+                {/* Exit photos upload */}
+                <div>
+                  <h4 className="mb-2 text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Camera className="h-4 w-4" /> Fotos de saída
+                  </h4>
+                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-background px-4 py-4 text-sm text-muted-foreground hover:border-primary hover:text-foreground transition-colors">
+                    <Camera className="h-5 w-5" />
+                    Selecionar fotos de saída
+                    <input type="file" accept="image/*" multiple onChange={handleFotoSaidaChange} className="hidden" />
+                  </label>
+                  {fotoSaidaPreviews.length > 0 && (
+                    <>
+                      <div className="mt-2 grid grid-cols-4 gap-2">
+                        {fotoSaidaPreviews.map((src, i) => (
+                          <div key={i} className="group relative aspect-square overflow-hidden rounded-lg border border-border">
+                            <img src={src} alt={`Saída ${i + 1}`} className="h-full w-full object-cover" />
+                            <button onClick={() => removeFotoSaida(i)}
+                              className="absolute right-1 top-1 rounded-full bg-black/60 p-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <X className="h-3.5 w-3.5 text-white" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                      <button onClick={uploadFotosSaida} disabled={uploadingSaida}
+                        className="mt-2 w-full rounded-lg border border-primary bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50">
+                        {uploadingSaida ? "Enviando..." : "Salvar fotos de saída"}
+                      </button>
+                    </>
+                  )}
+                </div>
+
                 <div className="flex items-center gap-3">
                   <Checkbox id="notif" checked={notificado} onCheckedChange={(v) => setNotificado(!!v)} />
                   <label htmlFor="notif" className="text-sm text-foreground">
@@ -318,6 +495,39 @@ const OSSheetContent = ({ os, onClose }: Props) => {
               )}
             </div>
 
+            {/* Photos comparison */}
+            {(fotosEntradaUrls.length > 0 || fotosSaidaUrls.length > 0) && (
+              <div>
+                <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">Fotos do veículo</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  {fotosEntradaUrls.length > 0 && (
+                    <div>
+                      <p className="mb-1 text-xs font-medium text-muted-foreground">Entrada</p>
+                      <div className="grid grid-cols-2 gap-1">
+                        {fotosEntradaUrls.map((url, i) => (
+                          <img key={i} src={url} alt={`Entrada ${i + 1}`}
+                            className="aspect-square rounded-md border border-border object-cover cursor-pointer hover:opacity-80"
+                            onClick={() => window.open(url, "_blank")} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {fotosSaidaUrls.length > 0 && (
+                    <div>
+                      <p className="mb-1 text-xs font-medium text-muted-foreground">Saída</p>
+                      <div className="grid grid-cols-2 gap-1">
+                        {fotosSaidaUrls.map((url, i) => (
+                          <img key={i} src={url} alt={`Saída ${i + 1}`}
+                            className="aspect-square rounded-md border border-border object-cover cursor-pointer hover:opacity-80"
+                            onClick={() => window.open(url, "_blank")} />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
             {/* Movimentações */}
             <div>
               <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">Histórico</h4>
@@ -342,6 +552,83 @@ const OSSheetContent = ({ os, onClose }: Props) => {
           </div>
         </div>
       </div>
+
+      {/* Edit OS Dialog */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Alterar OS</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Valor total (R$)</label>
+              <Input type="number" value={editValor} onChange={(e) => setEditValor(e.target.value)} />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Observações</label>
+              <textarea value={editObs} onChange={(e) => setEditObs(e.target.value)} rows={3}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+            </div>
+            {isFullEdit && (
+              <>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground">Responsável</label>
+                  <select value={editColaborador} onChange={(e) => setEditColaborador(e.target.value)}
+                    className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary">
+                    <option value="">Nenhum</option>
+                    {colaboradores.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="mb-1 block text-xs font-medium text-muted-foreground">Prazo estimado</label>
+                  <Input type="datetime-local" value={editPrazo} onChange={(e) => setEditPrazo(e.target.value)} />
+                </div>
+              </>
+            )}
+          </div>
+          <DialogFooter>
+            <button onClick={() => setEditOpen(false)} className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted">
+              Cancelar
+            </button>
+            <button onClick={handleSaveEdit} disabled={editSaving}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50">
+              {editSaving ? "Salvando..." : "Salvar"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Value Change Dialog */}
+      <Dialog open={valorChangeOpen} onOpenChange={setValorChangeOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Registrar alteração de valor</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
+              Valor atual: <strong className="text-foreground">R$ {Number(os.valor_total).toFixed(2)}</strong>
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Novo valor (R$)</label>
+              <Input type="number" value={novoValor} onChange={(e) => setNovoValor(e.target.value)} />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs font-medium text-muted-foreground">Motivo da alteração *</label>
+              <textarea value={motivoValor} onChange={(e) => setMotivoValor(e.target.value)} rows={3} placeholder="Descreva o motivo..."
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+            </div>
+          </div>
+          <DialogFooter>
+            <button onClick={() => setValorChangeOpen(false)} className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted">
+              Cancelar
+            </button>
+            <button onClick={handleSaveValorChange} disabled={valorSaving || !motivoValor.trim()}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50">
+              {valorSaving ? "Salvando..." : "Confirmar alteração"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
