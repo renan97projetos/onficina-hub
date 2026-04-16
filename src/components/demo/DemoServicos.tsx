@@ -56,7 +56,7 @@ const DemoServicos = () => {
 
   async function handleSave() {
     if (!nome.trim()) { toast.error("Preencha o nome do serviço"); return; }
-    if (!precoBase || parseFloat(precoBase) <= 0) { toast.error("Preencha o preço base"); return; }
+    // preço base é opcional — pode ser definido na OS
 
     setSaving(true);
     const etapas = etapasText.split("\n").map(e => e.trim()).filter(Boolean);
@@ -64,7 +64,7 @@ const DemoServicos = () => {
       oficina_id: oficina_id!,
       nome: nome.trim(),
       descricao: descricao.trim() || null,
-      preco_base: parseFloat(precoBase),
+      preco_base: precoBase ? parseFloat(precoBase) : 0,
       tempo_medio_horas: tempoMedio ? parseFloat(tempoMedio) : null,
       etapas: etapas.length > 0 ? etapas : [],
     };
@@ -186,7 +186,7 @@ const DemoServicos = () => {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1 block text-xs text-muted-foreground">Preço base (R$) *</label>
+                <label className="mb-1 block text-xs text-muted-foreground">Preço base (R$)</label>
                 <Input type="number" value={precoBase} onChange={(e) => setPrecoBase(e.target.value)} placeholder="150.00" />
               </div>
               <div>
