@@ -318,6 +318,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_oficina_for_user: {
+        Args: { _nome: string; _telefone?: string }
+        Returns: string
+      }
       get_user_oficina_id: { Args: never; Returns: string }
     }
     Enums: {
