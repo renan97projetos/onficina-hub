@@ -13,6 +13,7 @@ import Admin from "./pages/Admin";
 import Orcamento from "./pages/Orcamento";
 import AprovarOrcamento from "./pages/AprovarOrcamento";
 import Acompanhar from "./pages/Acompanhar";
+import TecnicoOS from "./pages/TecnicoOS";
 import Avaliacao from "./pages/Avaliacao";
 import Pagamento from "./pages/Pagamento";
 import PagamentoRetorno from "./pages/PagamentoRetorno";
@@ -44,6 +45,14 @@ const App = () => (
             <Route path="/orcamento" element={<Orcamento />} />
             <Route path="/aprovar/:token" element={<AprovarOrcamento />} />
             <Route path="/acompanhar/:token" element={<Acompanhar />} />
+            <Route
+              path="/tecnico/:osId"
+              element={
+                <PrivateRoute>
+                  <TecnicoOS />
+                </PrivateRoute>
+              }
+            />
             <Route path="/avaliacao" element={<Avaliacao />} />
             <Route path="/pagamento" element={<Pagamento />} />
             <Route path="/pagamento/retorno" element={<PagamentoRetorno />} />

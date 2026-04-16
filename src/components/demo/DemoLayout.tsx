@@ -6,7 +6,7 @@ import {
   Users,
   Calendar,
   Car,
-  Activity,
+  
   DollarSign,
   BarChart3,
   LogOut,
@@ -15,12 +15,11 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { icon: FileText, label: "Orçamentos", key: "os" },
+  { icon: FileText, label: "Ordens de Serviço", key: "os" },
   { icon: Wrench, label: "Serviços", key: "servicos" },
   { icon: Users, label: "Colaboradores", key: "colaboradores" },
   { icon: Calendar, label: "Agenda", key: "agenda" },
   { icon: Car, label: "Veículos", key: "veiculos" },
-  { icon: Activity, label: "Em Atendimento", key: "emAtendimento" },
   { icon: DollarSign, label: "Financeiro", key: "financeiro" },
   { icon: BarChart3, label: "Relatórios", key: "relatorios" },
 ];
