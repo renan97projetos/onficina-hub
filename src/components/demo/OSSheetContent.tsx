@@ -34,6 +34,11 @@ const STAGE_LABELS: Record<string, string> = {
   recusado: "Recusado",
 };
 
+function getEtapasSnapshot(etapasSnapshot: Tables<"os_servicos">["etapas_snapshot"]) {
+  if (!Array.isArray(etapasSnapshot)) return [];
+  return etapasSnapshot.filter((etapa): etapa is string => typeof etapa === "string");
+}
+
 const OSSheetContent = ({ os, onClose }: Props) => {
   const queryClient = useQueryClient();
   const [motivoRecusa, setMotivoRecusa] = useState("");
@@ -62,6 +67,7 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const [fotosSaida, setFotosSaida] = useState<File[]>([]);
   const [fotoSaidaPreviews, setFotoSaidaPreviews] = useState<string[]>([]);
   const [uploadingSaida, setUploadingSaida] = useState(false);
+  const [savingServicoId, setSavingServicoId] = useState<string | null>(null);
 
   const { data: movimentacoes = [] } = useQuery({
     queryKey: ["os_movimentacoes", os.id],
@@ -234,6 +240,66 @@ const OSSheetContent = ({ os, onClose }: Props) => {
     }
   }
 
+  async function iniciarServicoPainel(srvId: string) {
+    setSavingServicoId(srvId);
+
+    try {
+      const { error } = await supabase
+        .from("os_servicos")
+        .update({
+          status: "em_andamento",
+          iniciado_em: new Date().toISOString(),
+          etapa_atual: 0,
+        })
+        .eq("id", srvId);
+
+      if (error) throw error;
+
+      await queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+      await queryClient.invalidateQueries({ queryKey: ["tecnico-os", os.id] });
+      toast.success("Serviço iniciado");
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao iniciar serviço");
+    } finally {
+      setSavingServicoId(null);
+    }
+  }
+
+  async function concluirEtapaPainel(srv: Tables<"os_servicos">) {
+    setSavingServicoId(srv.id);
+
+    try {
+      const etapas = getEtapasSnapshot(srv.etapas_snapshot);
+      const novaEtapa = srv.etapa_atual + 1;
+      const finalizarServico = etapas.length === 0 || novaEtapa >= etapas.length;
+
+      const { error } = await supabase
+        .from("os_servicos")
+        .update(
+          finalizarServico
+            ? {
+                etapa_atual: etapas.length === 0 ? 1 : novaEtapa,
+                status: "concluido",
+                concluido_em: new Date().toISOString(),
+              }
+            : {
+                etapa_atual: novaEtapa,
+              }
+        )
+        .eq("id", srv.id);
+
+      if (error) throw error;
+
+      await queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+      await queryClient.invalidateQueries({ queryKey: ["tecnico-os", os.id] });
+      toast.success(finalizarServico ? "Serviço concluído!" : `Etapa ${novaEtapa} concluída`);
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao atualizar etapa");
+    } finally {
+      setSavingServicoId(null);
+    }
+  }
+
   const allServicosCompleted = os.os_servicos?.every((s) => s.status === "concluido") ?? false;
   const clienteUrl = `${window.location.origin}/acompanhar/${os.token_cliente}`;
   const tecnicoUrl = `${window.location.origin}/tecnico/${os.id}`;
@@ -308,34 +374,97 @@ const OSSheetContent = ({ os, onClose }: Props) => {
             {os.stage === "em_atendimento" && (
               <div className="space-y-5">
                 <h4 className="text-sm font-semibold text-foreground">Serviços</h4>
-                {os.os_servicos?.map((srv) => (
-                  <div key={srv.id} className="rounded-xl border border-border bg-background p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium text-foreground">{srv.nome_servico || "Serviço"}</span>
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        srv.status === "concluido" ? "bg-green-900/30 text-green-400" :
-                        srv.status === "em_andamento" ? "bg-blue-900/30 text-blue-400" :
-                        "bg-muted text-muted-foreground"
-                      }`}>
-                        {srv.status === "concluido" ? "Concluído" : srv.status === "em_andamento" ? "Em andamento" : "Pendente"}
-                      </span>
-                    </div>
-                    {srv.etapas_snapshot && Array.isArray(srv.etapas_snapshot) && (srv.etapas_snapshot as string[]).length > 0 && (
-                      <div className="mt-2 space-y-1">
-                        {(srv.etapas_snapshot as string[]).map((etapa, i) => (
-                          <div key={i} className="flex items-center gap-2 text-xs">
-                            {i < srv.etapa_atual ? (
-                              <CheckCircle2 className="h-3.5 w-3.5 text-green-400" />
-                            ) : (
-                              <Circle className="h-3.5 w-3.5 text-muted-foreground" />
-                            )}
-                            <span className={i < srv.etapa_atual ? "text-green-400" : "text-muted-foreground"}>{etapa}</span>
-                          </div>
-                        ))}
+                {os.os_servicos?.map((srv) => {
+                  const etapas = getEtapasSnapshot(srv.etapas_snapshot);
+                  const isSavingServico = savingServicoId === srv.id;
+
+                  return (
+                    <div key={srv.id} className="rounded-xl border border-border bg-background p-4">
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-sm font-medium text-foreground">{srv.nome_servico || "Serviço"}</span>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                            srv.status === "concluido"
+                              ? "border border-primary/30 bg-primary/10 text-primary"
+                              : srv.status === "em_andamento"
+                                ? "border border-primary/20 bg-primary/10 text-primary"
+                                : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {srv.status === "concluido" ? "Concluído" : srv.status === "em_andamento" ? "Em andamento" : "Pendente"}
+                        </span>
                       </div>
-                    )}
-                  </div>
-                ))}
+
+                      {etapas.length > 0 && (
+                        <div className="mt-3 space-y-2">
+                          {etapas.map((etapa, i) => {
+                            const concluida = srv.status === "concluido" || i < srv.etapa_atual;
+                            const atual = srv.status === "em_andamento" && i === srv.etapa_atual;
+
+                            return (
+                              <div key={i} className="flex items-center gap-2 text-xs">
+                                {concluida ? (
+                                  <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+                                ) : (
+                                  <Circle className={`h-3.5 w-3.5 ${atual ? "text-primary" : "text-muted-foreground"}`} />
+                                )}
+
+                                <span
+                                  className={`flex-1 ${
+                                    concluida
+                                      ? "text-primary line-through"
+                                      : atual
+                                        ? "text-foreground"
+                                        : "text-muted-foreground"
+                                  }`}
+                                >
+                                  {etapa}
+                                </span>
+
+                                {atual && (
+                                  <button
+                                    onClick={() => concluirEtapaPainel(srv)}
+                                    disabled={isSavingServico}
+                                    className="rounded-lg bg-primary px-2.5 py-1 text-[11px] font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                                  >
+                                    {isSavingServico ? "Salvando..." : "Concluir"}
+                                  </button>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {srv.status === "pendente" && (
+                        <button
+                          onClick={() => iniciarServicoPainel(srv.id)}
+                          disabled={isSavingServico}
+                          className="mt-3 w-full rounded-lg bg-primary px-3 py-2.5 text-xs font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {isSavingServico ? "Iniciando..." : "Iniciar serviço"}
+                        </button>
+                      )}
+
+                      {srv.status === "em_andamento" && etapas.length === 0 && (
+                        <button
+                          onClick={() => concluirEtapaPainel(srv)}
+                          disabled={isSavingServico}
+                          className="mt-3 w-full rounded-lg bg-primary px-3 py-2.5 text-xs font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          {isSavingServico ? "Salvando..." : "Concluir serviço"}
+                        </button>
+                      )}
+
+                      {srv.status === "concluido" && (
+                        <div className="mt-3 flex items-center gap-2 text-xs font-medium text-primary">
+                          <CheckCircle2 className="h-4 w-4" />
+                          Serviço concluído
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
 
                 <div className="flex gap-3 pt-1">
                   <button onClick={() => { navigator.clipboard.writeText(clienteUrl); toast.success("Link do cliente copiado"); }}
