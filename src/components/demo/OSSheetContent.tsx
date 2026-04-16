@@ -153,16 +153,31 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   async function handleSaveEdit() {
     setEditSaving(true);
     try {
+      const valorAnterior = Number(os.valor_total);
+      const valorNovo = parseFloat(editValor) || 0;
       const updates: any = {
-        valor_total: parseFloat(editValor) || 0,
+        valor_total: valorNovo,
         observacoes: editObs.trim() || null,
       };
       if (isFullEdit) {
         updates.colaborador_id = editColaborador || null;
         updates.prazo_estimado = editPrazo ? new Date(editPrazo).toISOString() : null;
       }
-      await supabase.from("ordens_servico").update(updates).eq("id", os.id);
-      queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+      const { error: updateError } = await supabase.from("ordens_servico").update(updates).eq("id", os.id);
+      if (updateError) throw updateError;
+
+      if (valorNovo !== valorAnterior) {
+        const { error: movError } = await supabase.from("os_movimentacoes").insert({
+          os_id: os.id,
+          descricao: `Valor alterado de R$ ${valorAnterior.toFixed(2)} para R$ ${valorNovo.toFixed(2)}${editObs.trim() ? ` — Obs: ${editObs.trim()}` : ""}`,
+          valor_anterior: valorAnterior,
+          valor_novo: valorNovo,
+        });
+        if (movError) throw movError;
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+      await queryClient.invalidateQueries({ queryKey: ["os_movimentacoes", os.id] });
       toast.success("OS atualizada");
       setEditOpen(false);
     } catch (err: any) {
