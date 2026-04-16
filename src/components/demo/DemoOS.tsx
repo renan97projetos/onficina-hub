@@ -164,7 +164,7 @@ const DemoOS = () => {
 
       {/* Sheet lateral */}
       <Sheet open={!!selectedOS} onOpenChange={(open) => !open && setSelectedOS(null)}>
-        <SheetContent side="right" className="w-full max-w-2xl overflow-y-auto p-0">
+        <SheetContent side="right" className="w-full max-w-3xl overflow-y-auto p-0 sm:max-w-3xl">
           {selectedOSData && (
             <OSSheetContent os={selectedOSData} onClose={() => setSelectedOS(null)} />
           )}
