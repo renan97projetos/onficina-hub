@@ -4,9 +4,9 @@ interface LogoProps {
 }
 
 const sizeMap = {
-  sm: { text: "text-xl", icon: "1em" },
-  md: { text: "text-2xl", icon: "1em" },
-  lg: { text: "text-4xl", icon: "1em" },
+  sm: { text: "text-xl", icon: "0.9em" },
+  md: { text: "text-2xl", icon: "0.9em" },
+  lg: { text: "text-4xl", icon: "0.9em" },
 };
 
 const TireIcon = ({ size }: { size: string }) => (
@@ -17,20 +17,27 @@ const TireIcon = ({ size }: { size: string }) => (
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
     className="inline-block"
-    style={{ verticalAlign: "middle", marginBottom: "0.15em" }}
+    style={{ verticalAlign: "baseline", marginBottom: "-0.05em" }}
   >
-    {/* Thick outer tire (borracha grossa) */}
-    <circle cx="50" cy="50" r="42" stroke="currentColor" strokeWidth="16" />
-    {/* Inner hub circle */}
-    <circle cx="50" cy="50" r="14" fill="currentColor" />
+    {/* Outer tire rubber */}
+    <circle cx="50" cy="50" r="44" stroke="currentColor" strokeWidth="11" />
+    {/* Inner hub */}
+    <circle cx="50" cy="50" r="15" fill="currentColor" />
     {/* Hub hole */}
     <circle cx="50" cy="50" r="6" fill="var(--background, #0F172A)" />
-    {/* 5 spokes */}
-    <line x1="50" y1="28" x2="50" y2="14" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
-    <line x1="29.1" y1="42.2" x2="22.4" y2="32.9" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
-    <line x1="29.1" y1="57.8" x2="22.4" y2="67.1" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
-    <line x1="70.9" y1="42.2" x2="77.6" y2="32.9" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
-    <line x1="70.9" y1="57.8" x2="77.6" y2="67.1" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
+    {/* Curved spokes using quadratic bezier curves */}
+    {/* Top spoke */}
+    <path d="M50 35 Q56 28 50 18" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" fill="none" />
+    {/* Top-right spoke */}
+    <path d="M62 40 Q68 38 76 26" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" fill="none" />
+    {/* Bottom-right spoke */}
+    <path d="M62 60 Q68 62 76 74" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" fill="none" />
+    {/* Bottom spoke */}
+    <path d="M50 65 Q44 72 50 82" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" fill="none" />
+    {/* Bottom-left spoke */}
+    <path d="M38 60 Q32 62 24 74" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" fill="none" />
+    {/* Top-left spoke */}
+    <path d="M38 40 Q32 38 24 26" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" fill="none" />
   </svg>
 );
 
