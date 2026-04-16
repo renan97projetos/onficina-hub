@@ -54,6 +54,10 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const [motivoValor, setMotivoValor] = useState("");
   const [valorSaving, setValorSaving] = useState(false);
 
+  // Comprovante pagamento
+  const [comprovante, setComprovante] = useState<string | null>((os as any).comprovante_pagamento || null);
+  const [uploadingComprovante, setUploadingComprovante] = useState(false);
+
   // Exit photos
   const [fotosSaida, setFotosSaida] = useState<File[]>([]);
   const [fotoSaidaPreviews, setFotoSaidaPreviews] = useState<string[]>([]);
@@ -160,6 +164,30 @@ const OSSheetContent = ({ os, onClose }: Props) => {
     } finally {
       setValorSaving(false);
     }
+  }
+
+  // Comprovante upload handler
+  async function handleComprovanteUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingComprovante(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${os.id}/comprovante/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("os-fotos").upload(path, file);
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("os-fotos").getPublicUrl(path);
+      const url = urlData.publicUrl;
+      await supabase.from("ordens_servico").update({ comprovante_pagamento: url } as any).eq("id", os.id);
+      setComprovante(url);
+      queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+      toast.success("Comprovante anexado");
+    } catch (err: any) {
+      toast.error(err.message || "Erro no upload");
+    } finally {
+      setUploadingComprovante(false);
+    }
+    e.target.value = "";
   }
 
   // Exit photo handlers
@@ -352,6 +380,38 @@ const OSSheetContent = ({ os, onClose }: Props) => {
                     <option value="boleto">Boleto</option>
                   </select>
                 </div>
+
+                {/* Comprovante de pagamento */}
+                <div>
+                  <label className="mb-2 block text-xs font-medium text-muted-foreground">Comprovante de pagamento</label>
+                  {comprovante ? (
+                    <div className="space-y-2">
+                      <a href={comprovante} target="_blank" rel="noopener noreferrer"
+                        className="block rounded-xl border border-green-800/40 bg-green-900/10 p-3 text-center text-sm font-medium text-green-400 hover:bg-green-900/20 transition-colors">
+                        <CheckCircle2 className="mr-2 inline h-4 w-4" /> Comprovante anexado — ver
+                      </a>
+                      <button onClick={() => setComprovante(null)}
+                        className="text-xs text-muted-foreground hover:text-destructive transition-colors">
+                        Remover comprovante
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <input
+                        type="file"
+                        accept="image/*,application/pdf"
+                        onChange={handleComprovanteUpload}
+                        disabled={uploadingComprovante}
+                        className="absolute inset-0 cursor-pointer opacity-0"
+                      />
+                      <div className={`flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-background px-4 py-4 text-sm text-muted-foreground hover:border-primary/50 transition-colors ${uploadingComprovante ? "opacity-50" : ""}`}>
+                        <Camera className="h-4 w-4" />
+                        {uploadingComprovante ? "Enviando..." : "Anexar comprovante (foto ou PDF)"}
+                      </div>
+                    </div>
+                  )}
+                </div>
+
                 <button
                   disabled={!pagamentoForma}
                   onClick={() => avancarEtapa("entrega", `Pagamento confirmado (${pagamentoForma})`, {
