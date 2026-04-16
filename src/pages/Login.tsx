@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import Logo from "@/components/Logo";
 
 const Login = () => {
@@ -12,6 +13,13 @@ const Login = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { session } = useAuth();
+
+  // If already logged in, redirect
+  if (session) {
+    navigate("/admin", { replace: true });
+    return null;
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,13 +36,12 @@ const Login = () => {
     navigate("/admin");
   };
 
-  // Dev bypass — acesso rápido para desenvolvimento
+  // Dev bypass
   const handleDevAccess = async () => {
     setLoading(true);
     const devEmail = "admin@onficina.dev";
-    const devPassword = "dev123456";
+    const devPassword = "dev123456!A";
 
-    // Tenta logar primeiro
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: devEmail,
       password: devPassword,
@@ -45,7 +52,7 @@ const Login = () => {
       return;
     }
 
-    // Se não existir, cria (auto-confirm está ativo)
+    // Create dev account + oficina
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: devEmail,
       password: devPassword,
@@ -57,13 +64,18 @@ const Login = () => {
       return;
     }
 
-    // Se o signup já logou automaticamente
     if (data.session) {
+      // Create oficina for dev user
+      await supabase.rpc("create_oficina_for_user", {
+        _nome: "Oficina Dev",
+        _telefone: null,
+      });
+      await supabase.auth.refreshSession();
       navigate("/admin");
       return;
     }
 
-    // Tenta logar após criar
+    // Fallback login
     const { error } = await supabase.auth.signInWithPassword({
       email: devEmail,
       password: devPassword,
@@ -144,7 +156,7 @@ const Login = () => {
             disabled={loading}
             className="w-full rounded-lg border border-dashed border-primary/30 py-2.5 text-xs font-medium text-muted-foreground transition-all hover:border-primary hover:text-primary disabled:opacity-50"
           >
-            🔧 Acesso dev (dev@onficina.com)
+            🔧 Acesso dev
           </button>
         </div>
       </div>

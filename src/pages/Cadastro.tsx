@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Check, Eye, EyeOff } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import Logo from "@/components/Logo";
 
 const plans = [
@@ -28,6 +30,63 @@ const Cadastro = () => {
   const [annual, setAnnual] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("Pro");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [nomeOficina, setNomeOficina] = useState("");
+  const [email, setEmail] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [senha, setSenha] = useState("");
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nomeOficina.trim() || !email.trim() || !senha.trim()) {
+      toast({ title: "Preencha todos os campos obrigatórios", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+
+    try {
+      // 1. Create auth user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: email.trim(),
+        password: senha,
+      });
+
+      if (authError) {
+        toast({ title: "Erro ao criar conta", description: authError.message, variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+
+      if (!authData.session) {
+        toast({ title: "Erro", description: "Sessão não criada. Tente novamente.", variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+
+      // 2. Create oficina via RPC (sets oficina_id in user metadata)
+      const { error: rpcError } = await supabase.rpc("create_oficina_for_user", {
+        _nome: nomeOficina.trim(),
+        _telefone: telefone.trim() || null,
+      });
+
+      if (rpcError) {
+        toast({ title: "Erro ao criar oficina", description: rpcError.message, variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+
+      // 3. Refresh session to pick up updated metadata
+      await supabase.auth.refreshSession();
+
+      toast({ title: "Conta criada com sucesso!", description: "Bem-vindo ao ONficina." });
+      navigate("/admin");
+    } catch (err: any) {
+      toast({ title: "Erro inesperado", description: err.message, variant: "destructive" });
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background px-4 py-12">
@@ -42,34 +101,57 @@ const Cadastro = () => {
           </p>
         </div>
 
-        <div className="space-y-6 rounded-2xl border border-border bg-card p-8">
+        <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-border bg-card p-8">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-sm font-medium">Nome da oficina</label>
-              <input className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none focus:border-primary" />
-            </div>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">Nome do responsável</label>
-              <input className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none focus:border-primary" />
-            </div>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium">E-mail</label>
-              <input type="email" className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none focus:border-primary" />
+              <label className="mb-1.5 block text-sm font-medium">Nome da oficina *</label>
+              <input
+                value={nomeOficina}
+                onChange={(e) => setNomeOficina(e.target.value)}
+                className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none focus:border-primary"
+                required
+              />
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium">Telefone</label>
-              <input type="tel" className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none focus:border-primary" />
+              <input
+                type="tel"
+                value={telefone}
+                onChange={(e) => setTelefone(e.target.value)}
+                className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none focus:border-primary"
+              />
             </div>
           </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium">Senha</label>
-            <div className="relative">
-              <input type={showPassword ? "text" : "password"} className="w-full rounded-lg border border-input bg-background px-4 py-3 pr-10 text-sm outline-none focus:border-primary" />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">E-mail *</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none focus:border-primary"
+                required
+              />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">Senha *</label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  minLength={6}
+                  className="w-full rounded-lg border border-input bg-background px-4 py-3 pr-10 text-sm outline-none focus:border-primary"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
             </div>
           </div>
 
@@ -79,12 +161,14 @@ const Cadastro = () => {
             <div className="mb-4 flex justify-center">
               <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background p-1">
                 <button
+                  type="button"
                   onClick={() => setAnnual(false)}
                   className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all ${!annual ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                 >
                   Mensal
                 </button>
                 <button
+                  type="button"
                   onClick={() => setAnnual(true)}
                   className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all ${annual ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
                 >
@@ -96,6 +180,7 @@ const Cadastro = () => {
               {plans.map((p) => (
                 <button
                   key={p.name}
+                  type="button"
                   onClick={() => setSelectedPlan(p.name)}
                   className={`rounded-xl border p-4 text-left transition-all ${
                     selectedPlan === p.name
@@ -121,10 +206,14 @@ const Cadastro = () => {
             </div>
           </div>
 
-          <button className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110">
-            Iniciar teste grátis de 14 dias
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50"
+          >
+            {loading ? "Criando conta..." : "Iniciar teste grátis de 14 dias"}
           </button>
-        </div>
+        </form>
 
         <p className="text-center text-sm text-muted-foreground">
           Já tem conta?{" "}
