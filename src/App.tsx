@@ -36,9 +36,9 @@ const App = () => (
             <Route
               path="/admin"
               element={
-                <ProtectedRoute>
+                <PrivateRoute>
                   <Admin />
-                </ProtectedRoute>
+                </PrivateRoute>
               }
             />
             <Route path="/orcamento" element={<Orcamento />} />
@@ -50,9 +50,9 @@ const App = () => (
             <Route
               path="/painel/assinatura"
               element={
-                <ProtectedRoute>
+                <PrivateRoute>
                   <PainelAssinatura />
-                </ProtectedRoute>
+                </PrivateRoute>
               }
             />
             <Route path="*" element={<NotFound />} />
