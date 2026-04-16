@@ -331,6 +331,59 @@ const OSSheetContent = ({ os, onClose }: Props) => {
     return `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}`;
   }
 
+  function buildWhatsappAcompanhamento() {
+    const nome = os.clientes?.nome || "";
+    const marca = os.veiculos?.marca || "";
+    const modelo = os.veiculos?.modelo || "";
+    const placa = os.veiculos?.placa || "";
+    const tel = os.clientes?.telefone?.replace(/\D/g, "") || "";
+
+    const listaServicos = os.os_servicos?.length
+      ? os.os_servicos.map((s) => `• ${s.nome_servico}`).join("\n")
+      : "• Serviço contratado";
+
+    const msg =
+`Olá, ${nome}! 👋
+
+Seu veículo *${marca} ${modelo} - ${placa}* já está em atendimento aqui na *${oficinaNome}*.
+
+Serviços contratados:
+${listaServicos}
+
+Acompanhe em tempo real cada etapa do seu serviço pelo link abaixo — você vê exatamente o que está sendo feito no seu carro:
+
+🔗 ${clienteUrl}
+
+Qualquer dúvida estamos à disposição. Obrigado pela confiança! 🚗`;
+
+    if (!tel) return null;
+    return `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}`;
+  }
+
+  function buildWhatsappFinalizacao() {
+    const nome = os.clientes?.nome || "";
+    const marca = os.veiculos?.marca || "";
+    const modelo = os.veiculos?.modelo || "";
+    const placa = os.veiculos?.placa || "";
+    const tel = os.clientes?.telefone?.replace(/\D/g, "") || "";
+
+    const msg =
+`Olá, ${nome}! ✅
+
+O serviço do seu *${marca} ${modelo} - ${placa}* foi concluído com sucesso!
+
+Pode vir buscar seu veículo. Estamos te esperando aqui na *${oficinaNome}*. 😊
+
+Sua opinião é muito importante pra nós. Leva só 30 segundos — avalie nosso atendimento:
+
+⭐ ${avaliacaoUrl}
+
+Obrigado pela preferência! Até a próxima. 🙏`;
+
+    if (!tel) return null;
+    return `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}`;
+  }
+
   const fotosEntradaUrls = (os.fotos_entrada as string[] | null) || [];
   const fotosSaidaUrls = (os.fotos_saida as string[] | null) || [];
 
@@ -493,10 +546,23 @@ const OSSheetContent = ({ os, onClose }: Props) => {
                 })}
 
                 <div className="flex gap-3 pt-1">
-                  <button onClick={() => { navigator.clipboard.writeText(clienteUrl); toast.success("Link do cliente copiado"); }}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-3 text-xs font-medium text-foreground hover:bg-muted transition-colors">
-                    <Copy className="h-3.5 w-3.5" /> Link do cliente
-                  </button>
+                  <a
+                    href={buildWhatsappAcompanhamento() || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-3 text-xs font-semibold transition-colors ${
+                      buildWhatsappAcompanhamento()
+                        ? "bg-[#25D366] text-white hover:bg-[#1ebe5d]"
+                        : "border border-border bg-background text-muted-foreground opacity-50 cursor-not-allowed pointer-events-none"
+                    }`}
+                    title={!os.clientes?.telefone ? "Telefone do cliente não cadastrado" : ""}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.555 4.122 1.523 5.855L0 24l6.337-1.501A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.652-.52-5.166-1.427l-.371-.22-3.762.891.948-3.658-.242-.38A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                    </svg>
+                    Enviar ao cliente
+                  </a>
                   <button onClick={() => { navigator.clipboard.writeText(tecnicoUrl); toast.success("Link do técnico copiado"); }}
                     className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-3 text-xs font-medium text-foreground hover:bg-muted transition-colors">
                     <Copy className="h-3.5 w-3.5" /> Link do técnico
@@ -681,12 +747,23 @@ const OSSheetContent = ({ os, onClose }: Props) => {
                     )}
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setAvaliacaoDialogOpen(true)}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  <a
+                    href={buildWhatsappFinalizacao() || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
+                      buildWhatsappFinalizacao()
+                        ? "bg-[#25D366] text-white hover:bg-[#1ebe5d]"
+                        : "border border-border bg-background text-muted-foreground opacity-50 cursor-not-allowed pointer-events-none"
+                    }`}
+                    title={!os.clientes?.telefone ? "Telefone do cliente não cadastrado" : ""}
                   >
-                    <MessageCircle className="h-4 w-4" /> Reenviar link de avaliação
-                  </button>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.555 4.122 1.523 5.855L0 24l6.337-1.501A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.652-.52-5.166-1.427l-.371-.22-3.762.891.948-3.658-.242-.38A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                    </svg>
+                    Enviar conclusão + avaliação via WhatsApp
+                  </a>
                 )}
               </div>
             )}
