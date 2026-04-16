@@ -109,6 +109,17 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const isFullEdit = os.stage === "criado" || os.stage === "aguardando_carro";
   const isLimitedEdit = os.stage === "em_atendimento" || os.stage === "pagamento" || os.stage === "entrega";
 
+  // Tracking de envios via os_movimentacoes (descrição padronizada)
+  const WPP_ACOMP_DESC = "[whatsapp] Link de acompanhamento enviado ao cliente";
+  const WPP_FINAL_DESC = "[whatsapp] Conclusão + avaliação enviada ao cliente";
+  const acompanhamentoEnviado = movimentacoes.some((m) => m.descricao === WPP_ACOMP_DESC);
+  const finalizacaoEnviada = movimentacoes.some((m) => m.descricao === WPP_FINAL_DESC);
+
+  async function registrarEnvioWhatsapp(descricao: string) {
+    await supabase.from("os_movimentacoes").insert({ os_id: os.id, descricao });
+    queryClient.invalidateQueries({ queryKey: ["os_movimentacoes", os.id] });
+  }
+
   async function avancarEtapa(stageNovo: string, descricao: string, extra?: Record<string, any>) {
     const updateData: any = { stage: stageNovo, ...extra };
     await supabase.from("ordens_servico").update(updateData).eq("id", os.id);
