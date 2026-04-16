@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      avaliacoes: {
+        Row: {
+          comentario: string | null
+          created_at: string
+          id: string
+          nome_cliente: string | null
+          nota: number
+          oficina_id: string
+          os_id: string
+        }
+        Insert: {
+          comentario?: string | null
+          created_at?: string
+          id?: string
+          nome_cliente?: string | null
+          nota: number
+          oficina_id: string
+          os_id: string
+        }
+        Update: {
+          comentario?: string | null
+          created_at?: string
+          id?: string
+          nome_cliente?: string | null
+          nota?: number
+          oficina_id?: string
+          os_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avaliacoes_oficina_id_fkey"
+            columns: ["oficina_id"]
+            isOneToOne: false
+            referencedRelation: "oficinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avaliacoes_os_id_fkey"
+            columns: ["os_id"]
+            isOneToOne: true
+            referencedRelation: "ordens_servico"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clientes: {
         Row: {
           created_at: string
