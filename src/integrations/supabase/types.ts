@@ -117,11 +117,20 @@ export type Database = {
       ordens_servico: {
         Row: {
           cliente_id: string
+          cliente_notificado_entrega: boolean | null
           colaborador_id: string | null
           created_at: string
+          fotos_entrada: Json | null
+          fotos_saida: Json | null
           id: string
+          motivo_recusa: string | null
           observacoes: string | null
           oficina_id: string
+          pagamento_confirmado: boolean | null
+          pagamento_confirmado_em: string | null
+          pagamento_forma: string | null
+          prazo_estimado: string | null
+          prazo_horas_calculado: number | null
           stage: string
           token_cliente: string
           updated_at: string
@@ -130,11 +139,20 @@ export type Database = {
         }
         Insert: {
           cliente_id: string
+          cliente_notificado_entrega?: boolean | null
           colaborador_id?: string | null
           created_at?: string
+          fotos_entrada?: Json | null
+          fotos_saida?: Json | null
           id?: string
+          motivo_recusa?: string | null
           observacoes?: string | null
           oficina_id: string
+          pagamento_confirmado?: boolean | null
+          pagamento_confirmado_em?: string | null
+          pagamento_forma?: string | null
+          prazo_estimado?: string | null
+          prazo_horas_calculado?: number | null
           stage?: string
           token_cliente?: string
           updated_at?: string
@@ -143,11 +161,20 @@ export type Database = {
         }
         Update: {
           cliente_id?: string
+          cliente_notificado_entrega?: boolean | null
           colaborador_id?: string | null
           created_at?: string
+          fotos_entrada?: Json | null
+          fotos_saida?: Json | null
           id?: string
+          motivo_recusa?: string | null
           observacoes?: string | null
           oficina_id?: string
+          pagamento_confirmado?: boolean | null
+          pagamento_confirmado_em?: string | null
+          pagamento_forma?: string | null
+          prazo_estimado?: string | null
+          prazo_horas_calculado?: number | null
           stage?: string
           token_cliente?: string
           updated_at?: string
@@ -185,12 +212,56 @@ export type Database = {
           },
         ]
       }
+      os_movimentacoes: {
+        Row: {
+          created_at: string | null
+          descricao: string
+          id: string
+          os_id: string
+          stage_anterior: string | null
+          stage_novo: string | null
+          valor_anterior: number | null
+          valor_novo: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          descricao: string
+          id?: string
+          os_id: string
+          stage_anterior?: string | null
+          stage_novo?: string | null
+          valor_anterior?: number | null
+          valor_novo?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          descricao?: string
+          id?: string
+          os_id?: string
+          stage_anterior?: string | null
+          stage_novo?: string | null
+          valor_anterior?: number | null
+          valor_novo?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "os_movimentacoes_os_id_fkey"
+            columns: ["os_id"]
+            isOneToOne: false
+            referencedRelation: "ordens_servico"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       os_servicos: {
         Row: {
           concluido_em: string | null
+          created_at: string | null
           etapa_atual: number
+          etapas_snapshot: Json | null
           id: string
           iniciado_em: string | null
+          nome_servico: string
           os_id: string
           servico_id: string
           status: string
@@ -198,9 +269,12 @@ export type Database = {
         }
         Insert: {
           concluido_em?: string | null
+          created_at?: string | null
           etapa_atual?: number
+          etapas_snapshot?: Json | null
           id?: string
           iniciado_em?: string | null
+          nome_servico?: string
           os_id: string
           servico_id: string
           status?: string
@@ -208,9 +282,12 @@ export type Database = {
         }
         Update: {
           concluido_em?: string | null
+          created_at?: string | null
           etapa_atual?: number
+          etapas_snapshot?: Json | null
           id?: string
           iniciado_em?: string | null
+          nome_servico?: string
           os_id?: string
           servico_id?: string
           status?: string
@@ -236,27 +313,33 @@ export type Database = {
       servicos_catalogo: {
         Row: {
           created_at: string
+          descricao: string | null
           etapas: Json | null
           id: string
           nome: string
           oficina_id: string
           preco_base: number
+          tempo_medio_horas: number | null
         }
         Insert: {
           created_at?: string
+          descricao?: string | null
           etapas?: Json | null
           id?: string
           nome: string
           oficina_id: string
           preco_base?: number
+          tempo_medio_horas?: number | null
         }
         Update: {
           created_at?: string
+          descricao?: string | null
           etapas?: Json | null
           id?: string
           nome?: string
           oficina_id?: string
           preco_base?: number
+          tempo_medio_horas?: number | null
         }
         Relationships: [
           {
@@ -275,6 +358,7 @@ export type Database = {
           cor: string | null
           created_at: string
           id: string
+          marca: string | null
           modelo: string | null
           oficina_id: string
           placa: string
@@ -285,6 +369,7 @@ export type Database = {
           cor?: string | null
           created_at?: string
           id?: string
+          marca?: string | null
           modelo?: string | null
           oficina_id: string
           placa: string
@@ -295,6 +380,7 @@ export type Database = {
           cor?: string | null
           created_at?: string
           id?: string
+          marca?: string | null
           modelo?: string | null
           oficina_id?: string
           placa?: string
