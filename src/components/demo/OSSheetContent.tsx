@@ -180,15 +180,25 @@ const OSSheetContent = ({ os, onClose }: Props) => {
     setValorSaving(true);
     try {
       const valorAnterior = Number(os.valor_total);
-      await supabase.from("ordens_servico").update({ valor_total: nv }).eq("id", os.id);
-      await supabase.from("os_movimentacoes").insert({
+      const { error: updErr } = await supabase
+        .from("ordens_servico")
+        .update({ valor_total: nv })
+        .eq("id", os.id);
+      if (updErr) throw updErr;
+
+      const { error: movErr } = await supabase.from("os_movimentacoes").insert({
         os_id: os.id,
-        descricao: `Valor alterado de R$${valorAnterior.toFixed(2)} para R$${nv.toFixed(2)}: ${motivoValor.trim()}`,
+        descricao: `Valor alterado de R$ ${valorAnterior.toFixed(2)} para R$ ${nv.toFixed(2)} — Motivo: ${motivoValor.trim()}`,
         valor_anterior: valorAnterior,
         valor_novo: nv,
       });
-      queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
-      queryClient.invalidateQueries({ queryKey: ["os_movimentacoes", os.id] });
+      if (movErr) {
+        console.error("Erro ao registrar movimentação de valor:", movErr);
+        throw movErr;
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+      await queryClient.invalidateQueries({ queryKey: ["os_movimentacoes", os.id] });
       toast.success("Valor atualizado");
       setValorChangeOpen(false);
       setNovoValor("");
