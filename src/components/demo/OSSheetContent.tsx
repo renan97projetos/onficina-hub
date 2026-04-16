@@ -54,6 +54,10 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const [motivoValor, setMotivoValor] = useState("");
   const [valorSaving, setValorSaving] = useState(false);
 
+  // Comprovante pagamento
+  const [comprovante, setComprovante] = useState<string | null>((os as any).comprovante_pagamento || null);
+  const [uploadingComprovante, setUploadingComprovante] = useState(false);
+
   // Exit photos
   const [fotosSaida, setFotosSaida] = useState<File[]>([]);
   const [fotoSaidaPreviews, setFotoSaidaPreviews] = useState<string[]>([]);
