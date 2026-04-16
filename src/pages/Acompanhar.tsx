@@ -103,7 +103,7 @@ const Acompanhar = () => {
         </div>
 
         {/* Tracker */}
-        <div className="mb-8">
+        <div className="mb-12">
           <div className="flex items-center justify-between">
             {STAGES_ORDER.map((stage, i) => {
               const Icon = stage.icon;
