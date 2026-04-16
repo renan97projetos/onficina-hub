@@ -86,6 +86,22 @@ const DemoOS = () => {
   const activeLabel = STAGES.find((s) => s.key === activeStage)?.label || "";
   const selectedOSData = ordens.find((os) => os.id === selectedOS) || null;
 
+  if (ordens.length === 0) {
+    return (
+      <>
+        <EmptyModuleState
+          icon={ClipboardList}
+          title="Sua pipeline está vazia"
+          description="Crie sua primeira ordem de serviço para começar a acompanhar o fluxo de atendimento, do orçamento à entrega do veículo."
+          primaryAction="+ Nova OS"
+          onPrimaryAction={() => setShowForm(true)}
+          helperText="A OS vai aparecer automaticamente nas etapas do pipeline conforme avança."
+        />
+        <OSFormModal open={showForm} onOpenChange={setShowForm} />
+      </>
+    );
+  }
+
   return (
     <>
       {/* Stage tabs */}
