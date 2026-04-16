@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, CheckCircle2, Loader2 } from "lucide-react";
+import { Star, CheckCircle2, Loader2, Copy, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -17,6 +17,7 @@ interface OSInfo {
   stage: string;
   cliente_nome: string | null;
   oficina_nome: string;
+  google_review_url: string | null;
 }
 
 const Avaliacao = () => {
@@ -46,7 +47,7 @@ const Avaliacao = () => {
       try {
         const { data: os, error } = await supabase
           .from("ordens_servico")
-          .select("id, oficina_id, stage, clientes(nome), oficinas(nome)")
+          .select("id, oficina_id, stage, clientes(nome), oficinas(nome, google_review_url)")
           .eq("id", osId)
           .maybeSingle();
 
@@ -68,6 +69,7 @@ const Avaliacao = () => {
           stage: os.stage,
           cliente_nome: (os.clientes as any)?.nome || null,
           oficina_nome: (os.oficinas as any)?.nome || "Oficina",
+          google_review_url: (os.oficinas as any)?.google_review_url || null,
         });
 
         if ((os.clientes as any)?.nome) {
@@ -178,6 +180,40 @@ const Avaliacao = () => {
             <p className="mt-4 rounded-xl border border-border bg-muted/30 p-4 text-sm italic text-foreground">
               “{finalComentario}”
             </p>
+          )}
+
+          {osInfo?.google_review_url && finalNota >= 4 && (
+            <div className="mt-6 rounded-xl border border-primary/30 bg-primary/5 p-5 text-left">
+              <p className="text-sm font-semibold text-foreground">
+                Que tal compartilhar no Google? ⭐
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Cole o comentário copiado na avaliação do Google. Leva menos de 1 minuto e ajuda
+                muito a {osInfo.oficina_nome}.
+              </p>
+
+              {finalComentario && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(finalComentario);
+                    toast.success("Comentário copiado!");
+                  }}
+                  className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/50"
+                >
+                  <Copy className="h-4 w-4" /> Copiar texto
+                </button>
+              )}
+
+              <a
+                href={osInfo.google_review_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
+              >
+                Avaliar no Google <ExternalLink className="h-4 w-4" />
+              </a>
+            </div>
           )}
         </div>
       </div>
