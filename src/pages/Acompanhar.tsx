@@ -51,19 +51,23 @@ const Acompanhar = () => {
     if (os?.id) setOsId(os.id);
   }, [os?.id]);
 
-  // Realtime filtered by OS id
+  // Realtime: ordens_servico, os_servicos, os_movimentacoes
   useEffect(() => {
     if (!osId) return;
     const channel = supabase
       .channel(`acompanhar-${osId}`)
       .on("postgres_changes", {
-        event: "*",
-        schema: "public",
-        table: "ordens_servico",
+        event: "*", schema: "public", table: "ordens_servico",
         filter: `id=eq.${osId}`,
-      }, () => {
-        queryClient.invalidateQueries({ queryKey: ["acompanhar", token] });
-      })
+      }, () => queryClient.invalidateQueries({ queryKey: ["acompanhar", token] }))
+      .on("postgres_changes", {
+        event: "*", schema: "public", table: "os_servicos",
+        filter: `os_id=eq.${osId}`,
+      }, () => queryClient.invalidateQueries({ queryKey: ["acompanhar", token] }))
+      .on("postgres_changes", {
+        event: "*", schema: "public", table: "os_movimentacoes",
+        filter: `os_id=eq.${osId}`,
+      }, () => queryClient.invalidateQueries({ queryKey: ["acompanhar", token] }))
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [osId, token, queryClient]);
