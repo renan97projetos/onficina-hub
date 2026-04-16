@@ -4,9 +4,9 @@ interface LogoProps {
 }
 
 const sizeMap = {
-  sm: { text: "text-xl", icon: "0.78em" },
-  md: { text: "text-2xl", icon: "0.78em" },
-  lg: { text: "text-4xl", icon: "0.78em" },
+  sm: { text: "text-xl", icon: "0.83em" },
+  md: { text: "text-2xl", icon: "0.83em" },
+  lg: { text: "text-4xl", icon: "0.83em" },
 };
 
 const TireIcon = () => {
