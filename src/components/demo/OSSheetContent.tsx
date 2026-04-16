@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -7,13 +8,14 @@ import { toast } from "sonner";
 import {
   Phone, Copy, Clock, Circle, CheckCircle2, XCircle,
   AlertTriangle, CreditCard, Truck, ChevronRight, Camera, X, Pencil, DollarSign,
+  Star, MessageCircle, ExternalLink,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
   AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
   AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { OSWithRelations } from "./DemoOS";
@@ -40,6 +42,7 @@ function getEtapasSnapshot(etapasSnapshot: Tables<"os_servicos">["etapas_snapsho
 }
 
 const OSSheetContent = ({ os, onClose }: Props) => {
+  const { oficina } = useAuth();
   const queryClient = useQueryClient();
   const [motivoRecusa, setMotivoRecusa] = useState("");
   const [pagamentoForma, setPagamentoForma] = useState(os.pagamento_forma || "");
@@ -68,6 +71,7 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const [fotoSaidaPreviews, setFotoSaidaPreviews] = useState<string[]>([]);
   const [uploadingSaida, setUploadingSaida] = useState(false);
   const [savingServicoId, setSavingServicoId] = useState<string | null>(null);
+  const [avaliacaoDialogOpen, setAvaliacaoDialogOpen] = useState(false);
 
   const { data: movimentacoes = [] } = useQuery({
     queryKey: ["os_movimentacoes", os.id],
@@ -304,6 +308,15 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const clienteUrl = `${window.location.origin}/acompanhar/${os.token_cliente}`;
   const tecnicoUrl = `${window.location.origin}/tecnico/${os.id}`;
   const whatsappUrl = os.clientes?.telefone ? `https://wa.me/55${os.clientes.telefone.replace(/\D/g, "")}` : null;
+
+  const avaliacaoUrl = `${window.location.origin}/avaliacao?os=${os.id}`;
+  const oficinaNome = oficina?.nome || "nossa oficina";
+
+  function buildWhatsappAvaliacao() {
+    const msg = `Olá ${os.clientes?.nome || ""}! Obrigado por confiar na ${oficinaNome}. Ficamos felizes em atender você. Deixe sua avaliação aqui: ${avaliacaoUrl}`;
+    const tel = os.clientes?.telefone?.replace(/\D/g, "") || "";
+    return `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}`;
+  }
 
   const fotosEntradaUrls = (os.fotos_entrada as string[] | null) || [];
   const fotosSaidaUrls = (os.fotos_saida as string[] | null) || [];
@@ -611,6 +624,7 @@ const OSSheetContent = ({ os, onClose }: Props) => {
                   onClick={async () => {
                     await supabase.from("ordens_servico").update({ cliente_notificado_entrega: true }).eq("id", os.id);
                     await avancarEtapa("finalizado", "Veículo entregue ao cliente");
+                    setAvaliacaoDialogOpen(true);
                   }}
                   className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                   <Truck className="mr-2 inline h-4 w-4" /> Confirmar entrega → Finalizado
@@ -620,10 +634,19 @@ const OSSheetContent = ({ os, onClose }: Props) => {
 
             {/* FINALIZADO */}
             {os.stage === "finalizado" && (
-              <div className="rounded-xl border border-border bg-background p-5">
-                <CheckCircle2 className="mb-3 h-7 w-7 text-green-400" />
-                <p className="text-sm font-semibold text-foreground">OS finalizada</p>
-                <p className="mt-1 text-xs text-muted-foreground">Sem ações disponíveis.</p>
+              <div className="space-y-4">
+                <div className="rounded-xl border border-border bg-background p-5">
+                  <CheckCircle2 className="mb-3 h-7 w-7 text-green-400" />
+                  <p className="text-sm font-semibold text-foreground">OS finalizada</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Veículo entregue com sucesso.</p>
+                </div>
+
+                <button
+                  onClick={() => setAvaliacaoDialogOpen(true)}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  <MessageCircle className="h-4 w-4" /> Reenviar link de avaliação
+                </button>
               </div>
             )}
 
@@ -820,6 +843,58 @@ const OSSheetContent = ({ os, onClose }: Props) => {
               {valorSaving ? "Salvando..." : "Confirmar alteração"}
             </button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Avaliação Dialog */}
+      <Dialog open={avaliacaoDialogOpen} onOpenChange={setAvaliacaoDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-400" /> Veículo entregue!
+            </DialogTitle>
+            <DialogDescription>
+              Envie o link de avaliação para o cliente enquanto ele ainda está na oficina.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm text-foreground leading-relaxed">
+              Olá {os.clientes?.nome || ""}! Obrigado por confiar na {oficinaNome}. Ficamos felizes em atender você. Deixe sua avaliação aqui: {avaliacaoUrl}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              {os.clientes?.telefone && (
+                <a
+                  href={buildWhatsappAvaliacao()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-3 text-sm font-semibold text-white hover:bg-green-700 transition-colors"
+                >
+                  <ExternalLink className="h-4 w-4" /> Enviar pelo WhatsApp →
+                </a>
+              )}
+
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(avaliacaoUrl);
+                  toast.success("Link de avaliação copiado!");
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+              >
+                <Copy className="h-4 w-4" /> Copiar link
+              </button>
+            </div>
+          </div>
+
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={() => setAvaliacaoDialogOpen(false)}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
