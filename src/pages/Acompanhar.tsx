@@ -130,7 +130,7 @@ const Acompanhar = () => {
             })}
           </div>
           {/* Connector lines */}
-          <div className="relative -mt-[52px] flex items-center px-5">
+          <div className="relative -mt-[54px] flex items-center px-5">
             {STAGES_ORDER.slice(0, -1).map((_, i) => (
               <div key={i} className={`h-0.5 flex-1 ${i < currentIdx ? "bg-green-600" : "bg-muted"}`} />
             ))}

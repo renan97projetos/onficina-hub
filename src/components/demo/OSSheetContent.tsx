@@ -234,30 +234,31 @@ const OSSheetContent = ({ os, onClose }: Props) => {
       <div className="flex-1 overflow-y-auto">
         <div className="grid gap-6 p-6 lg:grid-cols-2">
           {/* Left column: actions */}
-          <div className="space-y-4">
+          <div className="space-y-5">
             <h3 className="text-xs font-bold uppercase tracking-wide text-muted-foreground">Ações</h3>
 
-            {/* Edit button for applicable stages */}
+            {/* Edit & value change buttons */}
             {(isFullEdit || isLimitedEdit) && (
-              <button onClick={() => { setEditValor(String(os.valor_total)); setEditObs(os.observacoes || ""); setEditColaborador(os.colaborador_id || ""); setEditPrazo(os.prazo_estimado ? new Date(os.prazo_estimado).toISOString().slice(0, 16) : ""); setEditOpen(true); }}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-muted">
-                <Pencil className="h-4 w-4" /> Alterar OS
-              </button>
-            )}
+              <div className="space-y-3">
+                <button onClick={() => { setEditValor(String(os.valor_total)); setEditObs(os.observacoes || ""); setEditColaborador(os.colaborador_id || ""); setEditPrazo(os.prazo_estimado ? new Date(os.prazo_estimado).toISOString().slice(0, 16) : ""); setEditOpen(true); }}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors">
+                  <Pencil className="h-4 w-4" /> Alterar OS
+                </button>
 
-            {/* Value change button (em_atendimento only) */}
-            {os.stage === "em_atendimento" && (
-              <button onClick={() => { setNovoValor(String(os.valor_total)); setMotivoValor(""); setValorChangeOpen(true); }}
-                className="flex w-full items-center justify-center gap-2 rounded-lg border border-amber-700/40 bg-amber-900/10 px-4 py-2 text-sm font-medium text-amber-400 hover:bg-amber-900/20">
-                <DollarSign className="h-4 w-4" /> Registrar alteração de valor
-              </button>
+                {os.stage === "em_atendimento" && (
+                  <button onClick={() => { setNovoValor(String(os.valor_total)); setMotivoValor(""); setValorChangeOpen(true); }}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-700/40 bg-amber-900/10 px-4 py-3 text-sm font-medium text-amber-400 hover:bg-amber-900/20 transition-colors">
+                    <DollarSign className="h-4 w-4" /> Registrar alteração de valor
+                  </button>
+                )}
+              </div>
             )}
 
             {/* CRIADO */}
             {os.stage === "criado" && (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <button onClick={() => avancarEtapa("aguardando_carro", "OS confirmada → Aguardando carro")}
-                  className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:brightness-110">
+                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
                   Confirmar OS → Aguardar carro
                 </button>
                 <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
@@ -266,9 +267,9 @@ const OSSheetContent = ({ os, onClose }: Props) => {
 
             {/* AGUARDANDO_CARRO */}
             {os.stage === "aguardando_carro" && (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <button onClick={() => avancarEtapa("em_atendimento", "Carro chegou → Em atendimento")}
-                  className="w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground hover:brightness-110">
+                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
                   Confirmar chegada → Em atendimento
                 </button>
                 <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
@@ -277,10 +278,10 @@ const OSSheetContent = ({ os, onClose }: Props) => {
 
             {/* EM_ATENDIMENTO */}
             {os.stage === "em_atendimento" && (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 <h4 className="text-sm font-semibold text-foreground">Serviços</h4>
                 {os.os_servicos?.map((srv) => (
-                  <div key={srv.id} className="rounded-lg border border-border bg-background p-3">
+                  <div key={srv.id} className="rounded-xl border border-border bg-background p-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-foreground">{srv.nome_servico || "Serviço"}</span>
                       <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
