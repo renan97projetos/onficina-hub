@@ -197,6 +197,7 @@ const DemoColaboradores = () => {
           title="Nenhum colaborador cadastrado"
           description="Adicione os membros da sua equipe para distribuir serviços nas novas OS e manter o histórico de atendimento organizado."
           primaryAction="Adicionar colaborador"
+          onPrimaryAction={openCreateDialog}
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
