@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -22,8 +23,24 @@ const TecnicoOS = () => {
       return data;
     },
     enabled: !!osId,
-    refetchInterval: 5000,
   });
+
+  // Realtime subscription
+  useEffect(() => {
+    if (!osId) return;
+    const channel = supabase
+      .channel(`tecnico-${osId}`)
+      .on("postgres_changes", {
+        event: "*", schema: "public", table: "ordens_servico",
+        filter: `id=eq.${osId}`,
+      }, () => queryClient.invalidateQueries({ queryKey: ["tecnico-os", osId] }))
+      .on("postgres_changes", {
+        event: "*", schema: "public", table: "os_servicos",
+        filter: `os_id=eq.${osId}`,
+      }, () => queryClient.invalidateQueries({ queryKey: ["tecnico-os", osId] }))
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [osId, queryClient]);
 
   if (isLoading) {
     return (
