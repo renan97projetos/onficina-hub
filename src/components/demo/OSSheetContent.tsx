@@ -111,8 +111,10 @@ const OSSheetContent = ({ os, onClose }: Props) => {
 
   // Tracking de envios via os_movimentacoes (descrição padronizada)
   const WPP_ACOMP_DESC = "[whatsapp] Link de acompanhamento enviado ao cliente";
+  const WPP_PRONTO_DESC = "[whatsapp] Aviso de veículo pronto enviado ao cliente";
   const WPP_FINAL_DESC = "[whatsapp] Conclusão + avaliação enviada ao cliente";
   const acompanhamentoEnviado = movimentacoes.some((m) => m.descricao === WPP_ACOMP_DESC);
+  const prontoEnviado = movimentacoes.some((m) => m.descricao === WPP_PRONTO_DESC);
   const finalizacaoEnviada = movimentacoes.some((m) => m.descricao === WPP_FINAL_DESC);
 
   async function registrarEnvioWhatsapp(descricao: string) {
