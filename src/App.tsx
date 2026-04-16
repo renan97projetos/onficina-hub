@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import PrivateRoute from "@/components/PrivateRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Cadastro from "./pages/Cadastro";
@@ -36,9 +36,9 @@ const App = () => (
             <Route
               path="/admin"
               element={
-                <ProtectedRoute>
+                <PrivateRoute>
                   <Admin />
-                </ProtectedRoute>
+                </PrivateRoute>
               }
             />
             <Route path="/orcamento" element={<Orcamento />} />
@@ -50,9 +50,9 @@ const App = () => (
             <Route
               path="/painel/assinatura"
               element={
-                <ProtectedRoute>
+                <PrivateRoute>
                   <PainelAssinatura />
-                </ProtectedRoute>
+                </PrivateRoute>
               }
             />
             <Route path="*" element={<NotFound />} />
