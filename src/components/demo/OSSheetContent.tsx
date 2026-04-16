@@ -624,6 +624,7 @@ const OSSheetContent = ({ os, onClose }: Props) => {
                   onClick={async () => {
                     await supabase.from("ordens_servico").update({ cliente_notificado_entrega: true }).eq("id", os.id);
                     await avancarEtapa("finalizado", "Veículo entregue ao cliente");
+                    setAvaliacaoDialogOpen(true);
                   }}
                   className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                   <Truck className="mr-2 inline h-4 w-4" /> Confirmar entrega → Finalizado
@@ -633,10 +634,19 @@ const OSSheetContent = ({ os, onClose }: Props) => {
 
             {/* FINALIZADO */}
             {os.stage === "finalizado" && (
-              <div className="rounded-xl border border-border bg-background p-5">
-                <CheckCircle2 className="mb-3 h-7 w-7 text-green-400" />
-                <p className="text-sm font-semibold text-foreground">OS finalizada</p>
-                <p className="mt-1 text-xs text-muted-foreground">Sem ações disponíveis.</p>
+              <div className="space-y-4">
+                <div className="rounded-xl border border-border bg-background p-5">
+                  <CheckCircle2 className="mb-3 h-7 w-7 text-green-400" />
+                  <p className="text-sm font-semibold text-foreground">OS finalizada</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Veículo entregue com sucesso.</p>
+                </div>
+
+                <button
+                  onClick={() => setAvaliacaoDialogOpen(true)}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  <MessageCircle className="h-4 w-4" /> Reenviar link de avaliação
+                </button>
               </div>
             )}
 
