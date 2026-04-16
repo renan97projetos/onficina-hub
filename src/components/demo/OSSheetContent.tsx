@@ -845,6 +845,58 @@ const OSSheetContent = ({ os, onClose }: Props) => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Avaliação Dialog */}
+      <Dialog open={avaliacaoDialogOpen} onOpenChange={setAvaliacaoDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-green-400" /> Veículo entregue!
+            </DialogTitle>
+            <DialogDescription>
+              Envie o link de avaliação para o cliente enquanto ele ainda está na oficina.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm text-foreground leading-relaxed">
+              Olá {os.clientes?.nome || ""}! Obrigado por confiar na {oficinaNome}. Ficamos felizes em atender você. Deixe sua avaliação aqui: {avaliacaoUrl}
+            </div>
+
+            <div className="flex flex-col gap-2">
+              {os.clientes?.telefone && (
+                <a
+                  href={buildWhatsappAvaliacao()}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-green-600 px-4 py-3 text-sm font-semibold text-white hover:bg-green-700 transition-colors"
+                >
+                  <ExternalLink className="h-4 w-4" /> Enviar pelo WhatsApp →
+                </a>
+              )}
+
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(avaliacaoUrl);
+                  toast.success("Link de avaliação copiado!");
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+              >
+                <Copy className="h-4 w-4" /> Copiar link
+              </button>
+            </div>
+          </div>
+
+          <div className="flex justify-center pt-2">
+            <button
+              onClick={() => setAvaliacaoDialogOpen(false)}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Fechar
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
