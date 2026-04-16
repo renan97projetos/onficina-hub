@@ -86,6 +86,14 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
     enabled: open && !!oficina_id,
   });
 
+  // Pre-select cliente quando vem do CRM
+  useEffect(() => {
+    if (open && presetClienteId) {
+      setNovoCliente(false);
+      setClienteId(presetClienteId);
+    }
+  }, [open, presetClienteId]);
+
   const valorTotal = Object.values(selectedServicos).reduce((sum, v) => sum + v, 0);
   const tempoTotal = Object.keys(selectedServicos).reduce((sum, id) => {
     const srv = servicos.find((s) => s.id === id);
