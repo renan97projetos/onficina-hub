@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import {
   Phone, Copy, Clock, Circle, CheckCircle2, XCircle,
   AlertTriangle, CreditCard, Truck, ChevronRight, Camera, X, Pencil, DollarSign,
+  Star, MessageCircle, ExternalLink,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
