@@ -7,6 +7,8 @@ interface EmptyModuleStateProps {
   primaryAction?: string;
   secondaryAction?: string;
   helperText?: string;
+  onPrimaryAction?: () => void;
+  onSecondaryAction?: () => void;
 }
 
 const EmptyModuleState = ({
@@ -16,6 +18,8 @@ const EmptyModuleState = ({
   primaryAction,
   secondaryAction,
   helperText,
+  onPrimaryAction,
+  onSecondaryAction,
 }: EmptyModuleStateProps) => {
   return (
     <div className="rounded-xl border border-border bg-card p-6 sm:p-8">
@@ -31,6 +35,7 @@ const EmptyModuleState = ({
           {primaryAction && (
             <button
               type="button"
+              onClick={onPrimaryAction}
               className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
             >
               {primaryAction}
@@ -39,6 +44,7 @@ const EmptyModuleState = ({
           {secondaryAction && (
             <button
               type="button"
+              onClick={onSecondaryAction}
               className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
             >
               {secondaryAction}
