@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus } from "lucide-react";
+import { Plus, ClipboardList } from "lucide-react";
 import { differenceInHours } from "date-fns";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import OSFormModal from "./OSFormModal";
 import OSSheetContent from "./OSSheetContent";
+import EmptyModuleState from "./EmptyModuleState";
 import type { Tables } from "@/integrations/supabase/types";
 
 const STAGES = [
