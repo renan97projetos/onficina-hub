@@ -176,7 +176,7 @@ const DemoServicos = () => {
           <div className="space-y-4">
             <div>
               <label className="mb-1 block text-xs text-muted-foreground">Nome *</label>
-              <Input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Troca de óleo" />
+              <Input value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Ex: Lanternagem" />
             </div>
             <div>
               <label className="mb-1 block text-xs text-muted-foreground">Descrição</label>
