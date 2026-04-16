@@ -1,6 +1,7 @@
 import { useState } from "react";
 import DemoLayout from "@/components/demo/DemoLayout";
 import DemoOS from "@/components/demo/DemoOS";
+import DemoClientes from "@/components/demo/DemoClientes";
 import DemoServicos from "@/components/demo/DemoServicos";
 import DemoColaboradores from "@/components/demo/DemoColaboradores";
 import DemoAgenda from "@/components/demo/DemoAgenda";
@@ -8,9 +9,11 @@ import DemoVeiculos from "@/components/demo/DemoVeiculos";
 import DemoFinanceiro from "@/components/demo/DemoFinanceiro";
 import DemoRelatorios from "@/components/demo/DemoRelatorios";
 import DemoTreinamentos from "@/components/demo/DemoTreinamentos";
+import DemoConfig from "@/components/demo/DemoConfig";
 
 const pages: Record<string, React.ComponentType> = {
   os: DemoOS,
+  clientes: DemoClientes,
   servicos: DemoServicos,
   colaboradores: DemoColaboradores,
   agenda: DemoAgenda,
@@ -18,6 +21,7 @@ const pages: Record<string, React.ComponentType> = {
   financeiro: DemoFinanceiro,
   relatorios: DemoRelatorios,
   treinamentos: DemoTreinamentos,
+  config: DemoConfig,
 };
 
 const Admin = () => {
