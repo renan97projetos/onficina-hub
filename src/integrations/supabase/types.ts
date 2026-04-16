@@ -166,6 +166,7 @@ export type Database = {
           google_review_url: string | null
           id: string
           nome: string
+          onboarding_completed: boolean
           plano: string
           telefone: string | null
           trial_expires_at: string | null
@@ -176,6 +177,7 @@ export type Database = {
           google_review_url?: string | null
           id?: string
           nome: string
+          onboarding_completed?: boolean
           plano?: string
           telefone?: string | null
           trial_expires_at?: string | null
@@ -186,6 +188,7 @@ export type Database = {
           google_review_url?: string | null
           id?: string
           nome?: string
+          onboarding_completed?: boolean
           plano?: string
           telefone?: string | null
           trial_expires_at?: string | null
