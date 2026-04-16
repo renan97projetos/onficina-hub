@@ -654,12 +654,40 @@ const OSSheetContent = ({ os, onClose }: Props) => {
                   <p className="mt-1 text-xs text-muted-foreground">Veículo entregue com sucesso.</p>
                 </div>
 
-                <button
-                  onClick={() => setAvaliacaoDialogOpen(true)}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                >
-                  <MessageCircle className="h-4 w-4" /> Reenviar link de avaliação
-                </button>
+                {avaliacao ? (
+                  <div className="rounded-xl border border-green-800/40 bg-green-900/10 p-5">
+                    <div className="mb-2 flex items-center gap-2">
+                      <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                      <p className="text-xs font-bold uppercase tracking-wide text-green-400">
+                        Avaliação do cliente
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Star
+                          key={i}
+                          className={`h-5 w-5 ${
+                            i <= avaliacao.nota ? "fill-amber-400 text-amber-400" : "text-muted-foreground/30"
+                          }`}
+                        />
+                      ))}
+                      <span className="ml-2 text-sm font-semibold text-foreground">{avaliacao.nota}/5</span>
+                    </div>
+                    {avaliacao.comentario && (
+                      <p className="mt-3 text-sm italic text-foreground">“{avaliacao.comentario}”</p>
+                    )}
+                    {avaliacao.nome_cliente && (
+                      <p className="mt-2 text-xs text-muted-foreground">— {avaliacao.nome_cliente}</p>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setAvaliacaoDialogOpen(true)}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                  >
+                    <MessageCircle className="h-4 w-4" /> Reenviar link de avaliação
+                  </button>
+                )}
               </div>
             )}
 
