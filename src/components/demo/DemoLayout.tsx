@@ -5,24 +5,27 @@ import {
   FileText,
   Wrench,
   Users,
+  UserRound,
   Calendar,
   Car,
-  
   DollarSign,
   BarChart3,
   LogOut,
   RefreshCw,
   GraduationCap,
+  Settings,
 } from "lucide-react";
 
 const navItems = [
   { icon: FileText, label: "Ordens de Serviço", key: "os" },
+  { icon: UserRound, label: "Clientes", key: "clientes" },
   { icon: Wrench, label: "Serviços", key: "servicos" },
   { icon: Users, label: "Colaboradores", key: "colaboradores" },
   { icon: Calendar, label: "Agenda", key: "agenda" },
   { icon: Car, label: "Veículos", key: "veiculos" },
   { icon: DollarSign, label: "Financeiro", key: "financeiro" },
   { icon: BarChart3, label: "Relatórios", key: "relatorios" },
+  { icon: Settings, label: "Configurações", key: "config" },
 ];
 
 interface DemoLayoutProps {
