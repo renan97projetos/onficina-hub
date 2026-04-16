@@ -93,6 +93,19 @@ const OSSheetContent = ({ os, onClose }: Props) => {
     },
   });
 
+  const { data: avaliacao } = useQuery({
+    queryKey: ["avaliacao", os.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("avaliacoes")
+        .select("nota, comentario, nome_cliente, created_at")
+        .eq("os_id", os.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: os.stage === "finalizado",
+  });
+
   const isFullEdit = os.stage === "criado" || os.stage === "aguardando_carro";
   const isLimitedEdit = os.stage === "em_atendimento" || os.stage === "pagamento" || os.stage === "entrega";
 
