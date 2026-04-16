@@ -125,11 +125,11 @@ const DemoDashboard = () => {
           {!isLoading && chartData.length > 1 && (
             <div className="flex items-center gap-1">
               {variacaoUp ? (
-                <ArrowUpRight className="h-4 w-4 text-green-400" />
+                <ArrowUpRight className="h-4 w-4 text-primary" />
               ) : (
-                <ArrowDownRight className="h-4 w-4 text-red-400" />
+                <ArrowDownRight className="h-4 w-4 text-destructive" />
               )}
-              <span className={`text-sm font-semibold ${variacaoUp ? "text-green-400" : "text-red-400"}`}>
+              <span className={`text-sm font-semibold ${variacaoUp ? "text-primary" : "text-destructive"}`}>
                 {variacao.toFixed(1)}% vs mês ant.
               </span>
             </div>
