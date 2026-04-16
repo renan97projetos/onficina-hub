@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus } from "lucide-react";
+import { Plus, ClipboardList } from "lucide-react";
 import { differenceInHours } from "date-fns";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import OSFormModal from "./OSFormModal";
 import OSSheetContent from "./OSSheetContent";
+import EmptyModuleState from "./EmptyModuleState";
 import type { Tables } from "@/integrations/supabase/types";
 
 const STAGES = [
@@ -84,6 +85,22 @@ const DemoOS = () => {
   const filtered = ordens.filter((os) => os.stage === activeStage);
   const activeLabel = STAGES.find((s) => s.key === activeStage)?.label || "";
   const selectedOSData = ordens.find((os) => os.id === selectedOS) || null;
+
+  if (ordens.length === 0) {
+    return (
+      <>
+        <EmptyModuleState
+          icon={ClipboardList}
+          title="Sua pipeline está vazia"
+          description="Crie sua primeira ordem de serviço para começar a acompanhar o fluxo de atendimento, do orçamento à entrega do veículo."
+          primaryAction="+ Nova OS"
+          onPrimaryAction={() => setShowForm(true)}
+          helperText="A OS vai aparecer automaticamente nas etapas do pipeline conforme avança."
+        />
+        <OSFormModal open={showForm} onOpenChange={setShowForm} />
+      </>
+    );
+  }
 
   return (
     <>

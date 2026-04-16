@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Plus, Wrench, Pencil, Trash2, X } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import EmptyModuleState from "./EmptyModuleState";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Servico = Tables<"servicos_catalogo">;
@@ -111,21 +112,14 @@ const DemoServicos = () => {
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
         </div>
       ) : servicos.length === 0 ? (
-        <div className="rounded-xl border border-border bg-card p-6 sm:p-8">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
-            <Wrench className="h-5 w-5" />
-          </div>
-          <h3 className="mt-4 text-base font-semibold text-foreground">Nenhum serviço cadastrado</h3>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-            Cadastre os serviços reais da sua oficina para montar o fluxo de execução, o atendimento e os orçamentos.
-          </p>
-          <div className="mt-6">
-            <button onClick={openNew}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110">
-              Adicionar serviço
-            </button>
-          </div>
-        </div>
+        <EmptyModuleState
+          icon={Wrench}
+          title="Nenhum serviço cadastrado"
+          description="Cadastre os serviços reais da sua oficina (lanternagem, pintura, mecânica…) para usá-los nos orçamentos e no acompanhamento de execução."
+          primaryAction="+ Novo serviço"
+          onPrimaryAction={openNew}
+          helperText="Você pode definir preço base, tempo médio e etapas de execução em cada serviço."
+        />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {servicos.map((srv) => {
