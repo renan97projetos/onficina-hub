@@ -62,26 +62,36 @@ const TecnicoOS = () => {
   const allDone = servicos.every((s: any) => s.status === "concluido");
 
   async function iniciarServico(srvId: string) {
-    await supabase.from("os_servicos").update({
+    const { error } = await supabase.from("os_servicos").update({
       status: "em_andamento", iniciado_em: new Date().toISOString(), etapa_atual: 0,
     }).eq("id", srvId);
-    queryClient.invalidateQueries({ queryKey: ["tecnico-os", osId] });
+    if (error) {
+      console.error("Erro ao iniciar serviço:", error);
+      toast.error("Erro ao iniciar serviço. Tente novamente.");
+      return;
+    }
+    await queryClient.invalidateQueries({ queryKey: ["tecnico-os", osId] });
     toast.success("Serviço iniciado");
   }
 
   async function concluirEtapa(srv: any) {
     const etapas = (srv.etapas_snapshot as string[]) || [];
     const novaEtapa = srv.etapa_atual + 1;
+    let error;
     if (novaEtapa >= etapas.length) {
-      await supabase.from("os_servicos").update({
+      ({ error } = await supabase.from("os_servicos").update({
         etapa_atual: novaEtapa, status: "concluido", concluido_em: new Date().toISOString(),
-      }).eq("id", srv.id);
-      toast.success("Serviço concluído!");
+      }).eq("id", srv.id));
     } else {
-      await supabase.from("os_servicos").update({ etapa_atual: novaEtapa }).eq("id", srv.id);
-      toast.success(`Etapa ${novaEtapa} concluída`);
+      ({ error } = await supabase.from("os_servicos").update({ etapa_atual: novaEtapa }).eq("id", srv.id));
     }
-    queryClient.invalidateQueries({ queryKey: ["tecnico-os", osId] });
+    if (error) {
+      console.error("Erro ao concluir etapa:", error);
+      toast.error("Erro ao atualizar. Tente novamente.");
+      return;
+    }
+    await queryClient.invalidateQueries({ queryKey: ["tecnico-os", osId] });
+    toast.success(novaEtapa >= etapas.length ? "Serviço concluído!" : `Etapa ${novaEtapa} concluída`);
   }
 
   return (
