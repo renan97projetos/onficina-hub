@@ -10,6 +10,7 @@ import DemoFinanceiro from "@/components/demo/DemoFinanceiro";
 import DemoRelatorios from "@/components/demo/DemoRelatorios";
 import DemoTreinamentos from "@/components/demo/DemoTreinamentos";
 import DemoConfig from "@/components/demo/DemoConfig";
+import OnboardingChecklist from "@/components/demo/OnboardingChecklist";
 
 const pages: Record<string, React.ComponentType> = {
   os: DemoOS,
@@ -30,6 +31,7 @@ const Admin = () => {
 
   return (
     <DemoLayout activeKey={activeKey} onNavigate={setActiveKey}>
+      <OnboardingChecklist onNavigate={setActiveKey} />
       <Page />
     </DemoLayout>
   );
