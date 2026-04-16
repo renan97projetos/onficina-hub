@@ -149,6 +149,7 @@ export type Database = {
           cliente_id: string
           cliente_notificado_entrega: boolean | null
           colaborador_id: string | null
+          comprovante_pagamento: string | null
           created_at: string
           fotos_entrada: Json | null
           fotos_saida: Json | null
@@ -171,6 +172,7 @@ export type Database = {
           cliente_id: string
           cliente_notificado_entrega?: boolean | null
           colaborador_id?: string | null
+          comprovante_pagamento?: string | null
           created_at?: string
           fotos_entrada?: Json | null
           fotos_saida?: Json | null
@@ -193,6 +195,7 @@ export type Database = {
           cliente_id?: string
           cliente_notificado_entrega?: boolean | null
           colaborador_id?: string | null
+          comprovante_pagamento?: string | null
           created_at?: string
           fotos_entrada?: Json | null
           fotos_saida?: Json | null

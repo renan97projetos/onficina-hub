@@ -1,0 +1,1 @@
+ALTER TABLE public.ordens_servico ADD COLUMN comprovante_pagamento text DEFAULT NULL;
