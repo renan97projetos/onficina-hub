@@ -794,21 +794,13 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                   {prontoEnviado ? "Aviso enviado" : "Avisar cliente: veículo pronto"}
                 </a>
 
-                <div className="flex items-center gap-3 rounded-xl border border-border bg-background p-4">
-                  <Checkbox id="notif" checked={notificado} onCheckedChange={(v) => setNotificado(!!v)} />
-                  <label htmlFor="notif" className="text-sm text-foreground">
-                    Cliente foi notificado via WhatsApp que o veículo está pronto
-                  </label>
-                </div>
-
                 <button
-                  disabled={!notificado}
                   onClick={async () => {
                     await supabase.from("ordens_servico").update({ cliente_notificado_entrega: true }).eq("id", os.id);
                     await avancarEtapa("finalizado", "Veículo entregue ao cliente");
                     setAvaliacaoDialogOpen(true);
                   }}
-                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
                   <Truck className="mr-2 inline h-4 w-4" /> Confirmar entrega → Finalizado
                 </button>
               </div>
