@@ -42,6 +42,7 @@ function getEtapasSnapshot(etapasSnapshot: Tables<"os_servicos">["etapas_snapsho
 }
 
 const OSSheetContent = ({ os, onClose }: Props) => {
+  const { oficina } = useAuth();
   const queryClient = useQueryClient();
   const [motivoRecusa, setMotivoRecusa] = useState("");
   const [pagamentoForma, setPagamentoForma] = useState(os.pagamento_forma || "");
