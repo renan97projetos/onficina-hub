@@ -25,22 +25,84 @@ const TecnicoOS = () => {
     enabled: !!osId,
   });
 
-  // Realtime subscription
   useEffect(() => {
     if (!osId) return;
     const channel = supabase
       .channel(`tecnico-${osId}`)
-      .on("postgres_changes", {
-        event: "*", schema: "public", table: "ordens_servico",
-        filter: `id=eq.${osId}`,
-      }, () => queryClient.invalidateQueries({ queryKey: ["tecnico-os", osId] }))
-      .on("postgres_changes", {
-        event: "*", schema: "public", table: "os_servicos",
-        filter: `os_id=eq.${osId}`,
-      }, () => queryClient.invalidateQueries({ queryKey: ["tecnico-os", osId] }))
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "ordens_servico",
+          filter: `id=eq.${osId}`,
+        },
+        () => queryClient.invalidateQueries({ queryKey: ["tecnico-os", osId] })
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "os_servicos",
+          filter: `os_id=eq.${osId}`,
+        },
+        () => queryClient.invalidateQueries({ queryKey: ["tecnico-os", osId] })
+      )
       .subscribe();
-    return () => { supabase.removeChannel(channel); };
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [osId, queryClient]);
+
+  async function iniciarServico(srvId: string) {
+    const { error } = await supabase
+      .from("os_servicos")
+      .update({
+        status: "em_andamento",
+        iniciado_em: new Date().toISOString(),
+        etapa_atual: 0,
+      })
+      .eq("id", srvId);
+
+    if (error) {
+      console.error("Erro ao iniciar serviço:", error);
+      toast.error("Erro ao iniciar serviço. Tente novamente.");
+      return;
+    }
+
+    await queryClient.refetchQueries({ queryKey: ["tecnico-os", osId] });
+    toast.success("Serviço iniciado");
+  }
+
+  async function concluirEtapa(srv: any) {
+    const etapas = (srv.etapas_snapshot as string[]) || [];
+    const novaEtapa = srv.etapa_atual + 1;
+    const finalizarServico = etapas.length === 0 || novaEtapa >= etapas.length;
+
+    const { error } = await supabase
+      .from("os_servicos")
+      .update(
+        finalizarServico
+          ? {
+              etapa_atual: etapas.length === 0 ? 1 : novaEtapa,
+              status: "concluido",
+              concluido_em: new Date().toISOString(),
+            }
+          : { etapa_atual: novaEtapa }
+      )
+      .eq("id", srv.id);
+
+    if (error) {
+      console.error("Erro ao concluir etapa:", error);
+      toast.error("Erro ao atualizar. Tente novamente.");
+      return;
+    }
+
+    await queryClient.refetchQueries({ queryKey: ["tecnico-os", osId] });
+    toast.success(finalizarServico ? "Serviço concluído!" : `Etapa ${novaEtapa} concluída`);
+  }
 
   if (isLoading) {
     return (
@@ -58,41 +120,8 @@ const TecnicoOS = () => {
     );
   }
 
-  const servicos = os.os_servicos as any[] || [];
+  const servicos = (os.os_servicos as any[]) || [];
   const allDone = servicos.every((s: any) => s.status === "concluido");
-
-  async function iniciarServico(srvId: string) {
-    const { error } = await supabase.from("os_servicos").update({
-      status: "em_andamento", iniciado_em: new Date().toISOString(), etapa_atual: 0,
-    }).eq("id", srvId);
-    if (error) {
-      console.error("Erro ao iniciar serviço:", error);
-      toast.error("Erro ao iniciar serviço. Tente novamente.");
-      return;
-    }
-    await queryClient.invalidateQueries({ queryKey: ["tecnico-os", osId] });
-    toast.success("Serviço iniciado");
-  }
-
-  async function concluirEtapa(srv: any) {
-    const etapas = (srv.etapas_snapshot as string[]) || [];
-    const novaEtapa = srv.etapa_atual + 1;
-    let error;
-    if (novaEtapa >= etapas.length) {
-      ({ error } = await supabase.from("os_servicos").update({
-        etapa_atual: novaEtapa, status: "concluido", concluido_em: new Date().toISOString(),
-      }).eq("id", srv.id));
-    } else {
-      ({ error } = await supabase.from("os_servicos").update({ etapa_atual: novaEtapa }).eq("id", srv.id));
-    }
-    if (error) {
-      console.error("Erro ao concluir etapa:", error);
-      toast.error("Erro ao atualizar. Tente novamente.");
-      return;
-    }
-    await queryClient.invalidateQueries({ queryKey: ["tecnico-os", osId] });
-    toast.success(novaEtapa >= etapas.length ? "Serviço concluído!" : `Etapa ${novaEtapa} concluída`);
-  }
 
   return (
     <div className="min-h-screen bg-background px-4 py-6">
@@ -107,7 +136,7 @@ const TecnicoOS = () => {
         </div>
 
         {allDone && (
-          <div className="mb-6 rounded-xl bg-green-900/20 border border-green-800/40 p-4 text-center">
+          <div className="mb-6 rounded-xl border border-green-800/40 bg-green-900/20 p-4 text-center">
             <PartyPopper className="mx-auto mb-2 h-8 w-8 text-green-400" />
             <p className="text-sm font-bold text-green-400">Todos os serviços concluídos!</p>
             <p className="text-xs text-muted-foreground">Avise o responsável para mover para Pagamento.</p>
@@ -119,23 +148,33 @@ const TecnicoOS = () => {
             const etapas = (srv.etapas_snapshot as string[]) || [];
             return (
               <div key={srv.id} className="rounded-xl border border-border bg-card p-4">
-                <div className="flex items-center justify-between mb-3">
+                <div className="mb-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Wrench className="h-5 w-5 text-primary" />
                     <span className="font-bold text-foreground">{srv.nome_servico}</span>
                   </div>
-                  <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
-                    srv.status === "concluido" ? "bg-green-900/30 text-green-400" :
-                    srv.status === "em_andamento" ? "bg-blue-900/30 text-blue-400" :
-                    "bg-muted text-muted-foreground"
-                  }`}>
-                    {srv.status === "concluido" ? "Concluído" : srv.status === "em_andamento" ? "Em andamento" : "Pendente"}
+                  <span
+                    className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                      srv.status === "concluido"
+                        ? "bg-green-900/30 text-green-400"
+                        : srv.status === "em_andamento"
+                          ? "bg-blue-900/30 text-blue-400"
+                          : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {srv.status === "concluido"
+                      ? "Concluído"
+                      : srv.status === "em_andamento"
+                        ? "Em andamento"
+                        : "Pendente"}
                   </span>
                 </div>
 
                 {srv.status === "pendente" && (
-                  <button onClick={() => iniciarServico(srv.id)}
-                    className="w-full rounded-lg bg-green-600 px-4 py-3 text-base font-bold text-white hover:bg-green-700">
+                  <button
+                    onClick={() => iniciarServico(srv.id)}
+                    className="w-full rounded-lg bg-green-600 px-4 py-3 text-base font-bold text-white hover:bg-green-700"
+                  >
                     Iniciar serviço
                   </button>
                 )}
@@ -153,8 +192,10 @@ const TecnicoOS = () => {
                           {etapa}
                         </span>
                         {i === srv.etapa_atual && (
-                          <button onClick={() => concluirEtapa(srv)}
-                            className="rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground hover:brightness-110">
+                          <button
+                            onClick={() => concluirEtapa(srv)}
+                            className="rounded-lg bg-primary px-3 py-2 text-xs font-bold text-primary-foreground hover:brightness-110"
+                          >
                             Concluir
                           </button>
                         )}
@@ -164,8 +205,10 @@ const TecnicoOS = () => {
                 )}
 
                 {srv.status === "em_andamento" && etapas.length === 0 && (
-                  <button onClick={() => concluirEtapa({ ...srv, etapa_atual: -1, etapas_snapshot: [""] })}
-                    className="w-full rounded-lg bg-primary px-4 py-3 text-base font-bold text-primary-foreground hover:brightness-110">
+                  <button
+                    onClick={() => concluirEtapa(srv)}
+                    className="w-full rounded-lg bg-primary px-4 py-3 text-base font-bold text-primary-foreground hover:brightness-110"
+                  >
                     Concluir serviço
                   </button>
                 )}
