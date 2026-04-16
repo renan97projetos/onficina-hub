@@ -67,7 +67,10 @@ const DemoOS = () => {
     const channel = supabase
       .channel("os-changes")
       .on("postgres_changes", { event: "*", schema: "public", table: "ordens_servico", filter: `oficina_id=eq.${oficina_id}` }, () => {
-        queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+        queryClient.invalidateQueries({ queryKey: ["ordens_servico", oficina_id] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "os_servicos" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["ordens_servico", oficina_id] });
       })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
