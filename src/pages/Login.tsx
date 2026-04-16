@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,22 +18,11 @@ const Login = () => {
   const [searchParams] = useSearchParams();
   const returnUrl = searchParams.get("returnUrl") || "/admin";
 
-  // If already logged in, redirect via useEffect
-  const [redirecting, setRedirecting] = useState(false);
-  
-  useState(() => {
+  useEffect(() => {
     if (session) {
-      setRedirecting(true);
+      navigate(returnUrl, { replace: true });
     }
-  });
-
-  if (session && !redirecting) {
-    // Already handled by effect below
-  }
-
-  // Use effect for navigation to avoid React warning
-  import { useEffect } from "react";
-  
+  }, [session, navigate, returnUrl]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +45,6 @@ const Login = () => {
     navigate(returnUrl);
   };
 
-  // Dev bypass
   const handleDevAccess = async () => {
     setLoading(true);
     const devEmail = "admin@onficina.dev";
@@ -72,7 +60,6 @@ const Login = () => {
       return;
     }
 
-    // Create dev account + oficina
     const { data, error: signUpError } = await supabase.auth.signUp({
       email: devEmail,
       password: devPassword,
@@ -85,7 +72,6 @@ const Login = () => {
     }
 
     if (data.session) {
-      // Create oficina for dev user
       await supabase.rpc("create_oficina_for_user", {
         _nome: "Oficina Dev",
         _telefone: null,
@@ -95,7 +81,6 @@ const Login = () => {
       return;
     }
 
-    // Fallback login
     const { error } = await supabase.auth.signInWithPassword({
       email: devEmail,
       password: devPassword,
@@ -109,6 +94,8 @@ const Login = () => {
 
     navigate("/admin");
   };
+
+  if (session) return null;
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -169,7 +156,6 @@ const Login = () => {
           </Link>
         </p>
 
-        {/* Dev bypass — remover em produção */}
         <div className="border-t border-border pt-4">
           <button
             onClick={handleDevAccess}
