@@ -86,6 +86,7 @@ export type Database = {
       }
       oficinas: {
         Row: {
+          auth_user_id: string | null
           created_at: string
           id: string
           nome: string
@@ -94,6 +95,7 @@ export type Database = {
           trial_expires_at: string | null
         }
         Insert: {
+          auth_user_id?: string | null
           created_at?: string
           id?: string
           nome: string
@@ -102,6 +104,7 @@ export type Database = {
           trial_expires_at?: string | null
         }
         Update: {
+          auth_user_id?: string | null
           created_at?: string
           id?: string
           nome?: string
