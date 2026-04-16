@@ -166,6 +166,30 @@ const OSSheetContent = ({ os, onClose }: Props) => {
     }
   }
 
+  // Comprovante upload handler
+  async function handleComprovanteUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingComprovante(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${os.id}/comprovante/${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("os-fotos").upload(path, file);
+      if (error) throw error;
+      const { data: urlData } = supabase.storage.from("os-fotos").getPublicUrl(path);
+      const url = urlData.publicUrl;
+      await supabase.from("ordens_servico").update({ comprovante_pagamento: url } as any).eq("id", os.id);
+      setComprovante(url);
+      queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+      toast.success("Comprovante anexado");
+    } catch (err: any) {
+      toast.error(err.message || "Erro no upload");
+    } finally {
+      setUploadingComprovante(false);
+    }
+    e.target.value = "";
+  }
+
   // Exit photo handlers
   function handleFotoSaidaChange(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
