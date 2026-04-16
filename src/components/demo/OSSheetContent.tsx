@@ -115,7 +115,7 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   async function handleSaveEdit() {
     setEditSaving(true);
     try {
-      const updates: Record<string, unknown> = {
+      const updates: any = {
         valor_total: parseFloat(editValor) || 0,
         observacoes: editObs.trim() || null,
       };
