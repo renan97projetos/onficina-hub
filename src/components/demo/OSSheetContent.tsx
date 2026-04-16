@@ -82,8 +82,9 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const isFullEdit = os.stage === "criado" || os.stage === "aguardando_carro";
   const isLimitedEdit = os.stage === "em_atendimento" || os.stage === "pagamento" || os.stage === "entrega";
 
-  async function avancarEtapa(stageNovo: string, descricao: string, extra?: Record<string, unknown>) {
-    await supabase.from("ordens_servico").update({ stage: stageNovo, ...extra }).eq("id", os.id);
+  async function avancarEtapa(stageNovo: string, descricao: string, extra?: Record<string, any>) {
+    const updateData: any = { stage: stageNovo, ...extra };
+    await supabase.from("ordens_servico").update(updateData).eq("id", os.id);
     await supabase.from("os_movimentacoes").insert({
       os_id: os.id,
       stage_anterior: os.stage,
