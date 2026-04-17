@@ -78,27 +78,30 @@ const SprayGun = ({ className, style }: { className?: string; style?: React.CSSP
     viewBox="0 0 100 100"
     fill="none"
     stroke="currentColor"
-    strokeWidth="3"
-    strokeLinecap="round"
-    strokeLinejoin="round"
+    strokeWidth="6"
+    strokeLinecap="square"
+    strokeLinejoin="miter"
     className={className ?? "block h-full w-full"}
     style={style}
     aria-hidden="true"
     preserveAspectRatio="xMidYMid meet"
   >
-    {/* Body / nozzle */}
-    <path d="M10 42 L58 42 L58 56 L10 56 Z" />
-    {/* Tip */}
-    <path d="M58 46 L72 46 L78 50 L72 54 L58 54" />
-    {/* Spray cone */}
-    <path d="M80 50 L92 42 M80 50 L94 50 M80 50 L92 58" />
-    {/* Top paint cup */}
-    <path d="M22 42 L22 28 L40 28 L40 42" />
-    <path d="M22 28 Q31 22 40 28" />
-    {/* Trigger handle */}
-    <path d="M28 56 L24 78 L40 78 L36 56" />
+    {/* Paint cup (top, slightly tilted) */}
+    <path d="M38 8 L70 8 L72 38 L40 42 Z" />
+    {/* Cup neck connecting to body */}
+    <path d="M48 42 L52 52" />
+    {/* Gun body (horizontal) */}
+    <path d="M18 52 L86 52 L86 64 L18 64 Z" />
+    {/* Air cap on left tip */}
+    <path d="M10 54 L18 54 M10 62 L18 62" />
+    {/* Rear cap on right */}
+    <path d="M86 54 L94 54 M86 62 L94 62" />
+    {/* Trigger pivot */}
+    <circle cx="56" cy="64" r="3" fill="currentColor" stroke="none" />
+    {/* Handle */}
+    <path d="M48 64 L42 92 L62 92 L66 64" />
     {/* Trigger */}
-    <path d="M30 60 Q34 64 38 60" />
+    <path d="M52 68 Q58 76 60 84" />
   </svg>
 );
 
