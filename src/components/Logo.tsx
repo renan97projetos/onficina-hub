@@ -13,7 +13,7 @@ const TireIcon = () => {
   const cx = 50;
   const cy = 50;
   const outerR = 46;
-  const tireWidth = 12;
+  const tireWidth = 17;
   const rimR = outerR - tireWidth;
   const hubR = 11;
 
