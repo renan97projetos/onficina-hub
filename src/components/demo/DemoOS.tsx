@@ -11,6 +11,7 @@ import EmptyModuleState from "./EmptyModuleState";
 import type { Tables } from "@/integrations/supabase/types";
 
 const STAGES = [
+  { key: "orcamento",        label: "Orçamento criado",   cor: "#D97706" },
   { key: "criado",           label: "OS criada",          cor: "#888780" },
   { key: "alocado_patio",    label: "Alocado no pátio",   cor: "#7F77DD" },
   { key: "aguardando_carro", label: "Aguardando carro",   cor: "#BA7517" },
@@ -45,7 +46,7 @@ export function getPrazoBadge(prazo: string | null, stage: string) {
 const DemoOS = () => {
   const { oficina_id } = useAuth();
   const queryClient = useQueryClient();
-  const [activeStage, setActiveStage] = useState("criado");
+  const [activeStage, setActiveStage] = useState("orcamento");
   const [selectedOS, setSelectedOS] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
 
@@ -106,7 +107,7 @@ const DemoOS = () => {
   return (
     <>
       {/* Stage tabs */}
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-9">
         {counts.map((stage) => (
           <button
             key={stage.key}

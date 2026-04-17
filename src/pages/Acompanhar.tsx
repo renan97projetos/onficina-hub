@@ -9,6 +9,7 @@ import {
 import Logo from "@/components/Logo";
 
 const STAGES_ORDER = [
+  { key: "orcamento",        label: "Orçamento",  icon: FileText },
   { key: "criado",           label: "OS aberta",  icon: FileText },
   { key: "alocado_patio",    label: "Na fila",    icon: LayoutGrid },
   { key: "aguardando_carro", label: "Aguardando", icon: Car },
@@ -19,6 +20,7 @@ const STAGES_ORDER = [
 ];
 
 const MESSAGES: Record<string, string> = {
+  orcamento: "Orçamento em análise. Aguardando aprovação para iniciar o serviço.",
   criado: "Sua OS foi aberta e está sendo preparada.",
   alocado_patio: "Seu veículo está na fila de atendimento. Em breve um técnico iniciará o serviço.",
   aguardando_carro: "Aguardando a chegada do veículo na oficina.",
