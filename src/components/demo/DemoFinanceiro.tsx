@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { format, startOfMonth, endOfMonth } from "date-fns";
+import { format, startOfMonth, endOfMonth, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   DollarSign, TrendingUp, Clock, CheckCircle2, Plus, Trash2,
@@ -21,6 +21,8 @@ const DemoFinanceiro = () => {
   const queryClient = useQueryClient();
   const now = new Date();
 
+  const [periodo, setPeriodo] = useState<"dia" | "mes">("dia");
+  const [dia, setDia] = useState(format(now, "yyyy-MM-dd"));
   const [mes, setMes] = useState(now.getMonth());
   const [ano, setAno] = useState(now.getFullYear());
   const [despesaOpen, setDespesaOpen] = useState(false);
@@ -29,10 +31,29 @@ const DemoFinanceiro = () => {
   const [despData, setDespData] = useState(format(now, "yyyy-MM-dd"));
   const [saving, setSaving] = useState(false);
 
-  const inicio = startOfMonth(new Date(ano, mes));
-  const fim = endOfMonth(new Date(ano, mes));
-  const inicioISO = inicio.toISOString();
-  const fimISO = fim.toISOString();
+  const { inicio, fim, inicioISO, fimISO, periodoLabel } = useMemo(() => {
+    if (periodo === "dia") {
+      const d = new Date(`${dia}T12:00:00`);
+      const ini = startOfDay(d);
+      const f = endOfDay(d);
+      return {
+        inicio: ini,
+        fim: f,
+        inicioISO: ini.toISOString(),
+        fimISO: f.toISOString(),
+        periodoLabel: "do dia",
+      };
+    }
+    const ini = startOfMonth(new Date(ano, mes));
+    const f = endOfMonth(new Date(ano, mes));
+    return {
+      inicio: ini,
+      fim: f,
+      inicioISO: ini.toISOString(),
+      fimISO: f.toISOString(),
+      periodoLabel: "do mês",
+    };
+  }, [periodo, dia, mes, ano]);
 
   // OS pagas no período
   const { data: osPagas = [] } = useQuery({
