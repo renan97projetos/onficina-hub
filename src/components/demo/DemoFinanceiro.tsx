@@ -57,7 +57,7 @@ const DemoFinanceiro = () => {
 
   // OS pagas no período
   const { data: osPagas = [] } = useQuery({
-    queryKey: ["financeiro_os_pagas", oficina_id, mes, ano],
+    queryKey: ["financeiro_os_pagas", oficina_id, periodo, dia, mes, ano],
     queryFn: async () => {
       const { data } = await supabase
         .from("ordens_servico")
@@ -86,7 +86,7 @@ const DemoFinanceiro = () => {
 
   // OS finalizadas no mês
   const { data: osFinalizadas = [] } = useQuery({
-    queryKey: ["financeiro_finalizadas", oficina_id, mes, ano],
+    queryKey: ["financeiro_finalizadas", oficina_id, periodo, dia, mes, ano],
     queryFn: async () => {
       const { data } = await supabase
         .from("ordens_servico")
@@ -101,7 +101,7 @@ const DemoFinanceiro = () => {
 
   // Lançamentos manuais
   const { data: lancamentos = [] } = useQuery({
-    queryKey: ["financeiro_lancamentos", oficina_id, mes, ano],
+    queryKey: ["financeiro_lancamentos", oficina_id, periodo, dia, mes, ano],
     queryFn: async () => {
       const inicioDate = format(inicio, "yyyy-MM-dd");
       const fimDate = format(fim, "yyyy-MM-dd");
