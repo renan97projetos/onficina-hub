@@ -73,15 +73,16 @@ const TireIcon = () => {
   );
 };
 
-const SprayGun = () => (
+const SprayGun = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
   <svg
     viewBox="0 0 100 100"
     fill="none"
     stroke="currentColor"
-    strokeWidth="2.5"
+    strokeWidth="3"
     strokeLinecap="round"
     strokeLinejoin="round"
-    className="block h-full w-full"
+    className={className ?? "block h-full w-full"}
+    style={style}
     aria-hidden="true"
     preserveAspectRatio="xMidYMid meet"
   >
@@ -90,7 +91,7 @@ const SprayGun = () => (
     {/* Tip */}
     <path d="M58 46 L72 46 L78 50 L72 54 L58 54" />
     {/* Spray cone */}
-    <path d="M80 50 L92 42 M80 50 L94 50 M80 50 L92 58" opacity="0.7" />
+    <path d="M80 50 L92 42 M80 50 L94 50 M80 50 L92 58" />
     {/* Top paint cup */}
     <path d="M22 42 L22 28 L40 28 L40 42" />
     <path d="M22 28 Q31 22 40 28" />
@@ -112,14 +113,11 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
         </span>
         <span className="leading-none">N</span>
       </span>
-      <span className="relative inline-flex items-center leading-none">
-        <span
-          className="pointer-events-none absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 text-primary/40"
-          style={{ width: "140%", height: "140%" }}
-          aria-hidden="true"
-        >
-          <SprayGun />
-        </span>
+      <span className="relative inline-block leading-none">
+        <SprayGun
+          className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[180%] w-[180%] -translate-x-1/2 -translate-y-1/2 text-primary"
+          style={{ opacity: 0.55 }}
+        />
         <span className="relative z-10 text-foreground leading-none">ficina</span>
       </span>
     </span>
