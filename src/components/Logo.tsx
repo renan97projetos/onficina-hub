@@ -13,7 +13,9 @@ const TireIcon = () => {
   const cx = 50;
   const cy = 50;
   const outerR = 46;
-  const hubR = 13;
+  const tireWidth = 12;
+  const rimR = outerR - tireWidth;
+  const hubR = 11;
 
   const spokes = Array.from({ length: 5 }, (_, i) => {
     const angle = (-90 + i * 72) * (Math.PI / 180);
@@ -23,7 +25,6 @@ const TireIcon = () => {
     const hx = cx + hubR * Math.cos(angle);
     const hy = cy + hubR * Math.sin(angle);
 
-    const rimR = 36;
     const rx = cx + rimR * Math.cos(angle);
     const ry = cy + rimR * Math.sin(angle);
 
@@ -61,8 +62,8 @@ const TireIcon = () => {
       className="block"
       aria-hidden="true"
     >
-      <circle cx={cx} cy={cy} r={outerR} stroke="currentColor" strokeWidth="8" />
-      <circle cx={cx} cy={cy} r="36" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
+      <circle cx={cx} cy={cy} r={outerR} stroke="currentColor" strokeWidth={tireWidth} fill="none" />
+      <circle cx={cx} cy={cy} r={rimR} stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
       {spokes.map((d, i) => (
         <path key={i} d={d} fill="currentColor" />
       ))}
