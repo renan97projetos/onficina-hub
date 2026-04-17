@@ -33,6 +33,7 @@ const DemoFinanceiro = () => {
   const [despDesc, setDespDesc] = useState("");
   const [despValor, setDespValor] = useState("");
   const [despData, setDespData] = useState(format(now, "yyyy-MM-dd"));
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const { inicio, fim, inicioISO, fimISO, periodoLabel } = useMemo(() => {
