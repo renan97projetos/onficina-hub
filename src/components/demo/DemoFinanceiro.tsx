@@ -6,14 +6,8 @@ import { toast } from "sonner";
 import { format, startOfMonth, endOfMonth, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
-  DollarSign, TrendingUp, Clock, CheckCircle2, Plus, Trash2,
+  DollarSign, TrendingUp, Clock, CheckCircle2, Trash2,
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
-  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Input } from "@/components/ui/input";
 
 const MESES = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -29,12 +23,6 @@ const DemoFinanceiro = () => {
   const [dia, setDia] = useState(format(now, "yyyy-MM-dd"));
   const [mes, setMes] = useState(now.getMonth());
   const [ano, setAno] = useState(now.getFullYear());
-  const [despesaOpen, setDespesaOpen] = useState(false);
-  const [despDesc, setDespDesc] = useState("");
-  const [despValor, setDespValor] = useState("");
-  const [despData, setDespData] = useState(format(now, "yyyy-MM-dd"));
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [saving, setSaving] = useState(false);
 
   const { inicio, fim, inicioISO, fimISO, periodoLabel } = useMemo(() => {
     if (periodo === "dia") {
@@ -158,36 +146,6 @@ const DemoFinanceiro = () => {
     return [...entradas, ...saidas].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
   }, [osPagas, lancamentos]);
 
-  function handleRequestConfirm() {
-    if (!despDesc.trim()) { toast.error("Informe a descrição"); return; }
-    if (!despValor || parseFloat(despValor) <= 0) { toast.error("Informe o valor"); return; }
-    setConfirmOpen(true);
-  }
-
-  async function handleSaveDespesa() {
-    setSaving(true);
-    try {
-      const { error } = await supabase.from("financeiro_lancamentos").insert({
-        oficina_id: oficina_id!,
-        tipo: "saida",
-        descricao: despDesc.trim(),
-        valor: parseFloat(despValor),
-        data: despData,
-      } as any);
-      if (error) throw error;
-      queryClient.invalidateQueries({ queryKey: ["financeiro_lancamentos"] });
-      toast.success("Despesa registrada");
-      setConfirmOpen(false);
-      setDespesaOpen(false);
-      setDespDesc("");
-      setDespValor("");
-      setDespData(format(now, "yyyy-MM-dd"));
-    } catch (err: any) {
-      toast.error(err.message || "Erro ao registrar");
-    } finally {
-      setSaving(false);
-    }
-  }
 
   async function deleteLancamento(id: string) {
     await supabase.from("financeiro_lancamentos").delete().eq("id", id);
@@ -245,10 +203,6 @@ const DemoFinanceiro = () => {
             </>
           )}
 
-          <button onClick={() => setDespesaOpen(true)}
-            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110">
-            <Plus className="h-4 w-4" /> Registrar saída
-          </button>
         </div>
       </div>
 
