@@ -28,7 +28,7 @@ const TireIcon = () => {
     const rx = cx + rimR * Math.cos(angle);
     const ry = cy + rimR * Math.sin(angle);
 
-    const spokeWidth = 14;
+    const spokeWidth = 9;
     const perpAngle = angle + Math.PI / 2;
     const sw = spokeWidth / 2;
 
