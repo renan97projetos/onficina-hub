@@ -9,6 +9,10 @@ import {
   DollarSign, TrendingUp, Clock, CheckCircle2, Plus, Trash2,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 
 const MESES = [
@@ -29,6 +33,7 @@ const DemoFinanceiro = () => {
   const [despDesc, setDespDesc] = useState("");
   const [despValor, setDespValor] = useState("");
   const [despData, setDespData] = useState(format(now, "yyyy-MM-dd"));
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const { inicio, fim, inicioISO, fimISO, periodoLabel } = useMemo(() => {
@@ -153,9 +158,13 @@ const DemoFinanceiro = () => {
     return [...entradas, ...saidas].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
   }, [osPagas, lancamentos]);
 
-  async function handleSaveDespesa() {
+  function handleRequestConfirm() {
     if (!despDesc.trim()) { toast.error("Informe a descrição"); return; }
     if (!despValor || parseFloat(despValor) <= 0) { toast.error("Informe o valor"); return; }
+    setConfirmOpen(true);
+  }
+
+  async function handleSaveDespesa() {
     setSaving(true);
     try {
       const { error } = await supabase.from("financeiro_lancamentos").insert({
@@ -168,6 +177,7 @@ const DemoFinanceiro = () => {
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ["financeiro_lancamentos"] });
       toast.success("Despesa registrada");
+      setConfirmOpen(false);
       setDespesaOpen(false);
       setDespDesc("");
       setDespValor("");
@@ -328,13 +338,63 @@ const DemoFinanceiro = () => {
             <button onClick={() => setDespesaOpen(false)} className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted">
               Cancelar
             </button>
-            <button onClick={handleSaveDespesa} disabled={saving}
+            <button onClick={handleRequestConfirm} disabled={saving}
               className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50">
-              {saving ? "Salvando..." : "Registrar"}
+              Registrar
             </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Confirmação de saída */}
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar nova movimentação?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 pt-2">
+                <p className="text-sm text-muted-foreground">
+                  Revise os dados antes de confirmar. Esta saída será adicionada ao seu financeiro.
+                </p>
+                <div className="rounded-lg border border-border bg-muted/40 p-3 text-sm">
+                  <div className="flex justify-between py-1">
+                    <span className="text-muted-foreground">Tipo</span>
+                    <span className="font-semibold text-red-400">Saída</span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="text-muted-foreground">Descrição</span>
+                    <span className="font-medium text-foreground text-right max-w-[60%] truncate">{despDesc}</span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="text-muted-foreground">Data</span>
+                    <span className="font-medium text-foreground">
+                      {despData ? format(new Date(`${despData}T12:00:00`), "dd/MM/yyyy", { locale: ptBR }) : "—"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between border-t border-border pt-2 mt-1">
+                    <span className="font-bold text-foreground">Valor</span>
+                    <span className="text-lg font-bold text-red-400">
+                      - R$ {despValor ? parseFloat(despValor).toFixed(2) : "0,00"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={saving}>Voltar e revisar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={saving}
+              onClick={(e) => {
+                e.preventDefault();
+                handleSaveDespesa();
+              }}
+            >
+              {saving ? "Salvando..." : "Sim, confirmar saída"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
