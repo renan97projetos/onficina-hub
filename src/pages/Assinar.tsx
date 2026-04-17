@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { AlertTriangle, Check } from "lucide-react";
 import Logo from "@/components/Logo";
@@ -5,30 +6,54 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const plans = [
   {
-    name: "Básico",
+    name: "Starter",
+    desc: "Para digitalizar sua oficina do jeito certo",
     monthlyPrice: 97,
     yearlyPrice: 970,
-    features: ["Pipeline completo", "Até 2 colaboradores", "Notificações", "Financeiro básico"],
+    popular: false,
+    features: [
+      "Orçamentos profissionais em PDF com envio pelo WhatsApp",
+      "Gestão completa de OS pela Pipeline",
+      "Mensagens prontas no WhatsApp em cada etapa",
+      "ServiçoAo Vivo — cliente acompanha em tempo real",
+      "CRM — histórico de clientes e veículos",
+      "Avaliação no sistema e no Google",
+      "Controle financeiro",
+      "Indicadores da oficina",
+      "Notificações automáticas por e-mail",
+      "Onboarding guiado + treinamentos",
+      "1 usuário",
+    ],
   },
   {
     name: "Pro",
+    desc: "Para oficinas que querem crescer com controle",
     monthlyPrice: 197,
     yearlyPrice: 1970,
     popular: true,
-    features: ["Tudo do Básico", "Até 5 colaboradores", "Agendamento", "CRM", "Relatórios avançados"],
-  },
-  {
-    name: "Premium",
-    monthlyPrice: 297,
-    yearlyPrice: 2970,
-    features: ["Tudo do Pro", "Colaboradores ilimitados", "Landing page", "WhatsApp Business API"],
+    features: [
+      "Tudo do Starter",
+      "Gestão de Pátio (3 visões: técnico, serviço e OS)",
+      "Controle de Agendamento",
+      "Site próprio da sua oficina",
+      "Gestão de performance da equipe",
+      "Analytics avançado",
+      "Acesso para sua equipe com permissões",
+      "Suporte prioritário",
+    ],
   },
 ];
 
 const Assinar = () => {
   const { trialExpired, oficina } = useAuth();
-  const [searchParams] = useSearchParams();
-  const annual = searchParams.get("ciclo") === "anual";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [annual, setAnnual] = useState(searchParams.get("ciclo") === "anual");
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams);
+    params.set("ciclo", annual ? "anual" : "mensal");
+    setSearchParams(params, { replace: true });
+  }, [annual]);
 
   return (
     <div className="min-h-screen bg-background px-4 py-12">
@@ -56,9 +81,29 @@ const Assinar = () => {
               </p>
             </>
           )}
+
+          {/* Toggle mensal/anual */}
+          <div className="mt-6 flex justify-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1">
+              <button
+                onClick={() => setAnnual(false)}
+                className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${!annual ? "text-primary-foreground" : "text-muted-foreground"}`}
+                style={!annual ? { background: "linear-gradient(180deg, #f97316, #ea580c)" } : undefined}
+              >
+                Mensal
+              </button>
+              <button
+                onClick={() => setAnnual(true)}
+                className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${annual ? "text-primary-foreground" : "text-muted-foreground"}`}
+                style={annual ? { background: "linear-gradient(180deg, #f97316, #ea580c)" } : undefined}
+              >
+                Anual <span className="text-xs opacity-80">(-17%)</span>
+              </button>
+            </div>
+          </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 mx-auto max-w-2xl">
           {plans.map((p) => (
             <div
               key={p.name}
@@ -74,7 +119,8 @@ const Assinar = () => {
                 </span>
               )}
               <div className="text-sm font-semibold">{p.name}</div>
-              <div className="mt-2 text-2xl font-bold">
+              <p className="mt-1 text-xs text-muted-foreground">{p.desc}</p>
+              <div className="mt-3 text-2xl font-bold">
                 R$ {annual ? Math.round(p.yearlyPrice / 12) : p.monthlyPrice}
                 <span className="text-sm font-normal text-muted-foreground">/mês</span>
               </div>
@@ -85,8 +131,8 @@ const Assinar = () => {
               )}
               <ul className="mt-4 space-y-2">
                 {p.features.map((f) => (
-                  <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Check className="h-3.5 w-3.5 shrink-0 text-primary" />
+                  <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
                     {f}
                   </li>
                 ))}
