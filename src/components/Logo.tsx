@@ -12,9 +12,9 @@ const sizeMap = {
 const TireIcon = () => {
   const cx = 50;
   const cy = 50;
-  const outerR = 46;
   const tireWidth = 17;
-  const rimR = outerR - tireWidth;
+  const outerR = 50 - tireWidth / 2;
+  const rimR = outerR - tireWidth / 2;
   const hubR = 11;
 
   const spokes = Array.from({ length: 5 }, (_, i) => {
