@@ -25,7 +25,6 @@ const TireIcon = () => {
     const hx = cx + hubR * Math.cos(angle);
     const hy = cy + hubR * Math.sin(angle);
 
-    const rimR = 36;
     const rx = cx + rimR * Math.cos(angle);
     const ry = cy + rimR * Math.sin(angle);
 
