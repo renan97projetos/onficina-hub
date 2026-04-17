@@ -117,11 +117,11 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
         <span className="leading-none">N</span>
       </span>
       <span className="relative inline-block leading-none">
+        <span className="relative z-0 text-foreground leading-none">ficina</span>
         <SprayGun
-          className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[180%] w-[180%] -translate-x-1/2 -translate-y-1/2 text-primary"
-          style={{ opacity: 0.55 }}
+          className="pointer-events-none absolute left-1/2 top-1/2 z-20 h-[170%] w-auto -translate-x-1/2 -translate-y-1/2 text-primary"
+          style={{ opacity: 0.85, aspectRatio: "1 / 1" }}
         />
-        <span className="relative z-10 text-foreground leading-none">ficina</span>
       </span>
     </span>
   );
