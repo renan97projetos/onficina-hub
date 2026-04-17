@@ -106,7 +106,7 @@ const DemoOS = () => {
   return (
     <>
       {/* Stage tabs */}
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
         {counts.map((stage) => (
           <button
             key={stage.key}
