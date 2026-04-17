@@ -13,7 +13,9 @@ const TireIcon = () => {
   const cx = 50;
   const cy = 50;
   const outerR = 46;
-  const hubR = 13;
+  const tireWidth = 12;
+  const rimR = outerR - tireWidth;
+  const hubR = 11;
 
   const spokes = Array.from({ length: 5 }, (_, i) => {
     const angle = (-90 + i * 72) * (Math.PI / 180);
