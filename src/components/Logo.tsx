@@ -112,14 +112,11 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
         </span>
         <span className="leading-none">N</span>
       </span>
-      <span className="relative inline-flex items-center leading-none">
-        <span
-          className="pointer-events-none absolute left-1/2 top-1/2 z-0 -translate-x-1/2 -translate-y-1/2 text-primary/40"
-          style={{ width: "140%", height: "140%" }}
-          aria-hidden="true"
-        >
-          <SprayGun />
-        </span>
+      <span className="relative inline-block leading-none">
+        <SprayGun
+          className="pointer-events-none absolute left-1/2 top-1/2 z-0 h-[180%] w-[180%] -translate-x-1/2 -translate-y-1/2 text-primary"
+          style={{ opacity: 0.55 }}
+        />
         <span className="relative z-10 text-foreground leading-none">ficina</span>
       </span>
     </span>
