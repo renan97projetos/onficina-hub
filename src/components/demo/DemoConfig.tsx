@@ -1,13 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Star, ExternalLink, Loader2 } from "lucide-react";
+import { Star, ExternalLink, Loader2, Upload, X } from "lucide-react";
 
 const DemoConfig = () => {
   const { oficina_id, user } = useAuth();
   const qc = useQueryClient();
+  const fileRef = useRef<HTMLInputElement>(null);
 
   const { data: oficina, isLoading } = useQuery({
     queryKey: ["oficina-config", oficina_id],
@@ -15,7 +16,7 @@ const DemoConfig = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("oficinas")
-        .select("id, nome, telefone, plano, trial_expires_at, google_review_url")
+        .select("id, nome, telefone, plano, trial_expires_at, google_review_url, logo_url, cnpj, endereco")
         .eq("id", oficina_id!)
         .maybeSingle();
       return data;
@@ -24,14 +25,19 @@ const DemoConfig = () => {
 
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
+  const [cnpj, setCnpj] = useState("");
+  const [endereco, setEndereco] = useState("");
   const [googleUrl, setGoogleUrl] = useState("");
   const [savingDados, setSavingDados] = useState(false);
   const [savingGoogle, setSavingGoogle] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   useEffect(() => {
     if (oficina) {
       setNome(oficina.nome || "");
       setTelefone(oficina.telefone || "");
+      setCnpj(oficina.cnpj || "");
+      setEndereco(oficina.endereco || "");
       setGoogleUrl(oficina.google_review_url || "");
     }
   }, [oficina]);
@@ -41,7 +47,12 @@ const DemoConfig = () => {
     setSavingDados(true);
     const { error } = await supabase
       .from("oficinas")
-      .update({ nome: nome.trim(), telefone: telefone.trim() || null })
+      .update({
+        nome: nome.trim(),
+        telefone: telefone.trim() || null,
+        cnpj: cnpj.trim() || null,
+        endereco: endereco.trim() || null,
+      })
       .eq("id", oficina_id);
     setSavingDados(false);
     if (error) {
@@ -73,6 +84,53 @@ const DemoConfig = () => {
     qc.invalidateQueries({ queryKey: ["oficina-config"] });
   }
 
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file || !oficina_id) return;
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Imagem muito grande (máx. 2MB).");
+      return;
+    }
+    setUploadingLogo(true);
+    const ext = file.name.split(".").pop() || "png";
+    const path = `${oficina_id}/logo.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("oficina-logos")
+      .upload(path, file, { upsert: true, contentType: file.type });
+    if (upErr) {
+      setUploadingLogo(false);
+      toast.error("Erro ao enviar logo.");
+      return;
+    }
+    const { data: pub } = supabase.storage.from("oficina-logos").getPublicUrl(path);
+    const url = `${pub.publicUrl}?v=${Date.now()}`;
+    const { error: updErr } = await supabase
+      .from("oficinas")
+      .update({ logo_url: url })
+      .eq("id", oficina_id);
+    setUploadingLogo(false);
+    if (updErr) {
+      toast.error("Logo enviada mas não salva no perfil.");
+      return;
+    }
+    toast.success("Logo atualizada!");
+    qc.invalidateQueries({ queryKey: ["oficina-config"] });
+  }
+
+  async function removerLogo() {
+    if (!oficina_id) return;
+    const { error } = await supabase
+      .from("oficinas")
+      .update({ logo_url: null })
+      .eq("id", oficina_id);
+    if (error) {
+      toast.error("Erro ao remover.");
+      return;
+    }
+    toast.success("Logo removida.");
+    qc.invalidateQueries({ queryKey: ["oficina-config"] });
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -96,33 +154,95 @@ const DemoConfig = () => {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Workshop data */}
-        <div className="rounded-lg border border-border p-5">
+        <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <h3 className="mb-4 text-sm font-medium text-foreground">Dados da oficina</h3>
-          <div className="space-y-3">
-            <div>
-              <label className="mb-1 block text-xs text-muted-foreground">Nome</label>
+          <div className="grid gap-4 md:grid-cols-[140px_1fr]">
+            {/* Logo */}
+            <div className="flex flex-col items-center">
+              <label className="mb-2 block text-xs text-muted-foreground self-start">Logo</label>
+              <div className="relative h-28 w-28 overflow-hidden rounded-full border-2 border-border bg-muted/20 flex items-center justify-center">
+                {oficina?.logo_url ? (
+                  <img src={oficina.logo_url} alt="Logo" className="h-full w-full object-cover" />
+                ) : (
+                  <Upload className="h-6 w-6 text-muted-foreground" />
+                )}
+              </div>
+              <div className="mt-2 flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => fileRef.current?.click()}
+                  disabled={uploadingLogo}
+                  className="rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground hover:bg-muted disabled:opacity-50"
+                >
+                  {uploadingLogo ? "..." : "Enviar"}
+                </button>
+                {oficina?.logo_url && (
+                  <button
+                    type="button"
+                    onClick={removerLogo}
+                    className="rounded-md border border-border bg-background p-1 text-muted-foreground hover:bg-muted"
+                    aria-label="Remover logo"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                )}
+              </div>
               <input
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleLogoUpload}
               />
             </div>
-            <div>
-              <label className="mb-1 block text-xs text-muted-foreground">Telefone</label>
-              <input
-                value={telefone}
-                onChange={(e) => setTelefone(e.target.value)}
-                placeholder="(11) 99999-0000"
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-              />
+
+            {/* Fields */}
+            <div className="grid gap-3 md:grid-cols-2">
+              <div className="md:col-span-2">
+                <label className="mb-1 block text-xs text-muted-foreground">Nome</label>
+                <input
+                  value={nome}
+                  onChange={(e) => setNome(e.target.value)}
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">Telefone</label>
+                <input
+                  value={telefone}
+                  onChange={(e) => setTelefone(e.target.value)}
+                  placeholder="(11) 99999-0000"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs text-muted-foreground">CNPJ</label>
+                <input
+                  value={cnpj}
+                  onChange={(e) => setCnpj(e.target.value)}
+                  placeholder="00.000.000/0000-00"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="mb-1 block text-xs text-muted-foreground">Endereço</label>
+                <input
+                  value={endereco}
+                  onChange={(e) => setEndereco(e.target.value)}
+                  placeholder="Rua, número – bairro – cidade – UF"
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <button
+                  onClick={salvarDados}
+                  disabled={savingDados}
+                  className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50"
+                >
+                  {savingDados ? "Salvando..." : "Salvar"}
+                </button>
+              </div>
             </div>
-            <button
-              onClick={salvarDados}
-              disabled={savingDados}
-              className="mt-2 w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50"
-            >
-              {savingDados ? "Salvando..." : "Salvar"}
-            </button>
           </div>
         </div>
 
@@ -142,6 +262,24 @@ const DemoConfig = () => {
               Seu e-mail é usado para login e não pode ser alterado por aqui.
             </p>
           </div>
+        </div>
+
+        {/* Subscription */}
+        <div className="rounded-lg border border-border p-5">
+          <h3 className="mb-4 text-sm font-medium text-foreground">Assinatura</h3>
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-primary capitalize">Plano {oficina?.plano || "trial"}</p>
+              {oficina?.plano === "trial" && trialDias !== null && (
+                <p className="text-xs text-muted-foreground">
+                  Trial — {trialDias} {trialDias === 1 ? "dia restante" : "dias restantes"}
+                </p>
+              )}
+            </div>
+          </div>
+          <button className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110">
+            Escolher plano
+          </button>
         </div>
 
         {/* Google Reviews */}
@@ -180,24 +318,6 @@ const DemoConfig = () => {
               <ExternalLink className="h-3 w-3" /> Testar link
             </a>
           )}
-        </div>
-
-        {/* Subscription */}
-        <div className="rounded-lg border border-border p-5">
-          <h3 className="mb-4 text-sm font-medium text-foreground">Assinatura</h3>
-          <div className="mb-3 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-primary capitalize">Plano {oficina?.plano || "trial"}</p>
-              {oficina?.plano === "trial" && trialDias !== null && (
-                <p className="text-xs text-muted-foreground">
-                  Trial — {trialDias} {trialDias === 1 ? "dia restante" : "dias restantes"}
-                </p>
-              )}
-            </div>
-          </div>
-          <button className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110">
-            Escolher plano
-          </button>
         </div>
       </div>
     </>

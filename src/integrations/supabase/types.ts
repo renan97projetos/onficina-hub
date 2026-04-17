@@ -162,9 +162,12 @@ export type Database = {
       oficinas: {
         Row: {
           auth_user_id: string | null
+          cnpj: string | null
           created_at: string
+          endereco: string | null
           google_review_url: string | null
           id: string
+          logo_url: string | null
           nome: string
           onboarding_completed: boolean
           plano: string
@@ -173,9 +176,12 @@ export type Database = {
         }
         Insert: {
           auth_user_id?: string | null
+          cnpj?: string | null
           created_at?: string
+          endereco?: string | null
           google_review_url?: string | null
           id?: string
+          logo_url?: string | null
           nome: string
           onboarding_completed?: boolean
           plano?: string
@@ -184,14 +190,95 @@ export type Database = {
         }
         Update: {
           auth_user_id?: string | null
+          cnpj?: string | null
           created_at?: string
+          endereco?: string | null
           google_review_url?: string | null
           id?: string
+          logo_url?: string | null
           nome?: string
           onboarding_completed?: boolean
           plano?: string
           telefone?: string | null
           trial_expires_at?: string | null
+        }
+        Relationships: []
+      }
+      orcamentos: {
+        Row: {
+          aprovado_em: string | null
+          created_at: string
+          data_orcamento: string
+          enviado_em: string | null
+          id: string
+          mao_obra_descricao: string | null
+          mao_obra_valor: number
+          marca: string | null
+          modelo: string | null
+          motivo_recusa: string | null
+          nome_cliente: string
+          numero: number
+          oficina_id: string
+          os_id: string | null
+          pecas: Json
+          placa: string | null
+          recusado_em: string | null
+          status: string
+          telefone_cliente: string | null
+          token_publico: string
+          total_geral: number
+          total_pecas: number
+          updated_at: string
+        }
+        Insert: {
+          aprovado_em?: string | null
+          created_at?: string
+          data_orcamento?: string
+          enviado_em?: string | null
+          id?: string
+          mao_obra_descricao?: string | null
+          mao_obra_valor?: number
+          marca?: string | null
+          modelo?: string | null
+          motivo_recusa?: string | null
+          nome_cliente: string
+          numero?: number
+          oficina_id: string
+          os_id?: string | null
+          pecas?: Json
+          placa?: string | null
+          recusado_em?: string | null
+          status?: string
+          telefone_cliente?: string | null
+          token_publico?: string
+          total_geral?: number
+          total_pecas?: number
+          updated_at?: string
+        }
+        Update: {
+          aprovado_em?: string | null
+          created_at?: string
+          data_orcamento?: string
+          enviado_em?: string | null
+          id?: string
+          mao_obra_descricao?: string | null
+          mao_obra_valor?: number
+          marca?: string | null
+          modelo?: string | null
+          motivo_recusa?: string | null
+          nome_cliente?: string
+          numero?: number
+          oficina_id?: string
+          os_id?: string | null
+          pecas?: Json
+          placa?: string | null
+          recusado_em?: string | null
+          status?: string
+          telefone_cliente?: string | null
+          token_publico?: string
+          total_geral?: number
+          total_pecas?: number
+          updated_at?: string
         }
         Relationships: []
       }
