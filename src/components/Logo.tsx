@@ -62,8 +62,8 @@ const TireIcon = () => {
       className="block"
       aria-hidden="true"
     >
-      <circle cx={cx} cy={cy} r={outerR} stroke="currentColor" strokeWidth="8" />
-      <circle cx={cx} cy={cy} r="36" stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
+      <circle cx={cx} cy={cy} r={outerR} stroke="currentColor" strokeWidth={tireWidth} fill="none" />
+      <circle cx={cx} cy={cy} r={rimR} stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
       {spokes.map((d, i) => (
         <path key={i} d={d} fill="currentColor" />
       ))}
