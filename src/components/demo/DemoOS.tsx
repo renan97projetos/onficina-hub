@@ -11,13 +11,14 @@ import EmptyModuleState from "./EmptyModuleState";
 import type { Tables } from "@/integrations/supabase/types";
 
 const STAGES = [
-  { key: "criado", label: "Criado", cor: "#888780" },
-  { key: "aguardando_carro", label: "Aguardando carro", cor: "#BA7517" },
-  { key: "em_atendimento", label: "Em atendimento", cor: "#185FA5" },
-  { key: "pagamento", label: "Pagamento", cor: "#7F77DD" },
-  { key: "entrega", label: "Entrega do veículo", cor: "#1D9E75" },
-  { key: "finalizado", label: "Finalizado", cor: "#0F6E56" },
-  { key: "recusado", label: "Recusado", cor: "#A32D2D" },
+  { key: "criado",           label: "OS criada",          cor: "#888780" },
+  { key: "alocado_patio",    label: "Alocado no pátio",   cor: "#7F77DD" },
+  { key: "aguardando_carro", label: "Aguardando carro",   cor: "#BA7517" },
+  { key: "em_atendimento",   label: "Em atendimento",     cor: "#185FA5" },
+  { key: "pagamento",        label: "Pagamento",          cor: "#534AB7" },
+  { key: "entrega",          label: "Entrega do veículo", cor: "#1D9E75" },
+  { key: "finalizado",       label: "Finalizado",         cor: "#0F6E56" },
+  { key: "recusado",         label: "Recusado",           cor: "#A32D2D" },
 ];
 
 export type OSWithRelations = Tables<"ordens_servico"> & {
@@ -105,7 +106,7 @@ const DemoOS = () => {
   return (
     <>
       {/* Stage tabs */}
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
         {counts.map((stage) => (
           <button
             key={stage.key}

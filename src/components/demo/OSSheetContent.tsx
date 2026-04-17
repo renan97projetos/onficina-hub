@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import {
   Phone, Copy, Clock, Circle, CheckCircle2, XCircle,
   AlertTriangle, CreditCard, Truck, ChevronRight, Camera, X, Pencil, DollarSign,
-  Star, MessageCircle, ExternalLink,
+  Star, MessageCircle, ExternalLink, LayoutGrid, Car,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -27,7 +27,8 @@ interface Props {
 }
 
 const STAGE_LABELS: Record<string, string> = {
-  criado: "Criado",
+  criado: "OS criada",
+  alocado_patio: "Alocado no pátio",
   aguardando_carro: "Aguardando carro",
   em_atendimento: "Em atendimento",
   pagamento: "Pagamento",
@@ -106,7 +107,7 @@ const OSSheetContent = ({ os, onClose }: Props) => {
     enabled: os.stage === "finalizado",
   });
 
-  const isFullEdit = os.stage === "criado" || os.stage === "aguardando_carro";
+  const isFullEdit = os.stage === "criado" || os.stage === "alocado_patio" || os.stage === "aguardando_carro";
   const isLimitedEdit = os.stage === "em_atendimento" || os.stage === "pagamento" || os.stage === "entrega";
 
   // Tracking de envios via os_movimentacoes (descrição padronizada)
@@ -488,9 +489,36 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             {/* CRIADO */}
             {os.stage === "criado" && (
               <div className="space-y-4">
-                <button onClick={() => avancarEtapa("aguardando_carro", "OS confirmada → Aguardando carro")}
+                <button onClick={() => avancarEtapa("alocado_patio", "OS confirmada → Alocado no pátio")}
                   className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
-                  Confirmar OS → Aguardar carro
+                  Confirmar OS → Alocar no pátio
+                </button>
+                <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
+              </div>
+            )}
+
+            {/* ALOCADO NO PÁTIO */}
+            {os.stage === "alocado_patio" && (
+              <div className="space-y-4">
+                <div className="rounded-xl border border-[#7F77DD]/30 bg-[#7F77DD]/10 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#7F77DD]/20">
+                      <LayoutGrid className="h-4 w-4 text-[#a39bff]" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-semibold text-foreground">Pátio</p>
+                      <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                        Aloque este veículo a um técnico no módulo Gestão de Pátio para controle visual da equipe.
+                      </p>
+                      <p className="mt-2 text-[11px] font-medium text-[#a39bff]">
+                        Feature disponível no plano Pro
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <button onClick={() => avancarEtapa("aguardando_carro", "Veículo alocado no pátio")}
+                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
+                  Confirmar alocação → Aguardando carro
                 </button>
                 <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
               </div>
@@ -499,6 +527,16 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             {/* AGUARDANDO_CARRO */}
             {os.stage === "aguardando_carro" && (
               <div className="space-y-4">
+                <div className="rounded-xl border border-amber-700/40 bg-amber-900/10 p-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-900/20">
+                      <Car className="h-4 w-4 text-amber-400" />
+                    </div>
+                    <p className="text-sm text-amber-200/90 leading-relaxed">
+                      Aguardando chegada do veículo na oficina.
+                    </p>
+                  </div>
+                </div>
                 <button onClick={() => avancarEtapa("em_atendimento", "Carro chegou → Em atendimento")}
                   className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
                   Confirmar chegada → Em atendimento
