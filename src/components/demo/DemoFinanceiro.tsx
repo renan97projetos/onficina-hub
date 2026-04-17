@@ -192,15 +192,49 @@ const DemoFinanceiro = () => {
       {/* Filter */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-bold text-foreground">Financeiro</h2>
-        <div className="flex items-center gap-2">
-          <select value={mes} onChange={(e) => setMes(Number(e.target.value))}
-            className="h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary">
-            {MESES.map((m, i) => <option key={i} value={i}>{m}</option>)}
-          </select>
-          <select value={ano} onChange={(e) => setAno(Number(e.target.value))}
-            className="h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary">
-            {anos.map((a) => <option key={a} value={a}>{a}</option>)}
-          </select>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Toggle Dia / Mês */}
+          <div className="inline-flex h-9 items-center rounded-lg border border-border bg-background p-0.5">
+            <button
+              type="button"
+              onClick={() => setPeriodo("dia")}
+              className={`h-8 rounded-md px-3 text-xs font-semibold transition-colors ${
+                periodo === "dia" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Dia
+            </button>
+            <button
+              type="button"
+              onClick={() => setPeriodo("mes")}
+              className={`h-8 rounded-md px-3 text-xs font-semibold transition-colors ${
+                periodo === "mes" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Mês
+            </button>
+          </div>
+
+          {periodo === "dia" ? (
+            <input
+              type="date"
+              value={dia}
+              onChange={(e) => setDia(e.target.value)}
+              className="h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+            />
+          ) : (
+            <>
+              <select value={mes} onChange={(e) => setMes(Number(e.target.value))}
+                className="h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary">
+                {MESES.map((m, i) => <option key={i} value={i}>{m}</option>)}
+              </select>
+              <select value={ano} onChange={(e) => setAno(Number(e.target.value))}
+                className="h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary">
+                {anos.map((a) => <option key={a} value={a}>{a}</option>)}
+              </select>
+            </>
+          )}
+
           <button onClick={() => setDespesaOpen(true)}
             className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110">
             <Plus className="h-4 w-4" /> Registrar saída
@@ -210,10 +244,10 @@ const DemoFinanceiro = () => {
 
       {/* Metrics */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <MetricCard icon={DollarSign} label="Faturamento do mês" value={`R$ ${faturamento.toFixed(2)}`} color="text-green-400" />
+        <MetricCard icon={DollarSign} label={`Faturamento ${periodoLabel}`} value={`R$ ${faturamento.toFixed(2)}`} color="text-green-400" />
         <MetricCard icon={TrendingUp} label="Ticket médio" value={`R$ ${ticketMedio.toFixed(2)}`} color="text-blue-400" />
         <MetricCard icon={Clock} label="A receber" value={`R$ ${aReceber.toFixed(2)}`} color="text-amber-400" />
-        <MetricCard icon={CheckCircle2} label="OS finalizadas" value={String(osFinalizadas.length)} color="text-primary" />
+        <MetricCard icon={CheckCircle2} label={`OS finalizadas ${periodoLabel}`} value={String(osFinalizadas.length)} color="text-primary" />
       </div>
 
       {/* Table */}
@@ -263,7 +297,7 @@ const DemoFinanceiro = () => {
 
         {/* Saldo footer */}
         <div className="flex items-center justify-between border-t border-border px-4 py-3">
-          <span className="text-sm font-bold text-muted-foreground">Saldo do mês</span>
+          <span className="text-sm font-bold text-muted-foreground">Saldo {periodoLabel}</span>
           <span className={`text-lg font-bold ${saldo >= 0 ? "text-green-400" : "text-red-400"}`}>
             R$ {saldo.toFixed(2)}
           </span>
