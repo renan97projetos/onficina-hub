@@ -4,17 +4,23 @@ import { Check } from "lucide-react";
 
 const plans = [
   {
-    name: "Básico",
-    desc: "Para oficinas que estão começando a se organizar",
+    name: "Starter",
+    desc: "Para digitalizar sua oficina do jeito certo",
     monthlyPrice: 97,
     yearlyPrice: 970,
     popular: false,
     features: [
-      "Pipeline de orçamentos completo",
-      "Até 2 colaboradores",
-      "Notificações WhatsApp e e-mail",
-      "Relatório financeiro básico",
-      "Suporte por e-mail",
+      "Orçamentos profissionais em PDF com envio pelo WhatsApp",
+      "Gestão completa de OS pela Pipeline",
+      "Mensagens prontas no WhatsApp em cada etapa",
+      "ServiçoAo Vivo — cliente acompanha o carro em tempo real",
+      "CRM — histórico completo de clientes e veículos",
+      "Avaliação no sistema e encaminhamento para o Google",
+      "Controle financeiro — recebimentos, despesas e saldo",
+      "Indicadores da sua oficina",
+      "Notificações automáticas por e-mail para a oficina",
+      "Onboarding guiado + módulo de treinamentos",
+      "1 usuário · Suporte por WhatsApp",
     ],
   },
   {
@@ -24,27 +30,14 @@ const plans = [
     yearlyPrice: 1970,
     popular: true,
     features: [
-      "Tudo do Básico",
-      "Até 5 colaboradores",
-      "Agendamento online",
-      "CRM de clientes e veículos",
-      "Relatórios avançados",
+      "Tudo do Starter",
+      "Gestão de Pátio — veja onde está cada carro por técnico, serviço e OS",
+      "Controle de Agendamento — gerencie entradas ou libere para o cliente escolher o dia",
+      "Site próprio da sua oficina — 3 modelos prontos + personalizado sob consulta",
+      "Gestão de performance da equipe",
+      "Analytics avançado do negócio",
+      "Acesso para sua equipe com permissões separadas",
       "Suporte prioritário",
-    ],
-  },
-  {
-    name: "Premium",
-    desc: "Para redes e oficinas de grande porte",
-    monthlyPrice: 297,
-    yearlyPrice: 2970,
-    popular: false,
-    features: [
-      "Tudo do Pro",
-      "Colaboradores ilimitados",
-      "Landing page personalizada",
-      "WhatsApp Business API",
-      "Gerente de conta dedicado",
-      "Treinamento da equipe",
     ],
   },
 ];
@@ -87,7 +80,7 @@ const Pricing = () => {
           </div>
         </div>
 
-        <div className="mx-auto grid max-w-5xl grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="mx-auto grid max-w-3xl grid-cols-1 gap-6 md:grid-cols-2">
           {plans.map((plan) => {
             const price = annual ? Math.round(plan.yearlyPrice / 12) : plan.monthlyPrice;
             return (
