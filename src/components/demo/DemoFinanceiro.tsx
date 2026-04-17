@@ -158,9 +158,13 @@ const DemoFinanceiro = () => {
     return [...entradas, ...saidas].sort((a, b) => new Date(b.data).getTime() - new Date(a.data).getTime());
   }, [osPagas, lancamentos]);
 
-  async function handleSaveDespesa() {
+  function handleRequestConfirm() {
     if (!despDesc.trim()) { toast.error("Informe a descrição"); return; }
     if (!despValor || parseFloat(despValor) <= 0) { toast.error("Informe o valor"); return; }
+    setConfirmOpen(true);
+  }
+
+  async function handleSaveDespesa() {
     setSaving(true);
     try {
       const { error } = await supabase.from("financeiro_lancamentos").insert({
@@ -173,6 +177,7 @@ const DemoFinanceiro = () => {
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ["financeiro_lancamentos"] });
       toast.success("Despesa registrada");
+      setConfirmOpen(false);
       setDespesaOpen(false);
       setDespDesc("");
       setDespValor("");
