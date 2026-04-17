@@ -73,6 +73,34 @@ const TireIcon = () => {
   );
 };
 
+const SprayGun = () => (
+  <svg
+    viewBox="0 0 100 100"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="block h-full w-full"
+    aria-hidden="true"
+    preserveAspectRatio="xMidYMid meet"
+  >
+    {/* Body / nozzle */}
+    <path d="M10 42 L58 42 L58 56 L10 56 Z" />
+    {/* Tip */}
+    <path d="M58 46 L72 46 L78 50 L72 54 L58 54" />
+    {/* Spray cone */}
+    <path d="M80 50 L92 42 M80 50 L94 50 M80 50 L92 58" opacity="0.7" />
+    {/* Top paint cup */}
+    <path d="M22 42 L22 28 L40 28 L40 42" />
+    <path d="M22 28 Q31 22 40 28" />
+    {/* Trigger handle */}
+    <path d="M28 56 L24 78 L40 78 L36 56" />
+    {/* Trigger */}
+    <path d="M30 60 Q34 64 38 60" />
+  </svg>
+);
+
 const Logo = ({ className = "", size = "md" }: LogoProps) => {
   const s = sizeMap[size];
 
@@ -84,7 +112,17 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
         </span>
         <span className="leading-none">N</span>
       </span>
-      <span className="text-foreground leading-none">ficina</span>
+      <span className="relative inline-flex items-center leading-none">
+        <span
+          className="pointer-events-none absolute inset-0 -z-0 flex items-center justify-center text-foreground/15"
+          aria-hidden="true"
+        >
+          <span className="block h-[120%] w-[120%]">
+            <SprayGun />
+          </span>
+        </span>
+        <span className="relative z-10 text-foreground leading-none">ficina</span>
+      </span>
     </span>
   );
 };
