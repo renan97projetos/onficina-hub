@@ -284,7 +284,7 @@ export type Database = {
       }
       ordens_servico: {
         Row: {
-          cliente_id: string
+          cliente_id: string | null
           cliente_notificado_entrega: boolean | null
           colaborador_id: string | null
           comprovante_pagamento: string | null
@@ -304,10 +304,10 @@ export type Database = {
           token_cliente: string
           updated_at: string
           valor_total: number
-          veiculo_id: string
+          veiculo_id: string | null
         }
         Insert: {
-          cliente_id: string
+          cliente_id?: string | null
           cliente_notificado_entrega?: boolean | null
           colaborador_id?: string | null
           comprovante_pagamento?: string | null
@@ -327,10 +327,10 @@ export type Database = {
           token_cliente?: string
           updated_at?: string
           valor_total?: number
-          veiculo_id: string
+          veiculo_id?: string | null
         }
         Update: {
-          cliente_id?: string
+          cliente_id?: string | null
           cliente_notificado_entrega?: boolean | null
           colaborador_id?: string | null
           comprovante_pagamento?: string | null
@@ -350,7 +350,7 @@ export type Database = {
           token_cliente?: string
           updated_at?: string
           valor_total?: number
-          veiculo_id?: string
+          veiculo_id?: string | null
         }
         Relationships: [
           {

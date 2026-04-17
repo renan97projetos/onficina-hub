@@ -14,12 +14,10 @@ import {
   RefreshCw,
   GraduationCap,
   Settings,
-  ClipboardCheck,
 } from "lucide-react";
 
 const navItems = [
   { icon: FileText, label: "Ordens de Serviço", key: "os" },
-  { icon: ClipboardCheck, label: "Orçamentos", key: "orcamentos" },
   { icon: UserRound, label: "Clientes", key: "clientes" },
   { icon: Wrench, label: "Serviços", key: "servicos" },
   { icon: Users, label: "Colaboradores", key: "colaboradores" },

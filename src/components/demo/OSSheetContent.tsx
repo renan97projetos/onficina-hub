@@ -27,6 +27,7 @@ interface Props {
 }
 
 const STAGE_LABELS: Record<string, string> = {
+  orcamento: "Orçamento criado",
   criado: "OS criada",
   alocado_patio: "Alocado no pátio",
   aguardando_carro: "Aguardando carro",
