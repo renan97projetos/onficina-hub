@@ -1,6 +1,7 @@
 import { useState } from "react";
 import DemoLayout from "@/components/demo/DemoLayout";
 import DemoOS from "@/components/demo/DemoOS";
+import DemoOrcamentos from "@/components/demo/DemoOrcamentos";
 import DemoClientes from "@/components/demo/DemoClientes";
 import DemoServicos from "@/components/demo/DemoServicos";
 import DemoColaboradores from "@/components/demo/DemoColaboradores";
@@ -14,6 +15,7 @@ import OnboardingChecklist from "@/components/demo/OnboardingChecklist";
 
 const pages: Record<string, React.ComponentType> = {
   os: DemoOS,
+  orcamentos: DemoOrcamentos,
   clientes: DemoClientes,
   servicos: DemoServicos,
   colaboradores: DemoColaboradores,
