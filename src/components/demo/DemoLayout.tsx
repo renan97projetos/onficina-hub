@@ -41,7 +41,17 @@ interface DemoLayoutProps {
 
 const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
   const navigate = useNavigate();
-  const { signOut } = useAuth();
+  const { signOut, oficina } = useAuth();
+
+  const isPro = !!oficina?.plano && PRO_PLANS.includes(oficina.plano);
+  const navItems = isPro
+    ? [
+        baseNavItems[0],
+        baseNavItems[1],
+        { icon: LayoutGrid, label: "Pátio", key: "patio" },
+        ...baseNavItems.slice(2),
+      ]
+    : baseNavItems;
 
   const handleLogout = async () => {
     await signOut();
