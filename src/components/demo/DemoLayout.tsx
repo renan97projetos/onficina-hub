@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 
 const baseNavItems = [
-  { icon: ClipboardList, label: "Orçamentos", key: "orcamentos" },
   { icon: FileText, label: "Gestão de OS", key: "os" },
   { icon: UserRound, label: "Clientes", key: "clientes" },
   { icon: Wrench, label: "Serviços", key: "servicos" },
