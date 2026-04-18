@@ -151,6 +151,89 @@ const DemoOrcamentos = ({ onNavigate }: DemoOrcamentosProps = {}) => {
     toast.success("Link copiado!");
   }
 
+  async function handleCriarOS(orc: any) {
+    if (!oficina_id) return;
+    setCreatingOsId(orc.id);
+    try {
+      let clienteId: string | null = null;
+      if (orc.nome_cliente) {
+        const { data: cli } = await supabase
+          .from("clientes")
+          .select("id")
+          .eq("oficina_id", oficina_id)
+          .ilike("nome", orc.nome_cliente)
+          .maybeSingle();
+        if (cli) clienteId = cli.id;
+        else {
+          const { data: novoCli } = await supabase
+            .from("clientes")
+            .insert({
+              oficina_id,
+              nome: orc.nome_cliente,
+              telefone: orc.telefone_cliente || null,
+            })
+            .select("id")
+            .single();
+          if (novoCli) clienteId = novoCli.id;
+        }
+      }
+
+      let veiculoId: string | null = null;
+      if (orc.placa && clienteId) {
+        const { data: vei } = await supabase
+          .from("veiculos")
+          .select("id")
+          .eq("oficina_id", oficina_id)
+          .ilike("placa", orc.placa)
+          .maybeSingle();
+        if (vei) veiculoId = vei.id;
+        else {
+          const { data: novoVei } = await supabase
+            .from("veiculos")
+            .insert({
+              oficina_id,
+              cliente_id: clienteId,
+              placa: orc.placa,
+              marca: orc.marca || null,
+              modelo: orc.modelo || null,
+            })
+            .select("id")
+            .single();
+          if (novoVei) veiculoId = novoVei.id;
+        }
+      }
+
+      const totalPecas = Array.isArray(orc.pecas)
+        ? orc.pecas.reduce(
+            (s: number, p: any) =>
+              s + (Number(p.subtotal) || (Number(p.quantidade) || 0) * (Number(p.preco_unitario) || 0)),
+            0,
+          )
+        : Number(orc.total_pecas) || 0;
+      const valorTotal = (Number(orc.mao_obra_valor) || 0) + totalPecas;
+
+      const { error } = await supabase.from("ordens_servico").insert({
+        oficina_id,
+        cliente_id: clienteId,
+        veiculo_id: veiculoId,
+        colaborador_id: null,
+        stage: "criado",
+        valor_total: valorTotal,
+        observacoes: orc.mao_obra_descricao || null,
+      });
+      if (error) throw error;
+
+      toast.success("OS criada com sucesso!");
+      qc.invalidateQueries({ queryKey: ["ordens-servico"] });
+      onNavigate?.("os");
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || "Erro ao criar OS.");
+    } finally {
+      setCreatingOsId(null);
+    }
+  }
+
   const counts = (orcamentos || []).reduce<Record<string, number>>((acc, o: any) => {
     acc[o.status] = (acc[o.status] || 0) + 1;
     return acc;
