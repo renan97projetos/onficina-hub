@@ -350,6 +350,22 @@ const DemoOrcamentos = ({ onNavigate }: DemoOrcamentosProps = {}) => {
                       >
                         <Send className="h-3.5 w-3.5" />
                       </IconBtn>
+                      {o.status === "aprovado" && (
+                        <button
+                          type="button"
+                          disabled={creatingOsId === o.id}
+                          onClick={() => handleCriarOS(o)}
+                          className="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2 py-1 text-xs font-semibold text-emerald-400 transition-colors hover:bg-emerald-500/20 disabled:opacity-50"
+                          title="Criar OS a partir deste orçamento"
+                        >
+                          {creatingOsId === o.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Wrench className="h-3.5 w-3.5" />
+                          )}
+                          Criar OS
+                        </button>
+                      )}
                       {o.status === "recusado" && (
                         <IconBtn
                           title="Voltar para edição"
