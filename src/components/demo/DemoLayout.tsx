@@ -57,7 +57,7 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
     return it.key !== "config" && it.key !== "financeiro";
   });
 
-  const proExtras = isDono ? PRO_ONLY_NAV : PRO_ONLY_NAV.filter((it) => it.key !== "analytics" || true);
+  const proExtras = PRO_ONLY_NAV;
 
   const navItems = isPro
     ? [
