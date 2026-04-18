@@ -54,9 +54,9 @@ const Hero = () => {
 
           {/* Right — 3 mockups conectados */}
           <div className="relative">
-            <div className="relative flex flex-col gap-4 lg:gap-3">
+            <div className="relative flex flex-col gap-4 lg:gap-0">
               {/* Linha de cima: 2 mockups lado a lado */}
-              <div className="relative grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-3">
+              <div className="relative grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-0">
                 {/* Mockup 1 — Pipeline OS (escuro) */}
                 <div
                   className="overflow-hidden rounded-2xl border border-white/10 bg-card p-4 shadow-xl opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
