@@ -59,7 +59,7 @@ const Hero = () => {
               <div className="relative grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-0">
                 {/* Mockup 1 — Pipeline OS (escuro) */}
                 <div
-                  className="overflow-hidden rounded-2xl border border-white/10 bg-card p-4 shadow-xl opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
+                  className="overflow-hidden rounded-2xl border border-white/30 bg-card p-4 shadow-xl opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
                   style={{ animationDelay: '0ms' }}
                 >
                   <div className="mb-3 flex items-center justify-between">
@@ -104,7 +104,7 @@ const Hero = () => {
 
                 {/* Mockup 2 — ServiçoAo Vivo (claro) */}
                 <div
-                  className="overflow-hidden rounded-2xl border border-white/10 bg-white p-4 shadow-xl opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
+                  className="overflow-hidden rounded-2xl border border-white/30 bg-white p-4 shadow-xl opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
                   style={{ animationDelay: '150ms' }}
                 >
                   {/* Header laranja */}
@@ -194,7 +194,7 @@ const Hero = () => {
               {/* Linha de baixo: mockup central — mesma largura da linha de cima para conectar */}
               <div className="flex">
                 <div
-                  className="w-full overflow-hidden rounded-2xl border border-white/10 bg-card p-4 shadow-xl opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
+                  className="w-full overflow-hidden rounded-2xl border border-white/30 bg-card p-4 shadow-xl opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
                   style={{ animationDelay: '300ms' }}
                 >
                   <div className="mb-2 flex items-center gap-2">
