@@ -28,20 +28,20 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
       role="img"
       preserveAspectRatio="xMinYMid meet"
     >
-      {/* "O" de ONficina ao redor da politriz - elíptico para parecer letra */}
-      <ellipse
+      {/* Círculo "O" de ONficina ao redor da politriz */}
+      <circle
         cx="50"
         cy="50"
-        rx="42"
-        ry="48"
+        r="46"
         fill="none"
         stroke="currentColor"
-        strokeWidth="9"
+        strokeWidth="6"
         className="text-primary"
       />
 
       {/* Politriz — SVG fornecido pelo usuário, escalado de 384x352 → 100x100 */}
-      <g transform="translate(15, 11) scale(0.20)" className="text-primary">
+      {/* translate centraliza; scale = 100/352 ≈ 0.2841 */}
+      <g transform="translate(13, 9) scale(0.21)" className="text-primary">
         <path
           fill="currentColor"
           d="M181.449951,281.275269 
