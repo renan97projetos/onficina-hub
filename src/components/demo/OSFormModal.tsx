@@ -449,8 +449,12 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
           </section>
 
           {/* SUBMIT */}
-          <button onClick={handleSave} disabled={saving}
-            className="w-full rounded-lg bg-primary px-4 py-3 text-sm font-bold text-primary-foreground hover:brightness-110 disabled:opacity-50">
+          <button
+            onClick={handleSave}
+            disabled={saving || !formValido}
+            title={!formValido ? "Preencha cliente, veículo e pelo menos um serviço corretamente" : undefined}
+            className="w-full rounded-lg bg-primary px-4 py-3 text-sm font-bold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {saving ? "Salvando..." : "Criar Ordem de Serviço"}
           </button>
         </div>
