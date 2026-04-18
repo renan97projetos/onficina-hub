@@ -536,6 +536,151 @@ const DemoConfig = () => {
             </div>
           </div>
         </div>
+
+        {/* Site da oficina (Pro) */}
+        <div className="rounded-lg border border-border p-5 lg:col-span-2">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">Site da oficina</h3>
+            </div>
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={siteAtivo}
+                onChange={(e) => setSiteAtivo(e.target.checked)}
+                className="h-4 w-4 accent-primary"
+              />
+              Ativar site público
+            </label>
+          </div>
+          <p className="mb-4 text-xs text-muted-foreground">
+            Tenha uma página pública profissional para sua oficina, com seus serviços e
+            avaliações. Personalizado sob consulta — fale com o suporte para algo único.
+          </p>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Endereço do site</label>
+              <div className="flex items-stretch overflow-hidden rounded-lg border border-border bg-background">
+                <span className="flex items-center px-2 text-xs text-muted-foreground">
+                  /oficina/
+                </span>
+                <input
+                  value={siteSlug}
+                  onChange={(e) => setSiteSlug(slugify(e.target.value))}
+                  placeholder="restauracar"
+                  className="flex-1 bg-transparent px-1 py-2 text-sm outline-none"
+                />
+              </div>
+              {siteSlug && (
+                <p className="mt-1 truncate text-xs text-primary">
+                  {window.location.origin}/oficina/{siteSlug}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Template visual</label>
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { id: 1, label: "Bold escuro", bg: "bg-zinc-900", accent: "bg-amber-500" },
+                  { id: 2, label: "Clean claro", bg: "bg-zinc-100", accent: "bg-zinc-900" },
+                  { id: 3, label: "Cor primária", bg: "bg-primary/30", accent: "bg-primary" },
+                ].map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setSiteTemplate(t.id)}
+                    className={`group flex flex-col items-stretch gap-1 rounded-lg border-2 p-1.5 text-left transition ${
+                      siteTemplate === t.id
+                        ? "border-primary"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <div className={`h-12 rounded ${t.bg} relative overflow-hidden`}>
+                      <div className={`absolute bottom-1 left-1 h-1.5 w-6 rounded-full ${t.accent}`} />
+                      <div className="absolute top-1 left-1 h-2 w-2 rounded-full bg-foreground/30" />
+                    </div>
+                    <span className="text-[10px] font-medium text-foreground">{t.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="mb-1 block text-xs text-muted-foreground">
+                Descrição da oficina
+              </label>
+              <textarea
+                value={siteDescricao}
+                onChange={(e) => setSiteDescricao(e.target.value.slice(0, 280))}
+                rows={3}
+                placeholder="Conte em 1 ou 2 frases o que sua oficina faz de melhor."
+                className="w-full resize-none rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              />
+              <p className="mt-1 text-right text-[10px] text-muted-foreground">
+                {siteDescricao.length}/280
+              </p>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="mb-1 block text-xs text-muted-foreground">
+                Serviços a exibir <span className="text-[10px]">(vazio = todos)</span>
+              </label>
+              {servicosCatalogo && servicosCatalogo.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {servicosCatalogo.map((s) => {
+                    const active = siteServicos.includes(s.id);
+                    return (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => toggleServico(s.id)}
+                        className={`rounded-full border px-3 py-1 text-xs transition ${
+                          active
+                            ? "border-primary bg-primary text-primary-foreground"
+                            : "border-border bg-background text-foreground hover:border-primary/50"
+                        }`}
+                      >
+                        {s.nome}
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-xs text-muted-foreground">
+                  Cadastre serviços no catálogo para selecioná-los aqui.
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+            <button
+              onClick={salvarSite}
+              disabled={savingSite}
+              className="flex-1 rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50"
+            >
+              {savingSite ? "Salvando..." : "Salvar site"}
+            </button>
+            {siteAtivo && siteSlug && (
+              <a
+                href={`/oficina/${siteSlug}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center justify-center gap-1 rounded-lg border border-primary px-4 py-2 text-sm font-semibold text-primary hover:bg-primary/10"
+              >
+                <ExternalLink className="h-4 w-4" /> Ver meu site
+              </a>
+            )}
+          </div>
+
+          <p className="mt-3 rounded-md bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+            💡 Quer um site totalmente personalizado, com mais páginas e identidade visual
+            exclusiva? <strong className="text-foreground">Fale com o suporte</strong>.
+          </p>
+        </div>
       </div>
     </>
   );
