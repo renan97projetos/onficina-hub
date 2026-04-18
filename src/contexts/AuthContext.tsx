@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (ofId) {
       const { data } = await supabase
         .from("oficinas")
-        .select("id, nome, plano, trial_expires_at")
+        .select("id, nome, plano, trial_expires_at, stripe_customer_id, stripe_subscription_id")
         .eq("id", ofId)
         .maybeSingle();
       setOficina(data);
