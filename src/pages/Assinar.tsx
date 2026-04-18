@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { AlertTriangle, Check } from "lucide-react";
 import Logo from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,7 +8,6 @@ const plans = [
     name: "Starter",
     desc: "Para digitalizar sua oficina do jeito certo",
     monthlyPrice: 97,
-    yearlyPrice: 970,
     popular: false,
     features: [
       "Orçamentos profissionais em PDF com envio pelo WhatsApp",
@@ -29,7 +27,6 @@ const plans = [
     name: "Pro",
     desc: "Para oficinas que querem crescer com controle",
     monthlyPrice: 197,
-    yearlyPrice: 1970,
     popular: true,
     features: [
       "Tudo do Starter",
@@ -46,14 +43,6 @@ const plans = [
 
 const Assinar = () => {
   const { trialExpired, oficina } = useAuth();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [annual, setAnnual] = useState(searchParams.get("ciclo") === "anual");
-
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    params.set("ciclo", annual ? "anual" : "mensal");
-    setSearchParams(params, { replace: true });
-  }, [annual]);
 
   return (
     <div className="min-h-screen bg-background px-4 py-12">
@@ -81,26 +70,6 @@ const Assinar = () => {
               </p>
             </>
           )}
-
-          {/* Toggle mensal/anual */}
-          <div className="mt-6 flex justify-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 p-1">
-              <button
-                onClick={() => setAnnual(false)}
-                className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${!annual ? "text-primary-foreground" : "text-muted-foreground"}`}
-                style={!annual ? { background: "linear-gradient(180deg, #f97316, #ea580c)" } : undefined}
-              >
-                Mensal
-              </button>
-              <button
-                onClick={() => setAnnual(true)}
-                className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${annual ? "text-primary-foreground" : "text-muted-foreground"}`}
-                style={annual ? { background: "linear-gradient(180deg, #f97316, #ea580c)" } : undefined}
-              >
-                Anual <span className="text-xs opacity-80">(-17%)</span>
-              </button>
-            </div>
-          </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 mx-auto max-w-2xl">
@@ -121,14 +90,9 @@ const Assinar = () => {
               <div className="text-sm font-semibold">{p.name}</div>
               <p className="mt-1 text-xs text-muted-foreground">{p.desc}</p>
               <div className="mt-3 text-2xl font-bold">
-                R$ {annual ? Math.round(p.yearlyPrice / 12) : p.monthlyPrice}
+                R$ {p.monthlyPrice}
                 <span className="text-sm font-normal text-muted-foreground">/mês</span>
               </div>
-              {annual && (
-                <p className="text-xs text-muted-foreground">
-                  R$ {p.yearlyPrice}/ano (economize 17%)
-                </p>
-              )}
               <ul className="mt-4 space-y-2">
                 {p.features.map((f) => (
                   <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
@@ -137,15 +101,19 @@ const Assinar = () => {
                   </li>
                 ))}
               </ul>
-              <button className="mt-6 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110">
-                Assinar {p.name}
+              <button
+                disabled
+                className="mt-6 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground opacity-60 cursor-not-allowed"
+                title="Em breve — integração de pagamento em andamento"
+              >
+                Assinar {p.name} (em breve)
               </button>
             </div>
           ))}
         </div>
 
         <p className="text-center text-xs text-muted-foreground">
-          Pagamento seguro via Stripe. Cancele a qualquer momento.
+          Pagamento seguro. Cancele a qualquer momento.
         </p>
       </div>
     </div>
