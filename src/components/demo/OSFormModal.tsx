@@ -336,7 +336,19 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
             </div>
             {novoVeiculo ? (
               <div className="grid gap-3 sm:grid-cols-3">
-                <Input placeholder="Placa *" value={placa} onChange={(e) => setPlaca(e.target.value)} />
+                <div className="sm:col-span-3 sm:max-w-[200px]">
+                  <Input
+                    placeholder="Placa * (Mercosul)"
+                    value={placa}
+                    onChange={(e) => setPlaca(e.target.value.toUpperCase())}
+                    maxLength={7}
+                    aria-invalid={!!errPlaca}
+                    className={errPlaca ? "border-destructive" : undefined}
+                  />
+                  {errPlaca && (
+                    <p className="mt-1 text-xs text-destructive">{errPlaca}</p>
+                  )}
+                </div>
                 <Input placeholder="Marca" value={marca} onChange={(e) => setMarca(e.target.value)} />
                 <Input placeholder="Modelo" value={modelo} onChange={(e) => setModelo(e.target.value)} />
                 <Input placeholder="Cor" value={cor} onChange={(e) => setCor(e.target.value)} />
