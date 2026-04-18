@@ -17,6 +17,8 @@ const plans = [
       "Gestão completa de OS pela Pipeline",
       "Mensagens prontas no WhatsApp em cada etapa",
       "ServiçoAo Vivo — cliente acompanha em tempo real",
+      "Painel do técnico no celular — sem instalar nenhum app",
+      "Registro de fotos de entrada e saída do veículo",
       "CRM — histórico de clientes e veículos",
       "Avaliação no sistema e no Google",
       "Controle financeiro",
