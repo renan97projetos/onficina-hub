@@ -292,8 +292,30 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
             </div>
             {novoCliente ? (
               <div className="grid gap-3 sm:grid-cols-2">
-                <Input placeholder="Nome *" value={nomeCliente} onChange={(e) => setNomeCliente(e.target.value)} />
-                <Input placeholder="WhatsApp *" value={telefoneCliente} onChange={(e) => setTelefoneCliente(e.target.value)} />
+                <div>
+                  <Input
+                    placeholder="Nome *"
+                    value={nomeCliente}
+                    onChange={(e) => setNomeCliente(e.target.value)}
+                    aria-invalid={!!errNomeCliente}
+                    className={errNomeCliente ? "border-destructive" : undefined}
+                  />
+                  {errNomeCliente && (
+                    <p className="mt-1 text-xs text-destructive">{errNomeCliente}</p>
+                  )}
+                </div>
+                <div>
+                  <Input
+                    placeholder="WhatsApp * (10-11 dígitos)"
+                    value={telefoneCliente}
+                    onChange={(e) => setTelefoneCliente(e.target.value)}
+                    aria-invalid={!!errTelefoneCliente}
+                    className={errTelefoneCliente ? "border-destructive" : undefined}
+                  />
+                  {errTelefoneCliente && (
+                    <p className="mt-1 text-xs text-destructive">{errTelefoneCliente}</p>
+                  )}
+                </div>
                 <Input placeholder="Email" value={emailCliente} onChange={(e) => setEmailCliente(e.target.value)} className="sm:col-span-2" />
               </div>
             ) : (
