@@ -61,7 +61,7 @@ const modulos = [
     topicos: [
       { titulo: "Adicionando colaboradores", descricao: "Clique em '+ Novo' e preencha nome, e-mail e telefone. O sistema mostra quantas vagas estão disponíveis no seu plano." },
       { titulo: "Vínculo com serviços", descricao: "Cada colaborador pode ser vinculado a um ou mais serviços. Isso define quais etapas ele pode executar no módulo 'Em Atendimento'." },
-      { titulo: "Limites por plano", descricao: "Básico: até 2 colaboradores. Pro: até 5. Premium: ilimitado." },
+      { titulo: "Limites por plano", descricao: "Starter: até 2 colaboradores. Pro: até 5." },
       { titulo: "Desativando colaboradores", descricao: "Colaboradores podem ser desativados sem excluir. Útil para férias ou afastamentos." },
     ],
   },

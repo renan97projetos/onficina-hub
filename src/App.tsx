@@ -22,6 +22,8 @@ import NotFound from "./pages/NotFound";
 import AgendaPublica from "./pages/AgendaPublica";
 import SiteOficina from "./pages/SiteOficina";
 import Unsubscribe from "./pages/Unsubscribe";
+import Termos from "./pages/Termos";
+import Privacidade from "./pages/Privacidade";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +72,8 @@ const App = () => (
                 </PrivateRoute>
               }
             />
+            <Route path="/termos" element={<Termos />} />
+            <Route path="/privacidade" element={<Privacidade />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AuthProvider>

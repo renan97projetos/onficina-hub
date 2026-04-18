@@ -37,7 +37,7 @@ const PRO_ONLY_NAV = [
   { icon: TrendingUp, label: "Analytics", key: "analytics" },
 ];
 
-const PRO_PLANS = ["pro", "premium", "trial"];
+const PRO_PLANS = ["pro", "trial"];
 
 interface DemoLayoutProps {
   activeKey: string;
