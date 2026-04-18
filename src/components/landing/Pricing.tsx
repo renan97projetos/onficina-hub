@@ -61,10 +61,10 @@ const Pricing = () => {
             return (
               <div
                 key={plan.name}
-                className={`relative rounded-2xl border bg-card p-8 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg ${
+                className={`relative rounded-2xl border bg-card p-8 transition-all duration-300 hover:-translate-y-0.5 ${
                   plan.popular
-                    ? "border-primary shadow-lg shadow-primary/10"
-                    : "border-white/10"
+                    ? "border-primary/80 shadow-[0_0_30px_rgba(249,115,22,0.35),0_0_60px_rgba(249,115,22,0.15)] hover:shadow-[0_0_40px_rgba(249,115,22,0.5),0_0_80px_rgba(249,115,22,0.25)]"
+                    : "border-white/30 shadow-[0_0_20px_rgba(255,255,255,0.1),0_0_40px_rgba(255,255,255,0.05)] hover:shadow-[0_0_30px_rgba(255,255,255,0.2),0_0_60px_rgba(255,255,255,0.08)]"
                 }`}
               >
                 {plan.popular && (
