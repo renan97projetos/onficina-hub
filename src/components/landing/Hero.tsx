@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Plus, Check } from "lucide-react";
 
 const Hero = () => {
   return (
@@ -52,57 +52,225 @@ const Hero = () => {
             </p>
           </div>
 
-          {/* Right — dashboard mockup */}
+          {/* Right — 3 mockups conectados */}
           <div className="relative">
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-card p-6 shadow-xl">
-              <div className="mb-4 flex items-center justify-between">
-                <h3 className="font-semibold text-foreground">Ordens de Serviço</h3>
-                <span className="text-sm text-primary">Abril 2026</span>
-              </div>
-
-              {/* Metrics */}
-              <div className="mb-6 grid grid-cols-3 gap-3">
-                {[
-                  { label: "Em andamento", value: "12" },
-                  { label: "Aguardando", value: "8" },
-                  { label: "Finalizadas", value: "47" },
-                ].map((m) => (
-                  <div key={m.label} className="rounded-xl border border-white/10 bg-white/5 p-4 text-center">
-                    <div className="text-2xl font-bold text-foreground">{m.value}</div>
-                    <div className="text-xs text-muted-foreground">{m.label}</div>
+            <div className="relative flex flex-col gap-4 lg:gap-6">
+              {/* Linha de cima: 2 mockups lado a lado */}
+              <div className="relative grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
+                {/* Mockup 1 — Pipeline OS (escuro) */}
+                <div
+                  className="overflow-hidden rounded-2xl border border-white/10 bg-card p-4 shadow-xl opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
+                  style={{ animationDelay: '0ms' }}
+                >
+                  <div className="mb-3 flex items-center justify-between">
+                    <h3 className="text-xs font-semibold text-foreground">Ordens de Serviço</h3>
+                    <span className="text-[10px] text-primary">Abril 2026</span>
                   </div>
-                ))}
-              </div>
 
-              {/* OS list */}
-              <div className="space-y-3">
-                {[
-                  { car: "Honda Civic 2022", desc: "Repintura completa", status: "Pintura", color: "bg-primary text-primary-foreground" },
-                  { car: "Toyota Corolla 2021", desc: "Reparo lateral + pintura", status: "Funilaria", color: "border border-white/10 bg-white/5 text-foreground" },
-                  { car: "VW Golf 2023", desc: "Para-choque dianteiro", status: "Orçamento", color: "border border-white/10 bg-white/5 text-foreground" },
-                ].map((os) => (
-                  <div key={os.car} className="flex items-center justify-between rounded-xl border border-white/10 p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="h-2 w-2 rounded-full bg-primary" />
+                  <div className="mb-3 grid grid-cols-3 gap-1.5">
+                    {[
+                      { label: "Andamento", value: "12" },
+                      { label: "Aguardando", value: "8" },
+                      { label: "Finalizadas", value: "47" },
+                    ].map((m) => (
+                      <div key={m.label} className="rounded-lg border border-white/10 bg-white/5 p-2 text-center">
+                        <div className="text-base font-bold text-foreground">{m.value}</div>
+                        <div className="text-[9px] text-muted-foreground">{m.label}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="space-y-2">
+                    {[
+                      { car: "Honda Civic 2022", desc: "Repintura completa", status: "Pintura", primary: true },
+                      { car: "Toyota Corolla", desc: "Reparo lateral", status: "Funilaria", primary: false },
+                      { car: "VW Golf 2023", desc: "Para-choque", status: "Orçamento", primary: false },
+                    ].map((os) => (
+                      <div key={os.car} className="flex items-center justify-between rounded-lg border border-white/10 p-2">
+                        <div className="flex items-center gap-2">
+                          <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                          <div>
+                            <div className="text-[10px] font-medium text-foreground">{os.car}</div>
+                            <div className="text-[9px] text-muted-foreground">{os.desc}</div>
+                          </div>
+                        </div>
+                        <span className={`rounded-full px-2 py-0.5 text-[9px] font-medium ${os.primary ? 'bg-primary text-primary-foreground' : 'border border-white/10 bg-white/5 text-foreground'}`}>
+                          {os.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Mockup 2 — ServiçoAo Vivo (claro) */}
+                <div
+                  className="overflow-hidden rounded-2xl border border-white/10 bg-white p-4 shadow-xl opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
+                  style={{ animationDelay: '150ms' }}
+                >
+                  {/* Header laranja */}
+                  <div className="-m-4 mb-3 bg-primary px-4 py-2">
+                    <div className="text-[11px] font-semibold text-primary-foreground">ServiçoAo Vivo</div>
+                  </div>
+
+                  <div className="mb-3 text-[11px] font-semibold text-gray-800">
+                    Honda Civic · GHJ-4F52
+                  </div>
+
+                  {/* Tracker 6 etapas */}
+                  <div className="mb-3">
+                    <div className="relative flex items-center justify-between">
+                      {/* Linha de fundo */}
+                      <div className="absolute left-2 right-2 top-1/2 h-0.5 -translate-y-1/2 bg-gray-200" />
+                      {/* Linha preenchida até etapa 4 */}
+                      <div className="absolute left-2 top-1/2 h-0.5 -translate-y-1/2 bg-primary" style={{ width: 'calc((100% - 1rem) * 0.6)' }} />
+                      {[0, 1, 2, 3, 4, 5].map((i) => {
+                        const done = i < 3;
+                        const active = i === 3;
+                        return (
+                          <div
+                            key={i}
+                            className={`relative z-10 flex h-4 w-4 items-center justify-center rounded-full ${
+                              done ? 'bg-primary' : active ? 'bg-blue-500 animate-pulse' : 'bg-gray-200'
+                            }`}
+                          >
+                            {done && <Check className="h-2.5 w-2.5 text-white" strokeWidth={3} />}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="mt-1.5 flex justify-between text-[7px] text-gray-500">
+                      {['Aberta', 'Alocado', 'Aguard.', 'Serviço', 'Pagto.', 'Entrega'].map((l) => (
+                        <span key={l} className="w-8 text-center">{l}</span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Em andamento */}
+                  <div className="rounded-lg bg-gray-50 p-2">
+                    <div className="mb-1.5 text-[9px] font-semibold text-gray-700">Em andamento</div>
+                    <div className="space-y-1.5">
                       <div>
-                        <div className="text-sm font-medium text-foreground">{os.car}</div>
-                        <div className="text-xs text-muted-foreground">{os.desc}</div>
+                        <div className="mb-0.5 flex justify-between text-[9px] text-gray-600">
+                          <span>Funilaria</span><span>75%</span>
+                        </div>
+                        <div className="h-1.5 overflow-hidden rounded-full bg-gray-200">
+                          <div className="h-full bg-primary" style={{ width: '75%' }} />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="mb-0.5 flex justify-between text-[9px] text-gray-600">
+                          <span>Pintura</span><span>30%</span>
+                        </div>
+                        <div className="h-1.5 overflow-hidden rounded-full bg-gray-200">
+                          <div className="h-full bg-primary" style={{ width: '30%' }} />
+                        </div>
                       </div>
                     </div>
-                    <span className={`rounded-full px-3 py-1 text-xs font-medium ${os.color}`}>
-                      {os.status}
-                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Floating badge */}
-            <div className="absolute -bottom-4 -left-4 flex items-center gap-2 rounded-full border border-white/10 bg-card px-4 py-2.5 shadow-lg sm:-bottom-4 sm:-right-4 sm:left-auto">
-              <span className="text-sm font-bold text-primary">+32%</span>
-              <div>
-                <div className="text-sm font-semibold text-foreground">Produtividade</div>
-                <div className="text-xs text-muted-foreground">vs. mês anterior</div>
+                  <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[9px] font-medium text-green-700">
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-500" />
+                    Ao vivo
+                  </div>
+                </div>
+
+                {/* Conector "+" horizontal entre os dois de cima (desktop only) */}
+                <div
+                  className="absolute left-1/2 top-1/2 z-20 hidden -translate-x-1/2 -translate-y-1/2 lg:flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/5 backdrop-blur opacity-0 animate-[fade-in_0.4s_ease-out_forwards]"
+                  style={{ animationDelay: '400ms' }}
+                >
+                  <Plus className="h-4 w-4 text-white" />
+                </div>
+              </div>
+
+              {/* Conector "+" vertical entre as linhas (desktop only) */}
+              <div
+                className="absolute left-1/2 z-20 hidden lg:flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full border border-white/20 bg-white/5 backdrop-blur opacity-0 animate-[fade-in_0.4s_ease-out_forwards]"
+                style={{ top: 'calc(50% - 14px)', animationDelay: '450ms' }}
+              >
+                <Plus className="h-4 w-4 text-white" />
+              </div>
+
+              {/* Linha de baixo: mockup central maior */}
+              <div className="flex justify-center">
+                <div
+                  className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-card p-4 shadow-xl opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
+                  style={{ animationDelay: '300ms' }}
+                >
+                  <div className="mb-2 flex items-center gap-2">
+                    <h3 className="text-xs font-semibold text-foreground">Gestão de Pátio</h3>
+                    <span className="rounded-full bg-purple-500/20 px-2 py-0.5 text-[9px] font-medium text-purple-300">Pro</span>
+                  </div>
+
+                  {/* Tabs */}
+                  <div className="mb-3 flex gap-3 border-b border-white/10 text-[10px]">
+                    <button className="relative pb-1.5 font-medium text-foreground">
+                      Por técnico
+                      <span className="absolute inset-x-0 -bottom-px h-0.5 bg-primary" />
+                    </button>
+                    <button className="pb-1.5 text-muted-foreground">Por serviço</button>
+                    <button className="pb-1.5 text-muted-foreground">Por OS</button>
+                  </div>
+
+                  {/* 3 colunas técnicos */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {/* Carlos */}
+                    <div>
+                      <div className="mb-1.5 flex items-center justify-between">
+                        <span className="text-[10px] font-medium text-foreground">Carlos</span>
+                        <span className="rounded-full bg-green-500/20 px-1.5 py-0.5 text-[8px] font-medium text-green-400">2/3</span>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1 rounded border border-white/10 bg-white/5 p-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+                          <span className="text-[9px] text-foreground">BMW · ABC</span>
+                        </div>
+                        <div className="flex items-center gap-1 rounded border border-white/10 bg-white/5 p-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                          <span className="text-[9px] text-foreground">Golf · DEF</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Marcos */}
+                    <div>
+                      <div className="mb-1.5 flex items-center justify-between">
+                        <span className="text-[10px] font-medium text-foreground">Marcos</span>
+                        <span className="rounded-full bg-amber-500/20 px-1.5 py-0.5 text-[8px] font-medium text-amber-400">3/3</span>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1 rounded border border-white/10 bg-white/5 p-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+                          <span className="text-[9px] text-foreground">Civic · GHJ</span>
+                        </div>
+                        <div className="flex items-center gap-1 rounded border border-white/10 bg-white/5 p-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
+                          <span className="text-[9px] text-foreground">Uno · MNO</span>
+                        </div>
+                        <div className="rounded border border-white/10 bg-white/5 p-1.5 text-[9px] text-muted-foreground">
+                          + 1 mais
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* João */}
+                    <div>
+                      <div className="mb-1.5 flex items-center justify-between">
+                        <span className="text-[10px] font-medium text-foreground">João</span>
+                        <span className="rounded-full bg-green-500/20 px-1.5 py-0.5 text-[8px] font-medium text-green-400">1/3</span>
+                      </div>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1 rounded border border-white/10 bg-white/5 p-1.5">
+                          <span className="h-1.5 w-1.5 rounded-full bg-green-400" />
+                          <span className="text-[9px] text-foreground">Corolla ✓</span>
+                        </div>
+                        <div className="rounded border border-dashed border-white/15 p-1.5 text-center text-[9px] text-muted-foreground">
+                          2 vagas
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
