@@ -340,7 +340,7 @@ const HowItWorks = () => {
             <div key={i} className="relative">
               <step.Mock />
               <div className="mb-3 flex items-end gap-2">
-                <span className="text-6xl font-bold text-white/5 leading-none">{step.num}</span>
+                <span className="text-6xl font-bold text-white/20 leading-none">{step.num}</span>
                 {i < steps.length - 1 && (
                   <div className="mb-3 hidden h-px flex-1 bg-white/10 lg:block" />
                 )}
