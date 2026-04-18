@@ -265,15 +265,17 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
 
   return (
     <>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-sm font-bold uppercase tracking-wide">Orçamentos</h2>
-        <button
-          onClick={openNew}
-          className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110"
-        >
-          <Plus className="h-4 w-4" /> Novo Orçamento
-        </button>
-      </div>
+      {!embedded && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-sm font-bold uppercase tracking-wide">Orçamentos</h2>
+          <button
+            onClick={openNew}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110"
+          >
+            <Plus className="h-4 w-4" /> Novo Orçamento
+          </button>
+        </div>
+      )}
 
       {/* Pipeline cards (filters) */}
       <div className="mb-4 grid gap-2 sm:grid-cols-3 lg:grid-cols-6">
