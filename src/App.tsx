@@ -59,6 +59,7 @@ const App = () => (
             <Route path="/pagamento" element={<Pagamento />} />
             <Route path="/pagamento/retorno" element={<PagamentoRetorno />} />
             <Route path="/agendar/:slug" element={<AgendaPublica />} />
+            <Route path="/oficina/:slug" element={<SiteOficina />} />
             <Route
               path="/painel/assinatura"
               element={
