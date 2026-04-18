@@ -21,6 +21,7 @@ import PainelAssinatura from "./pages/PainelAssinatura";
 import NotFound from "./pages/NotFound";
 import AgendaPublica from "./pages/AgendaPublica";
 import SiteOficina from "./pages/SiteOficina";
+import Unsubscribe from "./pages/Unsubscribe";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
             <Route path="/pagamento/retorno" element={<PagamentoRetorno />} />
             <Route path="/agendar/:slug" element={<AgendaPublica />} />
             <Route path="/oficina/:slug" element={<SiteOficina />} />
+            <Route path="/unsubscribe" element={<Unsubscribe />} />
             <Route
               path="/painel/assinatura"
               element={
