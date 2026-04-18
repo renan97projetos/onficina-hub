@@ -7,6 +7,8 @@ interface Oficina {
   nome: string;
   plano: string;
   trial_expires_at: string | null;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
 }
 
 export type UserRole = "dono" | "operador";
@@ -78,7 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (ofId) {
       const { data } = await supabase
         .from("oficinas")
-        .select("id, nome, plano, trial_expires_at")
+        .select("id, nome, plano, trial_expires_at, stripe_customer_id, stripe_subscription_id")
         .eq("id", ofId)
         .maybeSingle();
       setOficina(data);

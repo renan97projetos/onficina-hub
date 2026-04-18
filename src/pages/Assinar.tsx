@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { AlertTriangle, Check } from "lucide-react";
+import { AlertTriangle, Check, Loader2 } from "lucide-react";
 import Logo from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const plans = [
   {
@@ -43,6 +46,26 @@ const plans = [
 
 const Assinar = () => {
   const { trialExpired, oficina } = useAuth();
+  const [loadingPlano, setLoadingPlano] = useState<string | null>(null);
+
+  const handleAssinar = async (plano: "starter" | "pro") => {
+    setLoadingPlano(plano);
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "create-checkout-session",
+        { body: { plano } },
+      );
+      if (error) throw error;
+      if (!data?.url) throw new Error("URL de checkout não retornada");
+      window.location.href = data.url as string;
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        (err as Error).message ?? "Erro ao iniciar checkout. Tente novamente.",
+      );
+      setLoadingPlano(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background px-4 py-12">
@@ -102,11 +125,14 @@ const Assinar = () => {
                 ))}
               </ul>
               <button
-                disabled
-                className="mt-6 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground opacity-60 cursor-not-allowed"
-                title="Em breve — integração de pagamento em andamento"
+                onClick={() => handleAssinar(p.name.toLowerCase() as "starter" | "pro")}
+                disabled={loadingPlano !== null}
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Assinar {p.name} (em breve)
+                {loadingPlano === p.name.toLowerCase() && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
+                Assinar {p.name}
               </button>
             </div>
           ))}
