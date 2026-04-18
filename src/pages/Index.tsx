@@ -2,6 +2,7 @@ import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
 import Benefits from "@/components/landing/Benefits";
 import HowItWorks from "@/components/landing/HowItWorks";
+import SystemPreview from "@/components/landing/SystemPreview";
 import SocialProof from "@/components/landing/SocialProof";
 import Pricing from "@/components/landing/Pricing";
 import FAQ from "@/components/landing/FAQ";
@@ -16,6 +17,7 @@ const Index = () => {
       <Hero />
       <Benefits />
       <HowItWorks />
+      <SystemPreview />
       <SocialProof />
       <Pricing />
       <FAQ />
