@@ -127,9 +127,15 @@ const Cadastro = () => {
               <input
                 value={nomeOficina}
                 onChange={(e) => setNomeOficina(e.target.value)}
-                className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none focus:border-primary"
+                className={`w-full rounded-lg border bg-background px-4 py-3 text-sm outline-none focus:border-primary ${
+                  nomeOficina && errors.nomeOficina ? "border-destructive" : "border-input"
+                }`}
                 required
+                aria-invalid={!!(nomeOficina && errors.nomeOficina)}
               />
+              {nomeOficina && errors.nomeOficina && (
+                <p className="mt-1 text-xs text-destructive">{errors.nomeOficina}</p>
+              )}
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium">Telefone</label>
@@ -137,8 +143,15 @@ const Cadastro = () => {
                 type="tel"
                 value={telefone}
                 onChange={(e) => setTelefone(e.target.value)}
-                className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none focus:border-primary"
+                placeholder="(11) 91234-5678"
+                className={`w-full rounded-lg border bg-background px-4 py-3 text-sm outline-none focus:border-primary ${
+                  telefone && errors.telefone ? "border-destructive" : "border-input"
+                }`}
+                aria-invalid={!!(telefone && errors.telefone)}
               />
+              {telefone && errors.telefone && (
+                <p className="mt-1 text-xs text-destructive">{errors.telefone}</p>
+              )}
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -148,9 +161,15 @@ const Cadastro = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none focus:border-primary"
+                className={`w-full rounded-lg border bg-background px-4 py-3 text-sm outline-none focus:border-primary ${
+                  email && errors.email ? "border-destructive" : "border-input"
+                }`}
                 required
+                aria-invalid={!!(email && errors.email)}
               />
+              {email && errors.email && (
+                <p className="mt-1 text-xs text-destructive">{errors.email}</p>
+              )}
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium">Senha *</label>
@@ -159,9 +178,13 @@ const Cadastro = () => {
                   type={showPassword ? "text" : "password"}
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
-                  minLength={6}
-                  className="w-full rounded-lg border border-input bg-background px-4 py-3 pr-10 text-sm outline-none focus:border-primary"
+                  minLength={8}
+                  placeholder="Mínimo 8 caracteres"
+                  className={`w-full rounded-lg border bg-background px-4 py-3 pr-10 text-sm outline-none focus:border-primary ${
+                    senha && errors.senha ? "border-destructive" : "border-input"
+                  }`}
                   required
+                  aria-invalid={!!(senha && errors.senha)}
                 />
                 <button
                   type="button"
@@ -171,6 +194,9 @@ const Cadastro = () => {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              {senha && errors.senha && (
+                <p className="mt-1 text-xs text-destructive">{errors.senha}</p>
+              )}
             </div>
           </div>
 
