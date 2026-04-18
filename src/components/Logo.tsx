@@ -111,7 +111,14 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
   return (
     <span className={`font-extrabold tracking-tight ${s.text} ${className} inline-flex items-center leading-none`}>
       <span className="text-primary inline-flex items-center gap-[0.02em] leading-none">
-        <span className="flex shrink-0 items-center justify-center" style={{ width: s.icon, height: s.icon, transform: "translateY(-0.06em)" }}>
+        <span
+          className="flex shrink-0 items-center justify-center"
+          style={{
+            width: s.icon,
+            height: s.icon,
+            marginBottom: "0.08em",
+          }}
+        >
           <TireIcon />
         </span>
         <span className="leading-none">N</span>
