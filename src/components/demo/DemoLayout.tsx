@@ -14,7 +14,6 @@ import {
   RefreshCw,
   GraduationCap,
   Settings,
-  ClipboardList,
   LayoutGrid,
 } from "lucide-react";
 
