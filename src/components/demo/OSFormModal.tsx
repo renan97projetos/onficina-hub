@@ -9,6 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Camera, X } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+import {
+  nomeClienteSchema,
+  telefoneSchema,
+  placaSchema,
+} from "@/lib/validations";
 
 interface Props {
   open: boolean;
@@ -49,6 +54,30 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
   const [fotoPreviews, setFotoPreviews] = useState<string[]>([]);
 
   const [saving, setSaving] = useState(false);
+
+  // Validações inline
+  const errNomeCliente =
+    novoCliente && nomeCliente
+      ? nomeClienteSchema.safeParse(nomeCliente).error?.issues[0]?.message ?? null
+      : null;
+  const errTelefoneCliente =
+    novoCliente && telefoneCliente
+      ? telefoneSchema.safeParse(telefoneCliente).error?.issues[0]?.message ?? null
+      : null;
+  const errPlaca =
+    novoVeiculo && placa
+      ? placaSchema.safeParse(placa).error?.issues[0]?.message ?? null
+      : null;
+
+  const clienteValido = novoCliente
+    ? nomeClienteSchema.safeParse(nomeCliente).success &&
+      telefoneSchema.safeParse(telefoneCliente).success
+    : !!clienteId;
+  const veiculoValido = novoVeiculo
+    ? placaSchema.safeParse(placa).success
+    : !!veiculoId;
+  const servicosValidos = Object.keys(selectedServicos).length > 0;
+  const formValido = clienteValido && veiculoValido && servicosValidos;
 
   const { data: clientes = [] } = useQuery({
     queryKey: ["clientes", oficina_id],
@@ -263,8 +292,30 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
             </div>
             {novoCliente ? (
               <div className="grid gap-3 sm:grid-cols-2">
-                <Input placeholder="Nome *" value={nomeCliente} onChange={(e) => setNomeCliente(e.target.value)} />
-                <Input placeholder="WhatsApp *" value={telefoneCliente} onChange={(e) => setTelefoneCliente(e.target.value)} />
+                <div>
+                  <Input
+                    placeholder="Nome *"
+                    value={nomeCliente}
+                    onChange={(e) => setNomeCliente(e.target.value)}
+                    aria-invalid={!!errNomeCliente}
+                    className={errNomeCliente ? "border-destructive" : undefined}
+                  />
+                  {errNomeCliente && (
+                    <p className="mt-1 text-xs text-destructive">{errNomeCliente}</p>
+                  )}
+                </div>
+                <div>
+                  <Input
+                    placeholder="WhatsApp * (10-11 dígitos)"
+                    value={telefoneCliente}
+                    onChange={(e) => setTelefoneCliente(e.target.value)}
+                    aria-invalid={!!errTelefoneCliente}
+                    className={errTelefoneCliente ? "border-destructive" : undefined}
+                  />
+                  {errTelefoneCliente && (
+                    <p className="mt-1 text-xs text-destructive">{errTelefoneCliente}</p>
+                  )}
+                </div>
                 <Input placeholder="Email" value={emailCliente} onChange={(e) => setEmailCliente(e.target.value)} className="sm:col-span-2" />
               </div>
             ) : (
@@ -285,7 +336,19 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
             </div>
             {novoVeiculo ? (
               <div className="grid gap-3 sm:grid-cols-3">
-                <Input placeholder="Placa *" value={placa} onChange={(e) => setPlaca(e.target.value)} />
+                <div className="sm:col-span-3 sm:max-w-[200px]">
+                  <Input
+                    placeholder="Placa * (Mercosul)"
+                    value={placa}
+                    onChange={(e) => setPlaca(e.target.value.toUpperCase())}
+                    maxLength={7}
+                    aria-invalid={!!errPlaca}
+                    className={errPlaca ? "border-destructive" : undefined}
+                  />
+                  {errPlaca && (
+                    <p className="mt-1 text-xs text-destructive">{errPlaca}</p>
+                  )}
+                </div>
                 <Input placeholder="Marca" value={marca} onChange={(e) => setMarca(e.target.value)} />
                 <Input placeholder="Modelo" value={modelo} onChange={(e) => setModelo(e.target.value)} />
                 <Input placeholder="Cor" value={cor} onChange={(e) => setCor(e.target.value)} />
@@ -386,8 +449,12 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
           </section>
 
           {/* SUBMIT */}
-          <button onClick={handleSave} disabled={saving}
-            className="w-full rounded-lg bg-primary px-4 py-3 text-sm font-bold text-primary-foreground hover:brightness-110 disabled:opacity-50">
+          <button
+            onClick={handleSave}
+            disabled={saving || !formValido}
+            title={!formValido ? "Preencha cliente, veículo e pelo menos um serviço corretamente" : undefined}
+            className="w-full rounded-lg bg-primary px-4 py-3 text-sm font-bold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {saving ? "Salvando..." : "Criar Ordem de Serviço"}
           </button>
         </div>

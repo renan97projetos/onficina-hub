@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Check, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Logo from "@/components/Logo";
+import { cadastroSchema } from "@/lib/validations";
+import { z } from "zod";
 
 const plans = [
   {
@@ -33,19 +35,41 @@ const Cadastro = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Validação reativa
+  const validation = useMemo(() => {
+    return cadastroSchema.safeParse({
+      nomeOficina,
+      email,
+      telefone,
+      senha,
+    });
+  }, [nomeOficina, email, telefone, senha]);
+
+  const errors: Partial<Record<"nomeOficina" | "email" | "telefone" | "senha", string>> =
+    validation.success
+      ? {}
+      : Object.fromEntries(
+          Object.entries(validation.error.flatten().fieldErrors).map(
+            ([k, v]) => [k, v?.[0] ?? ""],
+          ),
+        );
+
+  const formValido = validation.success && aceitouTermos;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nomeOficina.trim() || !email.trim() || !senha.trim()) {
-      toast({ title: "Preencha todos os campos obrigatórios", variant: "destructive" });
+    if (!validation.success) {
+      toast({ title: "Corrija os campos destacados", variant: "destructive" });
       return;
     }
+    const { nomeOficina: nome, email: mail, telefone: tel, senha: pwd } = validation.data;
     setLoading(true);
 
     try {
       // 1. Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: email.trim(),
-        password: senha,
+        email: mail,
+        password: pwd,
       });
 
       if (authError) {
@@ -62,8 +86,8 @@ const Cadastro = () => {
 
       // 2. Create oficina via RPC (sets oficina_id in user metadata)
       const { error: rpcError } = await supabase.rpc("create_oficina_for_user", {
-        _nome: nomeOficina.trim(),
-        _telefone: telefone.trim() || null,
+        _nome: nome,
+        _telefone: tel || null,
       });
 
       if (rpcError) {
@@ -103,9 +127,15 @@ const Cadastro = () => {
               <input
                 value={nomeOficina}
                 onChange={(e) => setNomeOficina(e.target.value)}
-                className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none focus:border-primary"
+                className={`w-full rounded-lg border bg-background px-4 py-3 text-sm outline-none focus:border-primary ${
+                  nomeOficina && errors.nomeOficina ? "border-destructive" : "border-input"
+                }`}
                 required
+                aria-invalid={!!(nomeOficina && errors.nomeOficina)}
               />
+              {nomeOficina && errors.nomeOficina && (
+                <p className="mt-1 text-xs text-destructive">{errors.nomeOficina}</p>
+              )}
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium">Telefone</label>
@@ -113,8 +143,15 @@ const Cadastro = () => {
                 type="tel"
                 value={telefone}
                 onChange={(e) => setTelefone(e.target.value)}
-                className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none focus:border-primary"
+                placeholder="(11) 91234-5678"
+                className={`w-full rounded-lg border bg-background px-4 py-3 text-sm outline-none focus:border-primary ${
+                  telefone && errors.telefone ? "border-destructive" : "border-input"
+                }`}
+                aria-invalid={!!(telefone && errors.telefone)}
               />
+              {telefone && errors.telefone && (
+                <p className="mt-1 text-xs text-destructive">{errors.telefone}</p>
+              )}
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -124,9 +161,15 @@ const Cadastro = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-lg border border-input bg-background px-4 py-3 text-sm outline-none focus:border-primary"
+                className={`w-full rounded-lg border bg-background px-4 py-3 text-sm outline-none focus:border-primary ${
+                  email && errors.email ? "border-destructive" : "border-input"
+                }`}
                 required
+                aria-invalid={!!(email && errors.email)}
               />
+              {email && errors.email && (
+                <p className="mt-1 text-xs text-destructive">{errors.email}</p>
+              )}
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium">Senha *</label>
@@ -135,9 +178,13 @@ const Cadastro = () => {
                   type={showPassword ? "text" : "password"}
                   value={senha}
                   onChange={(e) => setSenha(e.target.value)}
-                  minLength={6}
-                  className="w-full rounded-lg border border-input bg-background px-4 py-3 pr-10 text-sm outline-none focus:border-primary"
+                  minLength={8}
+                  placeholder="Mínimo 8 caracteres"
+                  className={`w-full rounded-lg border bg-background px-4 py-3 pr-10 text-sm outline-none focus:border-primary ${
+                    senha && errors.senha ? "border-destructive" : "border-input"
+                  }`}
                   required
+                  aria-invalid={!!(senha && errors.senha)}
                 />
                 <button
                   type="button"
@@ -147,6 +194,9 @@ const Cadastro = () => {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              {senha && errors.senha && (
+                <p className="mt-1 text-xs text-destructive">{errors.senha}</p>
+              )}
             </div>
           </div>
 
@@ -232,7 +282,7 @@ const Cadastro = () => {
 
           <button
             type="submit"
-            disabled={!aceitouTermos || loading}
+            disabled={!formValido || loading}
             className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50"
           >
             {loading ? "Criando conta..." : "Iniciar teste grátis de 14 dias"}
