@@ -1,14 +1,12 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 const PLAN_META: Record<
   string,
@@ -33,6 +31,7 @@ const PLAN_META: Record<
 
 const PainelAssinatura = () => {
   const { oficina, loading } = useAuth();
+  const [openingPortal, setOpeningPortal] = useState(false);
 
   const plano = oficina?.plano ?? "trial";
   const meta = PLAN_META[plano] ?? PLAN_META.trial;
@@ -43,10 +42,27 @@ const PainelAssinatura = () => {
     return Math.max(0, Math.ceil(ms / (24 * 60 * 60 * 1000)));
   })();
 
-  // stripe_customer_id ainda não existe em oficinas — feature flag
-  const stripeCustomerId: string | null = null;
-
+  const stripeCustomerId = oficina?.stripe_customer_id ?? null;
   const podeUpgrade = plano === "trial" || plano === "starter";
+
+  const handleAbrirPortal = async () => {
+    setOpeningPortal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "create-portal-session",
+        { body: {} },
+      );
+      if (error) throw error;
+      if (!data?.url) throw new Error("URL do portal não retornada");
+      window.location.href = data.url as string;
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        (err as Error).message ?? "Erro ao abrir portal. Tente novamente.",
+      );
+      setOpeningPortal(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background px-4 py-12">
@@ -95,24 +111,17 @@ const PainelAssinatura = () => {
             )}
 
             {stripeCustomerId && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="block w-full">
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        disabled
-                      >
-                        Gerenciar assinatura via Stripe
-                      </Button>
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    Em breve — integração Stripe em andamento
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={handleAbrirPortal}
+                disabled={openingPortal}
+              >
+                {openingPortal && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                Gerenciar assinatura via Stripe
+              </Button>
             )}
 
             <div className="pt-2 text-center">
