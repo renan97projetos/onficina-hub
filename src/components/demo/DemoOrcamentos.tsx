@@ -31,12 +31,17 @@ const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
 const brl = (n: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n || 0);
 
-const DemoOrcamentos = () => {
+interface DemoOrcamentosProps {
+  onNavigate?: (key: string) => void;
+}
+
+const DemoOrcamentos = ({ onNavigate }: DemoOrcamentosProps = {}) => {
   const { oficina_id } = useAuth();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("todos");
+  const [creatingOsId, setCreatingOsId] = useState<string | null>(null);
 
   const { data: oficina } = useQuery({
     queryKey: ["oficina-pdf-meta", oficina_id],
