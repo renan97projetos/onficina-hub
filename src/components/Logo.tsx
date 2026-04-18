@@ -10,44 +10,55 @@ const sizeMap = {
 };
 
 const Logo = ({ className = "", size = "md" }: LogoProps) => {
-  // Geometria do disco da politriz (o "O" da logo)
-  // Mantém o mesmo diâmetro/posição da roda anterior
+  // Disco da politriz (o "O" da logo)
   const cx = 50;
   const cy = 50;
-  const tireWidth = 17; // mesma espessura do traço externo (pneu antigo)
-  const outerR = 50 - tireWidth / 2; // raio do disco externo (≈ 41.5)
-  const innerR = outerR * 0.55; // disco interno (~55% do raio externo)
-  const hubR = 5; // parafuso central
+  const strokeW = 7; // espessura do traço (estilo line-icon)
+  const outerR = 50 - strokeW / 2; // raio do disco
+  const innerR = outerR * 0.55;
+  const hubR = 3.2;
 
-  // Layout do SVG inteiro (politriz + texto como um único elemento)
+  // Layout do SVG inteiro
   const wheelSize = 100;
   const textX = wheelSize + 4;
   const fontSize = 92;
   const textY = 50;
 
-  // --- CABO da politriz ---
-  // Sai do lado ESQUERDO do disco, descendo em diagonal ↙
-  // Ponto de saída do disco (lado esquerdo, levemente abaixo do centro)
-  const handleStartAngle = (200 * Math.PI) / 180; // ~200° (esquerda-baixo)
-  const hsx = cx + outerR * Math.cos(handleStartAngle);
-  const hsy = cy + outerR * Math.sin(handleStartAngle);
+  // ---- CABO da politriz (sai do lado esquerdo, vai ↙) ----
+  // Ponto onde o cabo encontra o disco
+  const joinAngle = (200 * Math.PI) / 180;
+  const jx = cx + outerR * Math.cos(joinAngle);
+  const jy = cy + outerR * Math.sin(joinAngle);
 
-  // Ponto final do cabo (fora do disco, ↙)
-  const handleEndX = hsx - 28;
-  const handleEndY = hsy + 34;
+  // Corpo do cabo: retângulo girado em diagonal ↙
+  const cableLength = 46;
+  const cableThickness = 14;
+  const cableAngleDeg = 215; // ↙
+  const cableAngleRad = (cableAngleDeg * Math.PI) / 180;
 
-  // Curva de controle (leve curvatura)
-  const handleCtrlX = hsx - 18;
-  const handleCtrlY = hsy + 12;
+  // Ponta final do cabo (empunhadura)
+  const tipX = jx + cableLength * Math.cos(cableAngleRad);
+  const tipY = jy + cableLength * Math.sin(cableAngleRad);
 
-  const handlePath = `M ${hsx} ${hsy} Q ${handleCtrlX} ${handleCtrlY} ${handleEndX} ${handleEndY}`;
+  // Quatro vértices do cabo (perpendicular ao eixo)
+  const perp = cableAngleRad + Math.PI / 2;
+  const half = cableThickness / 2;
+  const p1x = jx + half * Math.cos(perp);
+  const p1y = jy + half * Math.sin(perp);
+  const p2x = jx - half * Math.cos(perp);
+  const p2y = jy - half * Math.sin(perp);
+  const p3x = tipX - half * Math.cos(perp);
+  const p3y = tipY - half * Math.sin(perp);
+  const p4x = tipX + half * Math.cos(perp);
+  const p4y = tipY + half * Math.sin(perp);
 
-  // Bloco/retângulo da base do cabo (empunhadura)
-  const gripW = 10;
-  const gripH = 6;
+  // Pescoço/colar onde o cabo encontra o disco (bloco perpendicular)
+  const collarW = 18;
+  const collarH = 9;
+  const collarCenterX = jx + 4 * Math.cos(cableAngleRad);
+  const collarCenterY = jy + 4 * Math.sin(cableAngleRad);
 
-  // --- ESTRELAS de brilho (canto superior direito) ---
-  // Estrela de 4 pontas via path
+  // ---- ESTRELAS de brilho (canto superior direito do disco) ----
   const star = (sx: number, sy: number, r: number) => {
     const inner = r * 0.32;
     return [
@@ -65,7 +76,7 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
 
   return (
     <svg
-      viewBox="0 0 470 100"
+      viewBox="-10 -10 480 120"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={`${sizeMap[size]} w-auto block ${className}`}
@@ -73,35 +84,66 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
       role="img"
       preserveAspectRatio="xMinYMid meet"
     >
-      {/* Politriz (cor primary) — disco serve como o "O" da logo */}
       <g className="text-primary" color="currentColor">
-        {/* Cabo (atrás do disco) */}
+        {/* Cabo (atrás do disco) — contorno line-icon */}
         <path
-          d={handlePath}
+          d={`M ${p1x} ${p1y} L ${p4x} ${p4y} L ${p3x} ${p3y} L ${p2x} ${p2y} Z`}
           stroke="currentColor"
-          strokeWidth={tireWidth * 0.55}
-          strokeLinecap="round"
+          strokeWidth={strokeW * 0.7}
+          strokeLinejoin="round"
           fill="none"
         />
-        {/* Empunhadura (bloco na base do cabo) */}
+
+        {/* Empunhadura (bloco preenchido na ponta do cabo) */}
         <rect
-          x={handleEndX - gripW / 2}
-          y={handleEndY - gripH / 2}
-          width={gripW}
-          height={gripH}
-          rx={1.5}
-          transform={`rotate(50 ${handleEndX} ${handleEndY})`}
+          x={tipX - 7}
+          y={tipY - 5}
+          width={14}
+          height={10}
+          rx={2}
+          transform={`rotate(${cableAngleDeg - 180} ${tipX} ${tipY})`}
           fill="currentColor"
         />
 
-        {/* Disco externo (o "O") */}
+        {/* Detalhes/listras na empunhadura */}
+        <line
+          x1={tipX - 3}
+          y1={tipY - 3}
+          x2={tipX - 3}
+          y2={tipY + 3}
+          stroke="hsl(var(--background))"
+          strokeWidth={1.2}
+          transform={`rotate(${cableAngleDeg - 180} ${tipX} ${tipY})`}
+        />
+        <line
+          x1={tipX + 1}
+          y1={tipY - 3}
+          x2={tipX + 1}
+          y2={tipY + 3}
+          stroke="hsl(var(--background))"
+          strokeWidth={1.2}
+          transform={`rotate(${cableAngleDeg - 180} ${tipX} ${tipY})`}
+        />
+
+        {/* Colar/pescoço entre cabo e disco */}
+        <rect
+          x={collarCenterX - collarW / 2}
+          y={collarCenterY - collarH / 2}
+          width={collarW}
+          height={collarH}
+          rx={2}
+          transform={`rotate(${cableAngleDeg + 90} ${collarCenterX} ${collarCenterY})`}
+          fill="currentColor"
+        />
+
+        {/* Disco externo (o "O") — sobrepõe a base do cabo */}
         <circle
           cx={cx}
           cy={cy}
           r={outerR}
           stroke="currentColor"
-          strokeWidth={tireWidth}
-          fill="none"
+          strokeWidth={strokeW}
+          fill="hsl(var(--background))"
         />
 
         {/* Disco interno (pad de polimento) */}
@@ -110,8 +152,8 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
           cy={cy}
           r={innerR}
           stroke="currentColor"
-          strokeWidth="1.5"
-          opacity="0.35"
+          strokeWidth={1.5}
+          opacity={0.4}
           fill="none"
         />
 
@@ -119,12 +161,12 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
         <circle cx={cx} cy={cy} r={hubR} fill="currentColor" />
 
         {/* Estrelas de brilho (canto superior direito, fora do disco) */}
-        <path d={star(92, 12, 6)} fill="currentColor" opacity="1" />
-        <path d={star(80, 4, 4)} fill="currentColor" opacity="0.7" />
-        <path d={star(96, 28, 2.8)} fill="currentColor" opacity="0.45" />
+        <path d={star(96, 6, 7)} fill="currentColor" opacity={1} />
+        <path d={star(82, -4, 4.5)} fill="currentColor" opacity={0.7} />
+        <path d={star(104, 22, 3)} fill="currentColor" opacity={0.45} />
       </g>
 
-      {/* Texto: "ficina" (o "O" é o disco da politriz) */}
+      {/* Texto: "N" + "ficina" (o "O" é o disco da politriz) */}
       <text
         x={textX}
         y={textY}
