@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Plus, Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 const Hero = () => {
   return (
