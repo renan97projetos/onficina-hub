@@ -16,8 +16,21 @@ const DemoConfig = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("oficinas")
-        .select("id, nome, telefone, plano, trial_expires_at, google_review_url, logo_url, cnpj, endereco")
+        .select("id, nome, telefone, plano, trial_expires_at, google_review_url, logo_url, cnpj, endereco, slug")
         .eq("id", oficina_id!)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const { data: agendaConfig } = useQuery({
+    queryKey: ["agenda-config-cfg", oficina_id],
+    enabled: !!oficina_id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("agenda_config")
+        .select("*")
+        .eq("oficina_id", oficina_id!)
         .maybeSingle();
       return data;
     },
