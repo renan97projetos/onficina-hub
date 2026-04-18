@@ -77,6 +77,76 @@ const DemoConfig = () => {
     },
   });
 
+  // ===== Equipe (só dono) =====
+  const [novoEmail, setNovoEmail] = useState("");
+  const [novoNome, setNovoNome] = useState("");
+  const [novaSenha, setNovaSenha] = useState("");
+  const [criandoMembro, setCriandoMembro] = useState(false);
+
+  const { data: membros, refetch: refetchMembros } = useQuery({
+    queryKey: ["usuarios-oficina", oficina_id],
+    enabled: !!oficina_id && isDono,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("usuarios_oficina")
+        .select("id, user_id, nome, role, ativo, created_at")
+        .eq("oficina_id", oficina_id!)
+        .order("created_at", { ascending: true });
+      return data ?? [];
+    },
+  });
+
+  async function criarMembro() {
+    if (!novoEmail.trim() || !novoNome.trim() || novaSenha.length < 6) {
+      toast.error("Preencha nome, e-mail e senha (mín. 6 caracteres).");
+      return;
+    }
+    setCriandoMembro(true);
+    const { data, error } = await supabase.functions.invoke("criar-membro-oficina", {
+      body: {
+        email: novoEmail.trim(),
+        nome: novoNome.trim(),
+        senha: novaSenha,
+      },
+    });
+    setCriandoMembro(false);
+    if (error || (data as any)?.error) {
+      toast.error((data as any)?.error || error?.message || "Erro ao criar membro.");
+      return;
+    }
+    toast.success("Membro criado! Compartilhe as credenciais com ele.");
+    setNovoEmail("");
+    setNovoNome("");
+    setNovaSenha("");
+    refetchMembros();
+  }
+
+  async function toggleMembroAtivo(id: string, atual: boolean) {
+    const { error } = await supabase
+      .from("usuarios_oficina")
+      .update({ ativo: !atual })
+      .eq("id", id);
+    if (error) {
+      toast.error("Erro ao atualizar membro.");
+      return;
+    }
+    toast.success(!atual ? "Membro reativado." : "Membro desativado.");
+    refetchMembros();
+  }
+
+  async function removerMembro(id: string) {
+    const { error } = await supabase
+      .from("usuarios_oficina")
+      .delete()
+      .eq("id", id);
+    if (error) {
+      toast.error("Erro ao remover membro.");
+      return;
+    }
+    toast.success("Membro removido.");
+    refetchMembros();
+  }
+
   useEffect(() => {
     if (oficina) {
       setNome(oficina.nome || "");
