@@ -522,6 +522,50 @@ const DemoConfig = () => {
           </button>
         </div>
 
+        {/* Notificações por e-mail */}
+        <div className="rounded-lg border border-border p-5 lg:col-span-2">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h3 className="text-sm font-medium text-foreground">Notificações</h3>
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={digestAtivo}
+                onChange={(e) => {
+                  const v = e.target.checked;
+                  setDigestAtivo(v);
+                  if (!v) {
+                    salvarDigest(false, "");
+                  }
+                }}
+                className="h-4 w-4 accent-primary"
+              />
+              Receber resumo diário por e-mail
+            </label>
+          </div>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Enviamos todo dia às 18h um resumo com OS abertas, finalizadas, atrasos e
+            faturamento confirmado.
+          </p>
+          {digestAtivo && (
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <input
+                type="email"
+                value={digestEmail}
+                onChange={(e) => setDigestEmail(e.target.value)}
+                placeholder="seu@email.com"
+                className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              />
+              <button
+                onClick={() => salvarDigest(true, digestEmail)}
+                disabled={savingDigest}
+                className="rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50"
+              >
+                {savingDigest ? "Salvando..." : "Salvar"}
+              </button>
+            </div>
+          )}
+        </div>
+
         {/* Google Reviews */}
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <div className="mb-2 flex items-center gap-2">
