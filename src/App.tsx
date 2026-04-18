@@ -43,48 +43,50 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/cadastro" element={<Cadastro />} />
-            <Route path="/assinar" element={<Assinar />} />
-            <Route
-              path="/admin"
-              element={
-                <PrivateRoute>
-                  <Admin />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/orcamento" element={<Orcamento />} />
-            <Route path="/aprovar/:token" element={<AprovarOrcamento />} />
-            <Route path="/acompanhar/:token" element={<Acompanhar />} />
-            <Route
-              path="/tecnico/:osId"
-              element={
-                <PrivateRoute>
-                  <TecnicoOS />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/avaliacao" element={<Avaliacao />} />
-            <Route path="/pagamento" element={<Pagamento />} />
-            <Route path="/pagamento/retorno" element={<PagamentoRetorno />} />
-            <Route path="/agendar/:slug" element={<AgendaPublica />} />
-            <Route path="/oficina/:slug" element={<SiteOficina />} />
-            <Route path="/unsubscribe" element={<Unsubscribe />} />
-            <Route
-              path="/painel/assinatura"
-              element={
-                <PrivateRoute>
-                  <PainelAssinatura />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/termos" element={<Termos />} />
-            <Route path="/privacidade" element={<Privacidade />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<PageFallback />}>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/cadastro" element={<Cadastro />} />
+              <Route path="/assinar" element={<Assinar />} />
+              <Route
+                path="/admin"
+                element={
+                  <PrivateRoute>
+                    <Admin />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="/orcamento" element={<Orcamento />} />
+              <Route path="/aprovar/:token" element={<AprovarOrcamento />} />
+              <Route path="/acompanhar/:token" element={<Acompanhar />} />
+              <Route
+                path="/tecnico/:osId"
+                element={
+                  <PrivateRoute>
+                    <TecnicoOS />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="/avaliacao" element={<Avaliacao />} />
+              <Route path="/pagamento" element={<Pagamento />} />
+              <Route path="/pagamento/retorno" element={<PagamentoRetorno />} />
+              <Route path="/agendar/:slug" element={<AgendaPublica />} />
+              <Route path="/oficina/:slug" element={<SiteOficina />} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
+              <Route
+                path="/painel/assinatura"
+                element={
+                  <PrivateRoute>
+                    <PainelAssinatura />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="/termos" element={<Termos />} />
+              <Route path="/privacidade" element={<Privacidade />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
