@@ -95,16 +95,16 @@ const MockOrcamento = () => {
         {ORCAMENTO.map((item, i) => (
           <div
             key={item.nome}
-            className={`flex items-center justify-between rounded-md border border-border/60 bg-muted/30 px-2.5 py-1.5 text-[11px] ${
+            className={`flex items-center justify-between rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-[11px] ${
               i < visiveis ? "animate-slide-in-right opacity-100" : "opacity-0"
             }`}
           >
-            <span className="text-muted-foreground">{item.nome}</span>
-            <span className="font-semibold text-foreground">R$ {item.valor.toLocaleString("pt-BR")}</span>
+            <span className="text-gray-500">{item.nome}</span>
+            <span className="font-semibold text-gray-900">R$ {item.valor.toLocaleString("pt-BR")}</span>
           </div>
         ))}
-        <div className={`mt-2 flex items-center justify-between border-t border-border/60 pt-2 text-[11px] font-bold transition-opacity duration-300 ${mostrarTotal ? "opacity-100" : "opacity-0"}`}>
-          <span>Total</span>
+        <div className={`mt-2 flex items-center justify-between border-t border-gray-200 pt-2 text-[11px] font-bold transition-opacity duration-300 ${mostrarTotal ? "opacity-100" : "opacity-0"}`}>
+          <span className="text-gray-900">Total</span>
           <span className="text-primary">R$ {total.toLocaleString("pt-BR")}</span>
         </div>
       </div>
@@ -163,13 +163,13 @@ const MockAcompanhar = () => {
                       ? "border-green-500 bg-green-500 text-white"
                       : active
                       ? "animate-pulse-ring border-primary bg-primary text-primary-foreground"
-                      : "border-border bg-muted text-muted-foreground"
+                      : "border-gray-300 bg-gray-100 text-gray-400"
                   }`}
                 >
                   {done ? <Check className="h-3 w-3" /> : i + 1}
                 </div>
                 {i < ETAPAS.length - 1 && (
-                  <div className={`h-px flex-1 ${i < completas - 1 ? "bg-green-500" : "bg-border"}`} />
+                  <div className={`h-px flex-1 ${i < completas - 1 ? "bg-green-500" : "bg-gray-200"}`} />
                 )}
               </div>
             );
@@ -189,10 +189,10 @@ const MockAcompanhar = () => {
 const ProgressRow = ({ label, pct }: { label: string; pct: number }) => (
   <div>
     <div className="mb-0.5 flex items-center justify-between text-[10px]">
-      <span className="text-muted-foreground">{label}</span>
-      <span className="font-semibold text-foreground">{Math.round(pct)}%</span>
+      <span className="text-gray-500">{label}</span>
+      <span className="font-semibold text-gray-900">{Math.round(pct)}%</span>
     </div>
-    <div className="h-1.5 overflow-hidden rounded-full bg-muted">
+    <div className="h-1.5 overflow-hidden rounded-full bg-gray-200">
       <div
         className="h-full rounded-full bg-primary transition-[width] duration-100 ease-linear"
         style={{ width: `${pct}%` }}
@@ -228,9 +228,9 @@ const MockFinalizar = () => {
   return (
     <MockShell>
       <div className="space-y-2.5">
-        <div className="rounded-md border border-border/60 bg-muted/30 p-2.5">
-          <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Total</p>
-          <p className="text-lg font-extrabold text-foreground">R$ 2.370</p>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-2.5">
+          <p className="text-[10px] uppercase tracking-wide text-gray-500">Total</p>
+          <p className="text-lg font-extrabold text-gray-900">R$ 2.370</p>
         </div>
         <div className={`transition-all duration-300 ${showPix ? "opacity-100" : "opacity-0"}`}>
           <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
@@ -249,7 +249,7 @@ const MockFinalizar = () => {
             {confirmado ? "Confirmado" : "Confirmar"}
           </button>
         ) : (
-          <span className="inline-flex items-center gap-1 rounded-full border border-green-500/40 bg-green-500/10 px-2.5 py-1 text-[11px] font-semibold text-green-400 animate-scale-in">
+          <span className="inline-flex items-center gap-1 rounded-full border border-green-500/40 bg-green-500/10 px-2.5 py-1 text-[11px] font-semibold text-green-600 animate-scale-in">
             <Check className="h-3 w-3" /> Finalizado
           </span>
         )}
@@ -262,15 +262,15 @@ const MockFinalizar = () => {
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 const MockShell = ({ children }: { children: React.ReactNode }) => (
-  <div className="mb-5 h-[200px] overflow-hidden rounded-xl border border-border bg-card p-4 shadow-inner">
+  <div className="mock-light mb-5 h-[200px] overflow-hidden rounded-xl border border-gray-200 bg-white p-4 text-gray-900 shadow-inner">
     {children}
   </div>
 );
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-  <div className="rounded-md border border-border/60 bg-muted/30 px-2.5 py-1.5">
-    <p className="text-[9px] uppercase tracking-wide text-muted-foreground">{label}</p>
-    <p className="text-xs font-semibold text-foreground">{children}</p>
+  <div className="rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1.5">
+    <p className="text-[9px] uppercase tracking-wide text-gray-500">{label}</p>
+    <p className="text-xs font-semibold text-gray-900">{children}</p>
   </div>
 );
 

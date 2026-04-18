@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 import Logo from "@/components/Logo";
 
+const WHATSAPP_SUPORTE = "5527992373501";
+
 const Footer = () => {
   return (
     <footer className="border-t border-white/10 py-16">
       <div className="container mx-auto max-w-[1280px] px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-5">
+        <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           <div className="col-span-2 md:col-span-2">
             <Logo size="sm" />
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
@@ -19,24 +21,44 @@ const Footer = () => {
               <li><a href="#recursos" className="transition-colors hover:text-foreground">Recursos</a></li>
               <li><a href="#planos" className="transition-colors hover:text-foreground">Preços</a></li>
               <li><a href="#faq" className="transition-colors hover:text-foreground">FAQ</a></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="mb-4 text-sm font-semibold text-foreground">Empresa</h4>
-            <ul className="space-y-2.5 text-sm text-muted-foreground">
-              <li><a href="#" className="transition-colors hover:text-foreground">Sobre</a></li>
-              <li><a href="#" className="transition-colors hover:text-foreground">Blog</a></li>
-              <li><a href="#" className="transition-colors hover:text-foreground">Contato</a></li>
+              <li>
+                <a
+                  href={`https://wa.me/${WHATSAPP_SUPORTE}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-foreground"
+                >
+                  Contato
+                </a>
+              </li>
             </ul>
           </div>
 
           <div>
             <h4 className="mb-4 text-sm font-semibold text-foreground">Suporte</h4>
             <ul className="space-y-2.5 text-sm text-muted-foreground">
-              <li><a href="#" className="transition-colors hover:text-foreground">Central de ajuda</a></li>
-              <li><a href="#" className="transition-colors hover:text-foreground">WhatsApp</a></li>
-              <li><a href="#" className="transition-colors hover:text-foreground">Status</a></li>
+              <li>
+                <a
+                  href={`https://wa.me/${WHATSAPP_SUPORTE}?text=${encodeURIComponent(
+                    "Olá, preciso de ajuda com o ONficina",
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-foreground"
+                >
+                  Central de ajuda
+                </a>
+              </li>
+              <li>
+                <a
+                  href={`https://wa.me/${WHATSAPP_SUPORTE}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="transition-colors hover:text-foreground"
+                >
+                  WhatsApp
+                </a>
+              </li>
             </ul>
           </div>
         </div>
