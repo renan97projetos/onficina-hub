@@ -14,6 +14,110 @@ export type Database = {
   }
   public: {
     Tables: {
+      agenda_config: {
+        Row: {
+          created_at: string
+          dias_antecedencia_max: number
+          dias_antecedencia_min: number
+          id: string
+          limite_por_dia: number
+          modo_cliente_ativo: boolean
+          oficina_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          dias_antecedencia_max?: number
+          dias_antecedencia_min?: number
+          id?: string
+          limite_por_dia?: number
+          modo_cliente_ativo?: boolean
+          oficina_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          dias_antecedencia_max?: number
+          dias_antecedencia_min?: number
+          id?: string
+          limite_por_dia?: number
+          modo_cliente_ativo?: boolean
+          oficina_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agenda_config_oficina_id_fkey"
+            columns: ["oficina_id"]
+            isOneToOne: true
+            referencedRelation: "oficinas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agendamentos: {
+        Row: {
+          cliente_nome: string | null
+          cliente_telefone: string | null
+          confirmado: boolean
+          created_at: string
+          data_entrada: string
+          id: string
+          observacao: string | null
+          oficina_id: string
+          origem: string
+          os_id: string | null
+          updated_at: string
+          veiculo_modelo: string | null
+          veiculo_placa: string | null
+        }
+        Insert: {
+          cliente_nome?: string | null
+          cliente_telefone?: string | null
+          confirmado?: boolean
+          created_at?: string
+          data_entrada: string
+          id?: string
+          observacao?: string | null
+          oficina_id: string
+          origem?: string
+          os_id?: string | null
+          updated_at?: string
+          veiculo_modelo?: string | null
+          veiculo_placa?: string | null
+        }
+        Update: {
+          cliente_nome?: string | null
+          cliente_telefone?: string | null
+          confirmado?: boolean
+          created_at?: string
+          data_entrada?: string
+          id?: string
+          observacao?: string | null
+          oficina_id?: string
+          origem?: string
+          os_id?: string | null
+          updated_at?: string
+          veiculo_modelo?: string | null
+          veiculo_placa?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agendamentos_oficina_id_fkey"
+            columns: ["oficina_id"]
+            isOneToOne: false
+            referencedRelation: "oficinas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agendamentos_os_id_fkey"
+            columns: ["os_id"]
+            isOneToOne: false
+            referencedRelation: "ordens_servico"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       avaliacoes: {
         Row: {
           comentario: string | null
@@ -174,6 +278,7 @@ export type Database = {
           nome: string
           onboarding_completed: boolean
           plano: string
+          slug: string | null
           telefone: string | null
           trial_expires_at: string | null
         }
@@ -188,6 +293,7 @@ export type Database = {
           nome: string
           onboarding_completed?: boolean
           plano?: string
+          slug?: string | null
           telefone?: string | null
           trial_expires_at?: string | null
         }
@@ -202,6 +308,7 @@ export type Database = {
           nome?: string
           onboarding_completed?: boolean
           plano?: string
+          slug?: string | null
           telefone?: string | null
           trial_expires_at?: string | null
         }
@@ -585,6 +692,19 @@ export type Database = {
         Args: { _nome: string; _telefone?: string }
         Returns: string
       }
+      criar_agendamento_publico: {
+        Args: {
+          _cliente_nome: string
+          _cliente_telefone: string
+          _data_entrada: string
+          _observacao: string
+          _slug: string
+          _veiculo_modelo: string
+          _veiculo_placa: string
+        }
+        Returns: string
+      }
+      get_oficina_publica_by_slug: { Args: { _slug: string }; Returns: Json }
       get_user_oficina_id: { Args: never; Returns: string }
     }
     Enums: {
