@@ -9,6 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Camera, X } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
+import {
+  nomeClienteSchema,
+  telefoneSchema,
+  placaSchema,
+} from "@/lib/validations";
 
 interface Props {
   open: boolean;
