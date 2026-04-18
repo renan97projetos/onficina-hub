@@ -57,16 +57,31 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
     return it.key !== "config" && it.key !== "financeiro";
   });
 
-  const proExtras = PRO_ONLY_NAV;
+  // Sempre mostrar Pátio e Analytics; bloquear se não-Pro
+  type NavItem = {
+    icon: typeof FileText;
+    label: string;
+    key: string;
+    proLocked?: boolean;
+  };
+  const navItems: NavItem[] = [
+    filteredBase[0],
+    { icon: LayoutGrid, label: "Pátio", key: "patio", proLocked: !isPro },
+    ...filteredBase.slice(1),
+    { icon: TrendingUp, label: "Analytics", key: "analytics", proLocked: !isPro },
+  ];
 
-  const navItems = isPro
-    ? [
-        filteredBase[0],
-        { icon: LayoutGrid, label: "Pátio", key: "patio" },
-        ...filteredBase.slice(1),
-        ...proExtras,
-      ]
-    : filteredBase;
+  const handleNavClick = (item: NavItem) => {
+    if (item.proLocked) {
+      toast.info(`${item.label} está disponível no plano Pro`, {
+        action: { label: "Fazer upgrade", onClick: () => navigate("/assinar") },
+      });
+      navigate("/assinar");
+      return;
+    }
+    onNavigate(item.key);
+  };
+
 
   // Badge: agendamentos pendentes
   const [pendentes, setPendentes] = useState(0);
@@ -135,17 +150,23 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
               <button
                 key={item.key}
                 type="button"
-                onClick={() => onNavigate(item.key)}
+                onClick={() => handleNavClick(item)}
                 className={`relative flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
                   activeKey === item.key
                     ? "border-primary text-primary"
                     : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
+                } ${item.proLocked ? "opacity-80" : ""}`}
+                title={item.proLocked ? "Disponível no plano Pro — clique para fazer upgrade" : undefined}
               >
                 <item.icon className="h-4 w-4" />
                 {item.label}
+                {item.proLocked && (
+                  <span className="ml-1 inline-flex items-center rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-primary">
+                    Pro
+                  </span>
+                )}
                 {item.key === "agenda" && pendentes > 0 && (
-                  <span className="ml-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                  <span className="ml-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
                     {pendentes}
                   </span>
                 )}

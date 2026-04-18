@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -146,6 +147,27 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
     if (!oficina_id) return;
     setSaving(true);
     try {
+      // 0. Verificar limite de OS do plano
+      const { data: limitData, error: limitErr } = await supabase.functions.invoke(
+        "check-os-limit",
+        { body: {} },
+      );
+      if (limitErr) throw limitErr;
+      if (limitData?.exceeded) {
+        toast.error(
+          `Limite de ${limitData.limit} OS/mês atingido no plano ${limitData.plano}.`,
+          {
+            action: {
+              label: "Fazer upgrade",
+              onClick: () => window.location.assign("/assinar"),
+            },
+            duration: 8000,
+          },
+        );
+        setSaving(false);
+        return;
+      }
+
       // 1. Client
       let cid = clienteId;
       if (novoCliente) {
