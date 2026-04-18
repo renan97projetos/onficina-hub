@@ -115,8 +115,24 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
           Listra 1: de (52, 48) a (44, 56)  (ao longo do eixo)
           Listra 2: de (56, 52) a (48, 60)
         */}
-        <line x1="52" y1="48" x2="44" y2="56" strokeWidth="3" />
-        <line x1="56" y1="52" x2="48" y2="60" strokeWidth="3" />
+        {/*
+          5) DISCO da politriz (pad de polimento)
+          Círculo concêntrico ao "O", encaixado dentro dele, na ponta da base.
+          Posição: dentro do "O" mas alinhado com o ombro do corpo da politriz.
+          Centro: (60, 40) — mesmo centro do "ombro" do corpo
+          Raio: ~16 (cabe dentro do "O" de raio 41.5)
+          Tem um aro externo + parafuso central + 2 listras de ventilação.
+        */}
+        {/* Aro/disco externo do pad */}
+        <circle cx="60" cy="40" r="18" strokeWidth="5" fill="hsl(var(--background))" />
+        {/* Aro interno sutil */}
+        <circle cx="60" cy="40" r="11" strokeWidth="2" opacity="0.5" />
+        {/* Parafuso central */}
+        <circle cx="60" cy="40" r="3.5" fill="currentColor" />
+
+        {/* Listras de ventilação no corpo (perto do disco) */}
+        <line x1="40" y1="60" x2="32" y2="68" strokeWidth="3" />
+        <line x1="44" y1="64" x2="36" y2="72" strokeWidth="3" />
       </g>
 
       {/* Texto: "N" primary + "ficina" foreground */}
