@@ -3,10 +3,21 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe } from "lucide-react";
+import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe, Users, UserPlus, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const DemoConfig = () => {
-  const { oficina_id, user } = useAuth();
+  const { oficina_id, user, isDono } = useAuth();
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -65,6 +76,76 @@ const DemoConfig = () => {
       return data ?? [];
     },
   });
+
+  // ===== Equipe (só dono) =====
+  const [novoEmail, setNovoEmail] = useState("");
+  const [novoNome, setNovoNome] = useState("");
+  const [novaSenha, setNovaSenha] = useState("");
+  const [criandoMembro, setCriandoMembro] = useState(false);
+
+  const { data: membros, refetch: refetchMembros } = useQuery({
+    queryKey: ["usuarios-oficina", oficina_id],
+    enabled: !!oficina_id && isDono,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("usuarios_oficina")
+        .select("id, user_id, nome, role, ativo, created_at")
+        .eq("oficina_id", oficina_id!)
+        .order("created_at", { ascending: true });
+      return data ?? [];
+    },
+  });
+
+  async function criarMembro() {
+    if (!novoEmail.trim() || !novoNome.trim() || novaSenha.length < 6) {
+      toast.error("Preencha nome, e-mail e senha (mín. 6 caracteres).");
+      return;
+    }
+    setCriandoMembro(true);
+    const { data, error } = await supabase.functions.invoke("criar-membro-oficina", {
+      body: {
+        email: novoEmail.trim(),
+        nome: novoNome.trim(),
+        senha: novaSenha,
+      },
+    });
+    setCriandoMembro(false);
+    if (error || (data as any)?.error) {
+      toast.error((data as any)?.error || error?.message || "Erro ao criar membro.");
+      return;
+    }
+    toast.success("Membro criado! Compartilhe as credenciais com ele.");
+    setNovoEmail("");
+    setNovoNome("");
+    setNovaSenha("");
+    refetchMembros();
+  }
+
+  async function toggleMembroAtivo(id: string, atual: boolean) {
+    const { error } = await supabase
+      .from("usuarios_oficina")
+      .update({ ativo: !atual })
+      .eq("id", id);
+    if (error) {
+      toast.error("Erro ao atualizar membro.");
+      return;
+    }
+    toast.success(!atual ? "Membro reativado." : "Membro desativado.");
+    refetchMembros();
+  }
+
+  async function removerMembro(id: string) {
+    const { error } = await supabase
+      .from("usuarios_oficina")
+      .delete()
+      .eq("id", id);
+    if (error) {
+      toast.error("Erro ao remover membro.");
+      return;
+    }
+    toast.success("Membro removido.");
+    refetchMembros();
+  }
 
   useEffect(() => {
     if (oficina) {
@@ -681,6 +762,134 @@ const DemoConfig = () => {
             exclusiva? <strong className="text-foreground">Fale com o suporte</strong>.
           </p>
         </div>
+
+        {/* Minha equipe (só dono) */}
+        {isDono && (
+          <div className="rounded-lg border border-border p-5 lg:col-span-2">
+            <div className="mb-4 flex items-center gap-2">
+              <Users className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">Minha equipe</h3>
+            </div>
+            <p className="mb-4 text-xs text-muted-foreground">
+              Crie contas para seus operadores. Eles acessam tudo, exceto Configurações e
+              Financeiro. As credenciais são entregues por você (WhatsApp, etc).
+            </p>
+
+            {/* Form criar membro */}
+            <div className="mb-5 grid gap-2 rounded-lg border border-border bg-muted/20 p-3 sm:grid-cols-[1fr_1fr_1fr_auto]">
+              <input
+                value={novoNome}
+                onChange={(e) => setNovoNome(e.target.value)}
+                placeholder="Nome do operador"
+                className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              />
+              <input
+                type="email"
+                value={novoEmail}
+                onChange={(e) => setNovoEmail(e.target.value)}
+                placeholder="email@exemplo.com"
+                className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              />
+              <input
+                type="text"
+                value={novaSenha}
+                onChange={(e) => setNovaSenha(e.target.value)}
+                placeholder="Senha (mín. 6)"
+                className="rounded-md border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              />
+              <button
+                type="button"
+                onClick={criarMembro}
+                disabled={criandoMembro}
+                className="inline-flex items-center justify-center gap-1 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50"
+              >
+                {criandoMembro ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <>
+                    <UserPlus className="h-4 w-4" /> Criar
+                  </>
+                )}
+              </button>
+            </div>
+
+            {/* Lista de membros */}
+            <div className="space-y-2">
+              {!membros || membros.length === 0 ? (
+                <p className="rounded-md border border-dashed border-border bg-card/50 px-3 py-4 text-center text-xs text-muted-foreground">
+                  Nenhum membro cadastrado ainda.
+                </p>
+              ) : (
+                membros.map((m) => {
+                  const isMe = m.user_id === user?.id;
+                  return (
+                    <div
+                      key={m.id}
+                      className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background px-3 py-2"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-foreground">
+                          {m.nome || "(sem nome)"} {isMe && <span className="text-xs text-muted-foreground">(você)</span>}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          <span
+                            className={`inline-block rounded px-1.5 py-0.5 text-[10px] font-bold uppercase ${
+                              m.role === "dono"
+                                ? "bg-primary/15 text-primary"
+                                : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {m.role}
+                          </span>
+                          {!m.ativo && <span className="ml-2 text-amber-500">Inativo</span>}
+                        </p>
+                      </div>
+                      {!isMe && m.role !== "dono" && (
+                        <div className="flex items-center gap-2">
+                          <label className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <input
+                              type="checkbox"
+                              checked={m.ativo}
+                              onChange={() => toggleMembroAtivo(m.id, m.ativo)}
+                              className="h-4 w-4 accent-primary"
+                            />
+                            Ativo
+                          </label>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <button
+                                type="button"
+                                className="rounded-md border border-border p-1.5 text-muted-foreground hover:border-destructive hover:text-destructive"
+                                aria-label="Remover"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Remover {m.nome}?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  O acesso dessa pessoa será revogado imediatamente. Esta ação
+                                  não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => removerMembro(m.id)}>
+                                  Remover
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </>
   );

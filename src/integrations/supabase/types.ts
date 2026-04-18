@@ -644,6 +644,44 @@ export type Database = {
           },
         ]
       }
+      usuarios_oficina: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          id: string
+          nome: string | null
+          oficina_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome?: string | null
+          oficina_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          id?: string
+          nome?: string | null
+          oficina_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "usuarios_oficina_oficina_id_fkey"
+            columns: ["oficina_id"]
+            isOneToOne: false
+            referencedRelation: "oficinas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       veiculos: {
         Row: {
           ano: number | null
@@ -719,6 +757,7 @@ export type Database = {
       get_oficina_publica_by_slug: { Args: { _slug: string }; Returns: Json }
       get_site_oficina_by_slug: { Args: { _slug: string }; Returns: Json }
       get_user_oficina_id: { Args: never; Returns: string }
+      get_user_role: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never

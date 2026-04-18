@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import DemoLayout from "@/components/demo/DemoLayout";
 import DemoOS from "@/components/demo/DemoOS";
 import DemoClientes from "@/components/demo/DemoClientes";
@@ -27,16 +28,23 @@ const pages: Record<string, React.ComponentType> = {
   patio: DemoPatio,
 };
 
+const OPERADOR_BLOCKED = new Set(["financeiro", "config"]);
+
 const Admin = () => {
+  const { isDono } = useAuth();
   const [activeKey, setActiveKey] = useState("os");
-  const Page = pages[activeKey] || DemoOS;
+
+  // Bloqueio defensivo: se operador tentar acessar página restrita, redireciona
+  const safeKey = !isDono && OPERADOR_BLOCKED.has(activeKey) ? "os" : activeKey;
+  const Page = pages[safeKey] || DemoOS;
 
   return (
-    <DemoLayout activeKey={activeKey} onNavigate={setActiveKey}>
-      <OnboardingChecklist onNavigate={setActiveKey} />
+    <DemoLayout activeKey={safeKey} onNavigate={setActiveKey}>
+      {isDono && <OnboardingChecklist onNavigate={setActiveKey} />}
       <Page />
     </DemoLayout>
   );
 };
 
 export default Admin;
+
