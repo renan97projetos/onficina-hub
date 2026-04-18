@@ -12,6 +12,7 @@ import DemoRelatorios from "@/components/demo/DemoRelatorios";
 import DemoTreinamentos from "@/components/demo/DemoTreinamentos";
 import DemoConfig from "@/components/demo/DemoConfig";
 import DemoPatio from "@/components/demo/DemoPatio";
+import DemoAnalytics from "@/components/demo/DemoAnalytics";
 import OnboardingChecklist from "@/components/demo/OnboardingChecklist";
 
 const pages: Record<string, React.ComponentType> = {
@@ -26,6 +27,7 @@ const pages: Record<string, React.ComponentType> = {
   treinamentos: DemoTreinamentos,
   config: DemoConfig,
   patio: DemoPatio,
+  analytics: DemoAnalytics,
 };
 
 const OPERADOR_BLOCKED = new Set(["financeiro", "config"]);
