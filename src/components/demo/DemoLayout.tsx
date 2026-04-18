@@ -161,7 +161,7 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
                 <item.icon className="h-4 w-4" />
                 {item.label}
                 {item.proLocked && (
-                  <span className="ml-1 inline-flex items-center rounded-full bg-purple-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-purple-500">
+                  <span className="ml-1 inline-flex items-center rounded-full bg-primary/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-primary">
                     Pro
                   </span>
                 )}
