@@ -27,7 +27,7 @@ const DemoConfig = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("oficinas")
-        .select("id, nome, telefone, plano, trial_expires_at, google_review_url, logo_url, cnpj, endereco, slug, landing_template, landing_ativo, landing_descricao, landing_servicos_exibidos")
+        .select("id, nome, telefone, plano, trial_expires_at, google_review_url, logo_url, cnpj, endereco, slug, landing_template, landing_ativo, landing_descricao, landing_servicos_exibidos, email_digest_ativo, email_digest")
         .eq("id", oficina_id!)
         .maybeSingle();
       return data;
@@ -63,6 +63,11 @@ const DemoConfig = () => {
   const [siteDescricao, setSiteDescricao] = useState("");
   const [siteServicos, setSiteServicos] = useState<string[]>([]);
   const [savingSite, setSavingSite] = useState(false);
+
+  // ===== Notificações por e-mail =====
+  const [digestAtivo, setDigestAtivo] = useState(false);
+  const [digestEmail, setDigestEmail] = useState("");
+  const [savingDigest, setSavingDigest] = useState(false);
 
   const { data: servicosCatalogo } = useQuery({
     queryKey: ["servicos-catalogo-config", oficina_id],
@@ -160,8 +165,38 @@ const DemoConfig = () => {
       setSiteDescricao((oficina as any).landing_descricao || "");
       const arr = (oficina as any).landing_servicos_exibidos;
       setSiteServicos(Array.isArray(arr) ? arr : []);
+      setDigestAtivo(!!(oficina as any).email_digest_ativo);
+      setDigestEmail((oficina as any).email_digest || "");
     }
   }, [oficina]);
+
+  async function salvarDigest(novoAtivo: boolean, novoEmail: string) {
+    if (!oficina_id) return;
+    if (novoAtivo) {
+      const e = novoEmail.trim();
+      if (!e || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
+        toast.error("Informe um e-mail válido para receber o resumo.");
+        return;
+      }
+    }
+    setSavingDigest(true);
+    const { error } = await supabase
+      .from("oficinas")
+      .update({
+        email_digest_ativo: novoAtivo,
+        email_digest: novoAtivo ? novoEmail.trim() : null,
+      } as any)
+      .eq("id", oficina_id);
+    setSavingDigest(false);
+    if (error) {
+      toast.error("Erro ao salvar notificações.");
+      return;
+    }
+    toast.success(
+      novoAtivo ? "Resumo diário ativado!" : "Resumo diário desativado.",
+    );
+    qc.invalidateQueries({ queryKey: ["oficina-config"] });
+  }
 
   function slugify(v: string) {
     return v
@@ -485,6 +520,50 @@ const DemoConfig = () => {
           <button className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110">
             Escolher plano
           </button>
+        </div>
+
+        {/* Notificações por e-mail */}
+        <div className="rounded-lg border border-border p-5 lg:col-span-2">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <h3 className="text-sm font-medium text-foreground">Notificações</h3>
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={digestAtivo}
+                onChange={(e) => {
+                  const v = e.target.checked;
+                  setDigestAtivo(v);
+                  if (!v) {
+                    salvarDigest(false, "");
+                  }
+                }}
+                className="h-4 w-4 accent-primary"
+              />
+              Receber resumo diário por e-mail
+            </label>
+          </div>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Enviamos todo dia às 18h um resumo com OS abertas, finalizadas, atrasos e
+            faturamento confirmado.
+          </p>
+          {digestAtivo && (
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <input
+                type="email"
+                value={digestEmail}
+                onChange={(e) => setDigestEmail(e.target.value)}
+                placeholder="seu@email.com"
+                className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              />
+              <button
+                onClick={() => salvarDigest(true, digestEmail)}
+                disabled={savingDigest}
+                className="rounded-lg bg-primary px-6 py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50"
+              >
+                {savingDigest ? "Salvando..." : "Salvar"}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Google Reviews */}
