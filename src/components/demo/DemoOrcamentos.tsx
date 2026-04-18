@@ -33,9 +33,10 @@ const brl = (n: number) =>
 
 interface DemoOrcamentosProps {
   onNavigate?: (key: string) => void;
+  embedded?: boolean;
 }
 
-const DemoOrcamentos = ({ onNavigate }: DemoOrcamentosProps = {}) => {
+const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = {}) => {
   const { oficina_id } = useAuth();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
