@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Plus, Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 
 const Hero = () => {
   return (
@@ -174,22 +174,24 @@ const Hero = () => {
                   </div>
                 </div>
 
-                {/* Conector "+" horizontal entre os dois de cima (desktop only) */}
-                <div
-                  className="absolute left-1/2 top-1/2 z-20 hidden -translate-x-1/2 -translate-y-1/2 lg:flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/5 backdrop-blur opacity-0 animate-[fade-in_0.4s_ease-out_forwards]"
-                  style={{ animationDelay: '400ms' }}
-                >
-                  <Plus className="h-4 w-4 text-white" />
-                </div>
               </div>
 
-              {/* Conector "+" vertical entre as linhas (desktop only) */}
+              {/* Conector único central — ponto de encontro dos 3 mockups */}
               <div
-                className="absolute left-1/2 z-20 hidden lg:flex h-7 w-7 -translate-x-1/2 items-center justify-center rounded-full border border-white/20 bg-white/5 backdrop-blur opacity-0 animate-[fade-in_0.4s_ease-out_forwards]"
-                style={{ top: 'calc(50% - 14px)', animationDelay: '450ms' }}
+                className="hero-glow-connector pointer-events-none absolute left-1/2 z-10 hidden lg:flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-white opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
+                style={{
+                  top: 'calc(50% - 12px)',
+                  background: 'radial-gradient(circle, #F59E0B, #D97706)',
+                  animationDelay: '500ms',
+                  fontSize: '18px',
+                  fontWeight: 700,
+                  lineHeight: 1,
+                }}
+                aria-hidden="true"
               >
-                <Plus className="h-4 w-4 text-white" />
+                +
               </div>
+
 
               {/* Linha de baixo: mockup central maior */}
               <div className="flex justify-center">
