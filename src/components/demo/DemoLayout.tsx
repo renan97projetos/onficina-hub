@@ -57,16 +57,31 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
     return it.key !== "config" && it.key !== "financeiro";
   });
 
-  const proExtras = PRO_ONLY_NAV;
+  // Sempre mostrar Pátio e Analytics; bloquear se não-Pro
+  type NavItem = {
+    icon: typeof FileText;
+    label: string;
+    key: string;
+    proLocked?: boolean;
+  };
+  const navItems: NavItem[] = [
+    filteredBase[0],
+    { icon: LayoutGrid, label: "Pátio", key: "patio", proLocked: !isPro },
+    ...filteredBase.slice(1),
+    { icon: TrendingUp, label: "Analytics", key: "analytics", proLocked: !isPro },
+  ];
 
-  const navItems = isPro
-    ? [
-        filteredBase[0],
-        { icon: LayoutGrid, label: "Pátio", key: "patio" },
-        ...filteredBase.slice(1),
-        ...proExtras,
-      ]
-    : filteredBase;
+  const handleNavClick = (item: NavItem) => {
+    if (item.proLocked) {
+      toast.info(`${item.label} está disponível no plano Pro`, {
+        action: { label: "Fazer upgrade", onClick: () => navigate("/assinar") },
+      });
+      navigate("/assinar");
+      return;
+    }
+    onNavigate(item.key);
+  };
+
 
   // Badge: agendamentos pendentes
   const [pendentes, setPendentes] = useState(0);
