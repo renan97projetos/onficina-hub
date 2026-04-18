@@ -3,10 +3,21 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe } from "lucide-react";
+import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe, Users, UserPlus, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const DemoConfig = () => {
-  const { oficina_id, user } = useAuth();
+  const { oficina_id, user, isDono, oficina } = useAuth();
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
 
