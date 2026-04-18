@@ -19,6 +19,7 @@ import Pagamento from "./pages/Pagamento";
 import PagamentoRetorno from "./pages/PagamentoRetorno";
 import PainelAssinatura from "./pages/PainelAssinatura";
 import NotFound from "./pages/NotFound";
+import AgendaPublica from "./pages/AgendaPublica";
 
 const queryClient = new QueryClient();
 
