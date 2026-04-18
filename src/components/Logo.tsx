@@ -40,8 +40,8 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
       />
 
       {/* Politriz — SVG fornecido pelo usuário, escalado de 384x352 → 100x100 */}
-      {/* Aumentada: scale 0.26 e recentralizada */}
-      <g transform="translate(4, -1) scale(0.26)" className="text-primary">
+      {/* Deslocada para baixo: ponta inferior encosta no círculo, não o disco */}
+      <g transform="translate(2, 6) scale(0.26)" className="text-primary">
         <path
           fill="currentColor"
           d="M181.449951,281.275269 
