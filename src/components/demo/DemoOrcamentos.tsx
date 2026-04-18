@@ -249,6 +249,18 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
   }
 
   if (!orcamentos || orcamentos.length === 0) {
+    if (embedded) {
+      return (
+        <>
+          <div className="rounded-lg border border-dashed border-border bg-card/50 px-6 py-12 text-center">
+            <p className="text-sm text-muted-foreground">
+              Nenhum orçamento nesta etapa. Clique em "Novo Orçamento" para criar.
+            </p>
+          </div>
+          <OrcamentoFormModal open={showForm} onOpenChange={setShowForm} orcamentoId={editingId} />
+        </>
+      );
+    }
     return (
       <>
         <EmptyModuleState
