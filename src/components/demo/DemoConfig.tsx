@@ -16,7 +16,7 @@ const DemoConfig = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("oficinas")
-        .select("id, nome, telefone, plano, trial_expires_at, google_review_url, logo_url, cnpj, endereco, slug")
+        .select("id, nome, telefone, plano, trial_expires_at, google_review_url, logo_url, cnpj, endereco, slug, landing_template, landing_ativo, landing_descricao, landing_servicos_exibidos")
         .eq("id", oficina_id!)
         .maybeSingle();
       return data;
