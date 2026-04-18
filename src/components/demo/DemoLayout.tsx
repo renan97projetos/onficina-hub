@@ -121,7 +121,7 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
                 key={item.key}
                 type="button"
                 onClick={() => onNavigate(item.key)}
-                className={`flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
+                className={`relative flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
                   activeKey === item.key
                     ? "border-primary text-primary"
                     : "border-transparent text-muted-foreground hover:text-foreground"
@@ -129,6 +129,11 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
               >
                 <item.icon className="h-4 w-4" />
                 {item.label}
+                {item.key === "agenda" && pendentes > 0 && (
+                  <span className="ml-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                    {pendentes}
+                  </span>
+                )}
               </button>
             ))}
           </div>
