@@ -274,6 +274,10 @@ export type Database = {
           endereco: string | null
           google_review_url: string | null
           id: string
+          landing_ativo: boolean | null
+          landing_descricao: string | null
+          landing_servicos_exibidos: Json | null
+          landing_template: number | null
           logo_url: string | null
           nome: string
           onboarding_completed: boolean
@@ -289,6 +293,10 @@ export type Database = {
           endereco?: string | null
           google_review_url?: string | null
           id?: string
+          landing_ativo?: boolean | null
+          landing_descricao?: string | null
+          landing_servicos_exibidos?: Json | null
+          landing_template?: number | null
           logo_url?: string | null
           nome: string
           onboarding_completed?: boolean
@@ -304,6 +312,10 @@ export type Database = {
           endereco?: string | null
           google_review_url?: string | null
           id?: string
+          landing_ativo?: boolean | null
+          landing_descricao?: string | null
+          landing_servicos_exibidos?: Json | null
+          landing_template?: number | null
           logo_url?: string | null
           nome?: string
           onboarding_completed?: boolean
@@ -705,6 +717,7 @@ export type Database = {
         Returns: string
       }
       get_oficina_publica_by_slug: { Args: { _slug: string }; Returns: Json }
+      get_site_oficina_by_slug: { Args: { _slug: string }; Returns: Json }
       get_user_oficina_id: { Args: never; Returns: string }
     }
     Enums: {
