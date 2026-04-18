@@ -150,17 +150,23 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
               <button
                 key={item.key}
                 type="button"
-                onClick={() => onNavigate(item.key)}
+                onClick={() => handleNavClick(item)}
                 className={`relative flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors ${
                   activeKey === item.key
                     ? "border-primary text-primary"
                     : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
+                } ${item.proLocked ? "opacity-80" : ""}`}
+                title={item.proLocked ? "Disponível no plano Pro — clique para fazer upgrade" : undefined}
               >
                 <item.icon className="h-4 w-4" />
                 {item.label}
+                {item.proLocked && (
+                  <span className="ml-1 inline-flex items-center rounded-full bg-purple-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-purple-500">
+                    Pro
+                  </span>
+                )}
                 {item.key === "agenda" && pendentes > 0 && (
-                  <span className="ml-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-bold text-white">
+                  <span className="ml-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-destructive px-1.5 text-[10px] font-bold text-destructive-foreground">
                     {pendentes}
                   </span>
                 )}
