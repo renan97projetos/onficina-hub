@@ -358,6 +358,8 @@ export type Database = {
           auth_user_id: string | null
           cnpj: string | null
           created_at: string
+          email_digest: string | null
+          email_digest_ativo: boolean
           endereco: string | null
           google_review_url: string | null
           id: string
@@ -377,6 +379,8 @@ export type Database = {
           auth_user_id?: string | null
           cnpj?: string | null
           created_at?: string
+          email_digest?: string | null
+          email_digest_ativo?: boolean
           endereco?: string | null
           google_review_url?: string | null
           id?: string
@@ -396,6 +400,8 @@ export type Database = {
           auth_user_id?: string | null
           cnpj?: string | null
           created_at?: string
+          email_digest?: string | null
+          email_digest_ativo?: boolean
           endereco?: string | null
           google_review_url?: string | null
           id?: string
