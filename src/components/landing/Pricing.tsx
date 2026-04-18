@@ -80,11 +80,6 @@ const Pricing = () => {
                   <span className="text-sm text-muted-foreground">R$ </span>
                   <span className="text-5xl font-bold text-foreground">{price}</span>
                   <span className="text-sm text-muted-foreground">/mês</span>
-                  {annual && (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      R$ {plan.yearlyPrice.toLocaleString("pt-BR")}/ano
-                    </p>
-                  )}
                 </div>
 
                 <ul className="mb-8 space-y-3">
