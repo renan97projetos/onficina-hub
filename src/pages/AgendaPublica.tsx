@@ -50,7 +50,7 @@ const AgendaPublica = () => {
       setErro("Oficina não encontrada.");
       return;
     }
-    const d = data as { oficina: OficinaPublica; config: ConfigPublica; ocupacao_por_dia: Ocupacao[] };
+    const d = data as unknown as { oficina: OficinaPublica; config: ConfigPublica; ocupacao_por_dia: Ocupacao[] };
     if (!d.config?.modo_cliente_ativo) {
       setOficina(d.oficina);
       setConfig(d.config);
