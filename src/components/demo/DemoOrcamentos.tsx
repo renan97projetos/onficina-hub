@@ -14,6 +14,7 @@ import {
   Eye,
   CheckCircle2,
   XCircle,
+  Wrench,
 } from "lucide-react";
 import OrcamentoFormModal from "./OrcamentoFormModal";
 import EmptyModuleState from "./EmptyModuleState";
@@ -30,12 +31,17 @@ const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
 const brl = (n: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n || 0);
 
-const DemoOrcamentos = () => {
+interface DemoOrcamentosProps {
+  onNavigate?: (key: string) => void;
+}
+
+const DemoOrcamentos = ({ onNavigate }: DemoOrcamentosProps = {}) => {
   const { oficina_id } = useAuth();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("todos");
+  const [creatingOsId, setCreatingOsId] = useState<string | null>(null);
 
   const { data: oficina } = useQuery({
     queryKey: ["oficina-pdf-meta", oficina_id],
@@ -143,6 +149,89 @@ const DemoOrcamentos = () => {
     const link = `${window.location.origin}/aprovar/${orc.token_publico}`;
     navigator.clipboard.writeText(link);
     toast.success("Link copiado!");
+  }
+
+  async function handleCriarOS(orc: any) {
+    if (!oficina_id) return;
+    setCreatingOsId(orc.id);
+    try {
+      let clienteId: string | null = null;
+      if (orc.nome_cliente) {
+        const { data: cli } = await supabase
+          .from("clientes")
+          .select("id")
+          .eq("oficina_id", oficina_id)
+          .ilike("nome", orc.nome_cliente)
+          .maybeSingle();
+        if (cli) clienteId = cli.id;
+        else {
+          const { data: novoCli } = await supabase
+            .from("clientes")
+            .insert({
+              oficina_id,
+              nome: orc.nome_cliente,
+              telefone: orc.telefone_cliente || null,
+            })
+            .select("id")
+            .single();
+          if (novoCli) clienteId = novoCli.id;
+        }
+      }
+
+      let veiculoId: string | null = null;
+      if (orc.placa && clienteId) {
+        const { data: vei } = await supabase
+          .from("veiculos")
+          .select("id")
+          .eq("oficina_id", oficina_id)
+          .ilike("placa", orc.placa)
+          .maybeSingle();
+        if (vei) veiculoId = vei.id;
+        else {
+          const { data: novoVei } = await supabase
+            .from("veiculos")
+            .insert({
+              oficina_id,
+              cliente_id: clienteId,
+              placa: orc.placa,
+              marca: orc.marca || null,
+              modelo: orc.modelo || null,
+            })
+            .select("id")
+            .single();
+          if (novoVei) veiculoId = novoVei.id;
+        }
+      }
+
+      const totalPecas = Array.isArray(orc.pecas)
+        ? orc.pecas.reduce(
+            (s: number, p: any) =>
+              s + (Number(p.subtotal) || (Number(p.quantidade) || 0) * (Number(p.preco_unitario) || 0)),
+            0,
+          )
+        : Number(orc.total_pecas) || 0;
+      const valorTotal = (Number(orc.mao_obra_valor) || 0) + totalPecas;
+
+      const { error } = await supabase.from("ordens_servico").insert({
+        oficina_id,
+        cliente_id: clienteId,
+        veiculo_id: veiculoId,
+        colaborador_id: null,
+        stage: "criado",
+        valor_total: valorTotal,
+        observacoes: orc.mao_obra_descricao || null,
+      });
+      if (error) throw error;
+
+      toast.success("OS criada com sucesso!");
+      qc.invalidateQueries({ queryKey: ["ordens-servico"] });
+      onNavigate?.("os");
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e?.message || "Erro ao criar OS.");
+    } finally {
+      setCreatingOsId(null);
+    }
   }
 
   const counts = (orcamentos || []).reduce<Record<string, number>>((acc, o: any) => {
@@ -261,6 +350,22 @@ const DemoOrcamentos = () => {
                       >
                         <Send className="h-3.5 w-3.5" />
                       </IconBtn>
+                      {o.status === "aprovado" && (
+                        <button
+                          type="button"
+                          disabled={creatingOsId === o.id}
+                          onClick={() => handleCriarOS(o)}
+                          className="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2 py-1 text-xs font-semibold text-emerald-400 transition-colors hover:bg-emerald-500/20 disabled:opacity-50"
+                          title="Criar OS a partir deste orçamento"
+                        >
+                          {creatingOsId === o.id ? (
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                          ) : (
+                            <Wrench className="h-3.5 w-3.5" />
+                          )}
+                          Criar OS
+                        </button>
+                      )}
                       {o.status === "recusado" && (
                         <IconBtn
                           title="Voltar para edição"

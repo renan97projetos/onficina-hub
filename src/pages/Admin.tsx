@@ -34,7 +34,11 @@ const Admin = () => {
   return (
     <DemoLayout activeKey={activeKey} onNavigate={setActiveKey}>
       <OnboardingChecklist onNavigate={setActiveKey} />
-      <Page />
+      {activeKey === "orcamentos" ? (
+        <DemoOrcamentos onNavigate={setActiveKey} />
+      ) : (
+        <Page />
+      )}
     </DemoLayout>
   );
 };
