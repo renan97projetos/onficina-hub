@@ -21,3 +21,5 @@ project_id = "yzjliinoeliqlxduhrds"
     verify_jwt = true
   [functions.create-portal-session]
     verify_jwt = true
+  [functions.check-os-limit]
+    verify_jwt = true
