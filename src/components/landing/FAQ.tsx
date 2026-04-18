@@ -22,6 +22,22 @@ const faqs = [
     q: "Meus dados estão seguros?",
     a: "Sim. Todos os dados ficam armazenados em servidores com criptografia e backup automático diário. Você pode exportar suas informações a qualquer momento.",
   },
+  {
+    q: "O que é o ServiçoAo Vivo?",
+    a: "É um link exclusivo que você envia para o cliente pelo WhatsApp. Ele abre no celular e acompanha em tempo real cada etapa do serviço do carro dele — sem precisar ligar para saber como está.",
+  },
+  {
+    q: "Precisa instalar algum aplicativo?",
+    a: "Não. O ONficina funciona direto no navegador, em qualquer celular ou computador. Seus técnicos atualizam as etapas pelo próprio celular sem instalar nada.",
+  },
+  {
+    q: "Como funciona o envio de orçamento?",
+    a: "Você monta o orçamento no sistema, gera um PDF com a logo da sua oficina e envia pelo WhatsApp. O cliente aprova ou recusa pelo link. Se aprovar, a OS é criada automaticamente.",
+  },
+  {
+    q: "Posso usar sendo só eu na oficina?",
+    a: "Sim. O plano Starter foi feito para oficinas com 1 usuário. Quando quiser adicionar operadores ou técnicos, o plano Pro permite acesso para toda a equipe.",
+  },
 ];
 
 const FAQ = () => {

@@ -1,35 +1,62 @@
-import { FileText, DollarSign, BarChart3, Users, Clock, Shield } from "lucide-react";
+import {
+  ClipboardList,
+  GitBranch,
+  MessageCircle,
+  Eye,
+  Users,
+  Star,
+  DollarSign,
+  BarChart3,
+} from "lucide-react";
 
 const benefits = [
   {
-    icon: FileText,
-    title: "Ordens de serviço digitais",
-    description: "Crie, acompanhe e finalize OS com fotos, peças e histórico completo do veículo.",
+    icon: ClipboardList,
+    title: "Orçamentos em PDF com 1 clique",
+    description:
+      "Monte o orçamento com peças e mão de obra, gere PDF com a logo da sua oficina e envie pelo WhatsApp para o cliente aprovar.",
+  },
+  {
+    icon: GitBranch,
+    title: "Pipeline visual de OS",
+    description:
+      "Acompanhe cada carro do orçamento até a entrega. Etapas claras, sem perder nada no caminho.",
+  },
+  {
+    icon: MessageCircle,
+    title: "WhatsApp em cada etapa",
+    description:
+      "Mensagens prontas para enviar ao cliente com 1 clique. Sem digitar, sem esquecer de avisar.",
+  },
+  {
+    icon: Eye,
+    title: "ServiçoAo Vivo",
+    description:
+      "O cliente acompanha o próprio carro em tempo real pelo celular — igual rastreio de pedido, sem precisar ligar.",
+  },
+  {
+    icon: Users,
+    title: "Histórico completo de clientes",
+    description:
+      "Todo cliente e veículo que passou pela oficina fica salvo com histórico de serviços, valores e datas.",
+  },
+  {
+    icon: Star,
+    title: "Avaliações que vão para o Google",
+    description:
+      "Após a entrega, o cliente avalia o serviço no sistema. Notas altas são direcionadas direto para o Google Reviews.",
   },
   {
     icon: DollarSign,
     title: "Controle financeiro",
-    description: "Entradas, saídas, custos de peças e margem de lucro. Tudo em tempo real.",
+    description:
+      "Recebimentos, despesas e saldo do mês em uma tela só. Sem planilha, sem confusão.",
   },
   {
     icon: BarChart3,
-    title: "Relatórios que fazem sentido",
-    description: "Saiba quais serviços dão mais lucro, tempo médio por reparo e produtividade da equipe.",
-  },
-  {
-    icon: Users,
-    title: "Cadastro de clientes",
-    description: "Histórico completo de cada cliente e veículo. Fidelização facilitada.",
-  },
-  {
-    icon: Clock,
-    title: "Agendamento inteligente",
-    description: "Organize a fila de serviços e saiba exatamente quando cada carro ficará pronto.",
-  },
-  {
-    icon: Shield,
-    title: "Dados seguros",
-    description: "Backup automático na nuvem. Seus dados protegidos e acessíveis de qualquer lugar.",
+    title: "Indicadores reais da oficina",
+    description:
+      "Saiba exatamente quantas OS estão abertas, quanto faturou no mês e qual serviço mais dá lucro.",
   },
 ];
 
@@ -49,7 +76,7 @@ const Benefits = () => {
           </p>
         </div>
 
-        <div className="mt-12 grid max-w-5xl grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {benefits.map((b, i) => (
             <div
               key={i}

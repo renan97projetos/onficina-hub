@@ -262,15 +262,15 @@ const MockFinalizar = () => {
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 const MockShell = ({ children }: { children: React.ReactNode }) => (
-  <div className="mb-5 h-[200px] overflow-hidden rounded-xl border border-border bg-card p-4 shadow-inner">
+  <div className="mock-light mb-5 h-[200px] overflow-hidden rounded-xl border border-gray-200 bg-white p-4 text-gray-900 shadow-inner">
     {children}
   </div>
 );
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
-  <div className="rounded-md border border-border/60 bg-muted/30 px-2.5 py-1.5">
-    <p className="text-[9px] uppercase tracking-wide text-muted-foreground">{label}</p>
-    <p className="text-xs font-semibold text-foreground">{children}</p>
+  <div className="rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1.5">
+    <p className="text-[9px] uppercase tracking-wide text-gray-500">{label}</p>
+    <p className="text-xs font-semibold text-gray-900">{children}</p>
   </div>
 );
 

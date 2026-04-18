@@ -7,6 +7,7 @@ import Pricing from "@/components/landing/Pricing";
 import FAQ from "@/components/landing/FAQ";
 import FinalCTA from "@/components/landing/FinalCTA";
 import Footer from "@/components/landing/Footer";
+import WhatsAppFloat from "@/components/WhatsAppFloat";
 
 const Index = () => {
   return (
@@ -20,6 +21,7 @@ const Index = () => {
       <FAQ />
       <FinalCTA />
       <Footer />
+      <WhatsAppFloat />
     </div>
   );
 };
