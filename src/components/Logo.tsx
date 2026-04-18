@@ -116,7 +116,7 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
           style={{
             width: s.icon,
             height: s.icon,
-            transform: "translateY(-0.08em)",
+            transform: "translateY(0.02em)",
           }}
         >
           <TireIcon />
