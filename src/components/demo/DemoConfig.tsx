@@ -45,6 +45,27 @@ const DemoConfig = () => {
   const [savingGoogle, setSavingGoogle] = useState(false);
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
+  // ===== Site da oficina (Pro) =====
+  const [siteAtivo, setSiteAtivo] = useState(false);
+  const [siteSlug, setSiteSlug] = useState("");
+  const [siteTemplate, setSiteTemplate] = useState<number>(1);
+  const [siteDescricao, setSiteDescricao] = useState("");
+  const [siteServicos, setSiteServicos] = useState<string[]>([]);
+  const [savingSite, setSavingSite] = useState(false);
+
+  const { data: servicosCatalogo } = useQuery({
+    queryKey: ["servicos-catalogo-config", oficina_id],
+    enabled: !!oficina_id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("servicos_catalogo")
+        .select("id, nome")
+        .eq("oficina_id", oficina_id!)
+        .order("nome");
+      return data ?? [];
+    },
+  });
+
   useEffect(() => {
     if (oficina) {
       setNome(oficina.nome || "");
@@ -52,8 +73,62 @@ const DemoConfig = () => {
       setCnpj(oficina.cnpj || "");
       setEndereco(oficina.endereco || "");
       setGoogleUrl(oficina.google_review_url || "");
+      setSiteAtivo(!!(oficina as any).landing_ativo);
+      setSiteSlug(oficina.slug || "");
+      setSiteTemplate(Number((oficina as any).landing_template) || 1);
+      setSiteDescricao((oficina as any).landing_descricao || "");
+      const arr = (oficina as any).landing_servicos_exibidos;
+      setSiteServicos(Array.isArray(arr) ? arr : []);
     }
   }, [oficina]);
+
+  function slugify(v: string) {
+    return v
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "")
+      .slice(0, 50);
+  }
+
+  async function salvarSite() {
+    if (!oficina_id) return;
+    const cleanSlug = slugify(siteSlug);
+    if (siteAtivo && cleanSlug.length < 3) {
+      toast.error("Informe um endereço com pelo menos 3 caracteres.");
+      return;
+    }
+    setSavingSite(true);
+    const { error } = await supabase
+      .from("oficinas")
+      .update({
+        landing_ativo: siteAtivo,
+        slug: cleanSlug || null,
+        landing_template: siteTemplate,
+        landing_descricao: siteDescricao.trim() || null,
+        landing_servicos_exibidos: siteServicos as any,
+      } as any)
+      .eq("id", oficina_id);
+    setSavingSite(false);
+    if (error) {
+      toast.error(
+        error.message?.includes("duplicate")
+          ? "Esse endereço já está em uso. Escolha outro."
+          : "Erro ao salvar site.",
+      );
+      return;
+    }
+    setSiteSlug(cleanSlug);
+    toast.success("Site atualizado!");
+    qc.invalidateQueries({ queryKey: ["oficina-config"] });
+  }
+
+  function toggleServico(id: string) {
+    setSiteServicos((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+  }
 
   async function salvarDados() {
     if (!oficina_id) return;
