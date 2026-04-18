@@ -11,6 +11,7 @@ import DemoFinanceiro from "@/components/demo/DemoFinanceiro";
 import DemoRelatorios from "@/components/demo/DemoRelatorios";
 import DemoTreinamentos from "@/components/demo/DemoTreinamentos";
 import DemoConfig from "@/components/demo/DemoConfig";
+import DemoPatio from "@/components/demo/DemoPatio";
 import OnboardingChecklist from "@/components/demo/OnboardingChecklist";
 
 const pages: Record<string, React.ComponentType> = {
@@ -25,6 +26,7 @@ const pages: Record<string, React.ComponentType> = {
   relatorios: DemoRelatorios,
   treinamentos: DemoTreinamentos,
   config: DemoConfig,
+  patio: DemoPatio,
 };
 
 const Admin = () => {

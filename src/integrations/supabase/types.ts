@@ -100,6 +100,7 @@ export type Database = {
           created_at: string
           funcao: string | null
           id: string
+          max_carros_simultaneos: number
           nome: string
           oficina_id: string
         }
@@ -108,6 +109,7 @@ export type Database = {
           created_at?: string
           funcao?: string | null
           id?: string
+          max_carros_simultaneos?: number
           nome: string
           oficina_id: string
         }
@@ -116,6 +118,7 @@ export type Database = {
           created_at?: string
           funcao?: string | null
           id?: string
+          max_carros_simultaneos?: number
           nome?: string
           oficina_id?: string
         }
