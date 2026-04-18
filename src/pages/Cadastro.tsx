@@ -35,19 +35,41 @@ const Cadastro = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Validação reativa
+  const validation = useMemo(() => {
+    return cadastroSchema.safeParse({
+      nomeOficina,
+      email,
+      telefone,
+      senha,
+    });
+  }, [nomeOficina, email, telefone, senha]);
+
+  const errors: Partial<Record<"nomeOficina" | "email" | "telefone" | "senha", string>> =
+    validation.success
+      ? {}
+      : Object.fromEntries(
+          Object.entries(validation.error.flatten().fieldErrors).map(
+            ([k, v]) => [k, v?.[0] ?? ""],
+          ),
+        );
+
+  const formValido = validation.success && aceitouTermos;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nomeOficina.trim() || !email.trim() || !senha.trim()) {
-      toast({ title: "Preencha todos os campos obrigatórios", variant: "destructive" });
+    if (!validation.success) {
+      toast({ title: "Corrija os campos destacados", variant: "destructive" });
       return;
     }
+    const { nomeOficina: nome, email: mail, telefone: tel, senha: pwd } = validation.data;
     setLoading(true);
 
     try {
       // 1. Create auth user
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: email.trim(),
-        password: senha,
+        email: mail,
+        password: pwd,
       });
 
       if (authError) {
@@ -64,8 +86,8 @@ const Cadastro = () => {
 
       // 2. Create oficina via RPC (sets oficina_id in user metadata)
       const { error: rpcError } = await supabase.rpc("create_oficina_for_user", {
-        _nome: nomeOficina.trim(),
-        _telefone: telefone.trim() || null,
+        _nome: nome,
+        _telefone: tel || null,
       });
 
       if (rpcError) {
