@@ -11,7 +11,7 @@ const plans = [
       "Orçamentos profissionais em PDF com envio pelo WhatsApp",
       "Gestão completa de OS pela Pipeline",
       "Mensagens prontas no WhatsApp em cada etapa",
-      "ServiçoAo Vivo — cliente acompanha o carro em tempo real",
+      "Serviço Ao Vivo — cliente acompanha o carro em tempo real",
       "Painel do técnico no celular — sem instalar nenhum app",
       "Registro de fotos de entrada e saída do veículo",
       "CRM — histórico completo de clientes e veículos",
