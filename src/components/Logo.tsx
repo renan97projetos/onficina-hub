@@ -28,44 +28,49 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
       preserveAspectRatio="xMinYMid meet"
     >
       {/* PolitrizIcon — desenhada no espaço 0..100 (mesmo do TireIcon original) */}
-      <g className="text-primary" color="currentColor">
+      <g
+        className="text-primary"
+        color="currentColor"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
         {/* Círculo externo — é o "O" da logo (mesmo raio/stroke do pneu original) */}
-        <circle cx="50" cy="50" r="41.5" stroke="currentColor" strokeWidth="17" fill="none" />
+        <circle cx="50" cy="50" r="41.5" strokeWidth="17" fill="none" />
 
-        {/* Círculo interno sutil — aro interno */}
-        <circle cx="50" cy="50" r="24" stroke="currentColor" strokeWidth="1.5" fill="none" opacity="0.3" />
-
-        {/* Disco da politriz — centrado levemente acima */}
-        <circle cx="50" cy="44" r="13" stroke="currentColor" strokeWidth="3" fill="none" />
-
-        {/* Parafuso central da politriz */}
-        <circle cx="50" cy="44" r="4.5" fill="currentColor" />
-
-        {/* Cabeçote superior da máquina */}
-        <rect x="42" y="32" width="16" height="7" rx="2" stroke="currentColor" strokeWidth="2.5" fill="none" />
-
-        {/* Cabo diagonal para baixo-esquerda ↙ */}
-        <path d="M40 56 Q34 64 28 74" stroke="currentColor" strokeWidth="5" strokeLinecap="round" />
-
-        {/* Empunhadura no final do cabo */}
-        <rect x="22" y="71" width="9" height="12" rx="2.5" fill="currentColor" opacity="0.85" />
-
-        {/* Estrela grande — brilho canto superior direito */}
+        {/* === POLITRIZ (corpo line-icon, estilo da referência) === */}
+        {/* Corpo alongado em diagonal ↘ — contorno fechado, traço fino sobre o disco */}
+        {/* Eixo do corpo: do punho (≈ 30,30) descendo até a "boca" do disco (≈ 70,72) */}
         <path
-          d="M74 20 L76 15 L78 20 L83 20 L79 23 L81 28 L76 25 L71 28 L73 23 L68 20 Z"
-          fill="currentColor"
-          opacity="0.95"
+          d="
+            M 28 24
+            L 42 24
+            L 46 32
+            L 70 56
+            Q 76 62 70 68
+            Q 64 74 58 68
+            L 34 44
+            L 26 40
+            Z
+          "
+          fill="hsl(var(--background))"
+          strokeWidth="3"
         />
 
-        {/* Estrela média */}
-        <path
-          d="M82 12 L83.5 8 L85 12 L89 12 L86 14 L87 18 L83.5 16 L80 18 L81 14 L78 12 Z"
-          fill="currentColor"
-          opacity="0.7"
+        {/* Punho retangular saindo da extremidade superior-esquerda (fora do disco) */}
+        <rect
+          x="20"
+          y="20"
+          width="14"
+          height="9"
+          rx="1.5"
+          fill="hsl(var(--background))"
+          strokeWidth="3"
         />
 
-        {/* Ponto brilhante pequeno */}
-        <circle cx="90" cy="7" r="2.5" fill="currentColor" opacity="0.45" />
+        {/* Detalhes de "ventilação" na parte central do corpo — duas linhas paralelas */}
+        <line x1="50" y1="46" x2="56" y2="52" strokeWidth="2" />
+        <line x1="54" y1="42" x2="60" y2="48" strokeWidth="2" />
       </g>
 
       {/* Texto: "N" primary + "ficina" foreground, na mesma baseline do "O" */}
