@@ -144,6 +144,42 @@ const DemoConfig = () => {
     qc.invalidateQueries({ queryKey: ["oficina-config"] });
   }
 
+  async function toggleModoCliente(novo: boolean) {
+    if (!oficina_id) return;
+    if (agendaConfig) {
+      await supabase
+        .from("agenda_config")
+        .update({ modo_cliente_ativo: novo })
+        .eq("oficina_id", oficina_id);
+    } else {
+      await supabase.from("agenda_config").insert({
+        oficina_id,
+        modo_cliente_ativo: novo,
+      });
+    }
+    qc.invalidateQueries({ queryKey: ["agenda-config-cfg", oficina_id] });
+    toast.success(novo ? "Agendamento online ativado!" : "Agendamento online desativado.");
+  }
+
+  async function salvarLimites(limite: number, min: number, max: number) {
+    if (!oficina_id) return;
+    if (agendaConfig) {
+      await supabase
+        .from("agenda_config")
+        .update({ limite_por_dia: limite, dias_antecedencia_min: min, dias_antecedencia_max: max })
+        .eq("oficina_id", oficina_id);
+    } else {
+      await supabase.from("agenda_config").insert({
+        oficina_id,
+        limite_por_dia: limite,
+        dias_antecedencia_min: min,
+        dias_antecedencia_max: max,
+      });
+    }
+    qc.invalidateQueries({ queryKey: ["agenda-config-cfg", oficina_id] });
+    toast.success("Configurações da agenda salvas.");
+  }
+
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
