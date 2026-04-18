@@ -17,7 +17,7 @@ import {
 import { TrendingUp, DollarSign, Target, UserX, MessageCircle } from "lucide-react";
 import EmptyModuleState from "./EmptyModuleState";
 
-const PRO_PLANS = ["pro", "premium", "trial"];
+const PRO_PLANS = ["pro", "trial"];
 
 type Periodo = "hoje" | "7d" | "30d" | "mes" | "mes_anterior" | "custom";
 
@@ -258,7 +258,7 @@ const DemoAnalytics = () => {
       <EmptyModuleState
         icon={TrendingUp}
         title="Analytics avançado"
-        description="Disponível nos planos Pro e Premium. Veja conversão, ticket médio, sazonalidade e clientes inativos."
+        description="Disponível no plano Pro. Veja conversão, ticket médio, sazonalidade e clientes inativos."
       />
     );
   }

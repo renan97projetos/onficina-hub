@@ -7,7 +7,7 @@ import Logo from "@/components/Logo";
 
 const plans = [
   {
-    name: "Básico",
+    name: "Starter",
     monthlyPrice: 97,
     yearlyPrice: 970,
     features: ["Pipeline completo", "Até 2 colaboradores", "Notificações", "Financeiro básico"],
@@ -16,13 +16,7 @@ const plans = [
     name: "Pro",
     monthlyPrice: 197,
     yearlyPrice: 1970,
-    features: ["Tudo do Básico", "Até 5 colaboradores", "Agendamento", "CRM", "Relatórios avançados"],
-  },
-  {
-    name: "Premium",
-    monthlyPrice: 297,
-    yearlyPrice: 2970,
-    features: ["Tudo do Pro", "Colaboradores ilimitados", "Landing page", "WhatsApp Business API"],
+    features: ["Tudo do Starter", "Até 5 colaboradores", "Agendamento", "CRM", "Relatórios avançados"],
   },
 ];
 
@@ -35,6 +29,7 @@ const Cadastro = () => {
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [senha, setSenha] = useState("");
+  const [aceitouTermos, setAceitouTermos] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -206,9 +201,38 @@ const Cadastro = () => {
             </div>
           </div>
 
+          <label className="flex cursor-pointer items-start gap-3 mt-2">
+            <input
+              type="checkbox"
+              checked={aceitouTermos}
+              onChange={(e) => setAceitouTermos(e.target.checked)}
+              className="mt-0.5 h-4 w-4 rounded border-border accent-primary"
+            />
+            <span className="text-xs leading-relaxed text-muted-foreground">
+              Li e aceito os{" "}
+              <a
+                href="/termos"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline hover:opacity-80"
+              >
+                Termos de Uso
+              </a>{" "}
+              e a{" "}
+              <a
+                href="/privacidade"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary underline hover:opacity-80"
+              >
+                Política de Privacidade
+              </a>
+            </span>
+          </label>
+
           <button
             type="submit"
-            disabled={loading}
+            disabled={!aceitouTermos || loading}
             className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50"
           >
             {loading ? "Criando conta..." : "Iniciar teste grátis de 14 dias"}

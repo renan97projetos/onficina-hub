@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import Logo from "@/components/Logo";
 
 const Footer = () => {
@@ -45,8 +46,8 @@ const Footer = () => {
             © 2026 ONficina. Todos os direitos reservados.
           </p>
           <div className="flex gap-6 text-xs text-muted-foreground">
-            <a href="#" className="transition-colors hover:text-foreground">Termos de uso</a>
-            <a href="#" className="transition-colors hover:text-foreground">Privacidade</a>
+            <Link to="/termos" className="transition-colors hover:text-foreground">Termos de uso</Link>
+            <Link to="/privacidade" className="transition-colors hover:text-foreground">Privacidade</Link>
           </div>
         </div>
       </div>
