@@ -132,19 +132,32 @@ const DemoOS = () => {
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-sm font-bold uppercase tracking-wide">
-          {activeLabel} ({filtered.length})
+          {activeLabel}
+          {activeStage !== "orcamento" && ` (${filtered.length})`}
         </h2>
-        <button
-          type="button"
-          onClick={() => setShowForm(true)}
-          className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
-        >
-          <Plus className="h-4 w-4" /> Nova OS
-        </button>
+        {activeStage === "orcamento" ? (
+          <button
+            type="button"
+            onClick={() => setShowOrcamentoForm(true)}
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
+          >
+            <Plus className="h-4 w-4" /> Novo Orçamento
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setShowForm(true)}
+            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
+          >
+            <Plus className="h-4 w-4" /> Nova OS
+          </button>
+        )}
       </div>
 
-      {/* Cards list */}
-      {filtered.length === 0 ? (
+      {/* Conteúdo: orçamentos na etapa "orcamento", OS nas demais */}
+      {activeStage === "orcamento" ? (
+        <DemoOrcamentos embedded />
+      ) : filtered.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border bg-card/50 px-6 py-12 text-center">
           <p className="text-sm text-muted-foreground">Nenhuma OS nesta etapa.</p>
         </div>
@@ -197,7 +210,8 @@ const DemoOS = () => {
         </SheetContent>
       </Sheet>
 
-      {/* Form modal */}
+      {/* Modais */}
+      <OrcamentoFormModal open={showOrcamentoForm} onOpenChange={setShowOrcamentoForm} orcamentoId={null} />
       <OSFormModal open={showForm} onOpenChange={setShowForm} />
     </>
   );
