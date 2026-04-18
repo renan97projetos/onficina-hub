@@ -1,13 +1,21 @@
 import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
   Search, Users, Phone, Mail, Car, Plus, ChevronRight, Calendar,
+  Bell, RotateCcw, Wrench, MessageCircle, Trash2,
 } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
+} from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "@/hooks/use-toast";
 import EmptyModuleState from "./EmptyModuleState";
 import OSFormModal from "./OSFormModal";
 
@@ -31,6 +39,20 @@ const STAGE_LABELS: Record<string, string> = {
   recusado: "Recusado",
 };
 
+const TIPO_LEMBRETE_LABELS: Record<string, string> = {
+  lembrete: "Lembrete",
+  retorno: "Retorno",
+  revisao: "Revisão",
+  followup: "Follow-up",
+};
+
+const TIPO_LEMBRETE_ICONS: Record<string, typeof Bell> = {
+  lembrete: Bell,
+  retorno: RotateCcw,
+  revisao: Wrench,
+  followup: MessageCircle,
+};
+
 function getInitials(nome: string) {
   return nome
     .split(" ")
@@ -45,9 +67,21 @@ function formatBRL(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+function getClienteStatus(ultimaVisita: string | null, totalOs: number) {
+  if (totalOs === 0) return { label: "Novo", cls: "bg-blue-500/15 text-blue-400" };
+  if (!ultimaVisita) return { label: "Novo", cls: "bg-blue-500/15 text-blue-400" };
+  const dias = Math.floor(
+    (Date.now() - new Date(ultimaVisita).getTime()) / (1000 * 60 * 60 * 24),
+  );
+  if (dias <= 90) return { label: "Ativo", cls: "bg-green-500/15 text-green-400" };
+  return { label: "Inativo", cls: "bg-red-500/15 text-red-400" };
+}
+
 const DemoClientes = () => {
   const { oficina_id } = useAuth();
   const [search, setSearch] = useState("");
+  const [filtroStatus, setFiltroStatus] = useState<"todos" | "ativos" | "inativos">("todos");
+  const [apenasComLembretesVencidos, setApenasComLembretesVencidos] = useState(false);
   const [selectedClienteId, setSelectedClienteId] = useState<string | null>(null);
   const [osModalOpen, setOsModalOpen] = useState(false);
   const [osModalClienteId, setOsModalClienteId] = useState<string | undefined>();
@@ -62,7 +96,7 @@ const DemoClientes = () => {
       const { data: oss } = await supabase
         .from("ordens_servico")
         .select("id, cliente_id, valor_total, pagamento_confirmado, created_at");
-      const { data: vs } = await supabase.from("veiculos").select("id, cliente_id");
+      const { data: vs } = await supabase.from("veiculos").select("id, cliente_id, placa");
 
       return (cs || []).map((c) => {
         const clienteOs = (oss || []).filter((o) => o.cliente_id === c.id);
@@ -75,13 +109,15 @@ const DemoClientes = () => {
               clienteOs[0].created_at,
             )
           : null;
-        const totalVeiculos = (vs || []).filter((v) => v.cliente_id === c.id).length;
+        const veiculosCliente = (vs || []).filter((v) => v.cliente_id === c.id);
+        const placas = veiculosCliente.map((v) => v.placa || "").filter(Boolean);
         return {
           ...c,
           total_os: clienteOs.length,
           total_gasto: totalGasto,
           ultima_visita: ultimaVisita,
-          total_veiculos: totalVeiculos,
+          total_veiculos: veiculosCliente.length,
+          placas,
         };
       }).sort((a, b) => {
         if (!a.ultima_visita) return 1;
@@ -91,15 +127,54 @@ const DemoClientes = () => {
     },
   });
 
+  // Lembretes pendentes (todos da oficina, para banner e badges)
+  const { data: lembretesPendentes = [] } = useQuery({
+    queryKey: ["crm-lembretes-pendentes", oficina_id],
+    enabled: !!oficina_id,
+    queryFn: async () => {
+      const hoje = format(new Date(), "yyyy-MM-dd");
+      const { data } = await supabase
+        .from("crm_lembretes")
+        .select("id, cliente_id, data_lembrete")
+        .eq("concluido", false)
+        .lte("data_lembrete", hoje);
+      return data || [];
+    },
+  });
+
+  const clientesComLembreteVencido = useMemo(
+    () => new Set(lembretesPendentes.map((l) => l.cliente_id)),
+    [lembretesPendentes],
+  );
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return clientes;
-    return clientes.filter(
-      (c) =>
-        c.nome.toLowerCase().includes(q) ||
-        (c.telefone || "").toLowerCase().includes(q),
-    );
-  }, [clientes, search]);
+    let list = clientes;
+
+    if (q) {
+      list = list.filter(
+        (c) =>
+          c.nome.toLowerCase().includes(q) ||
+          (c.telefone || "").toLowerCase().includes(q) ||
+          c.placas?.some((p) => p.toLowerCase().includes(q)),
+      );
+    }
+
+    if (filtroStatus !== "todos") {
+      list = list.filter((c) => {
+        const s = getClienteStatus(c.ultima_visita, c.total_os).label;
+        if (filtroStatus === "ativos") return s === "Ativo";
+        if (filtroStatus === "inativos") return s === "Inativo";
+        return true;
+      });
+    }
+
+    if (apenasComLembretesVencidos) {
+      list = list.filter((c) => clientesComLembreteVencido.has(c.id));
+    }
+
+    return list;
+  }, [clientes, search, filtroStatus, apenasComLembretesVencidos, clientesComLembreteVencido]);
 
   const openClienteSheet = (id: string) => setSelectedClienteId(id);
   const closeSheet = () => setSelectedClienteId(null);
@@ -124,6 +199,8 @@ const DemoClientes = () => {
     );
   }
 
+  const totalLembretesVencidos = lembretesPendentes.length;
+
   return (
     <>
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -133,10 +210,51 @@ const DemoClientes = () => {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar por nome ou telefone..."
+            placeholder="Buscar por nome, telefone ou placa..."
             className="h-9 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm outline-none focus:border-primary placeholder:text-muted-foreground"
           />
         </div>
+      </div>
+
+      {totalLembretesVencidos > 0 && (
+        <button
+          onClick={() => setApenasComLembretesVencidos((v) => !v)}
+          className={`mb-4 flex w-full items-center gap-2 rounded-xl border px-4 py-3 text-left text-sm transition-all ${
+            apenasComLembretesVencidos
+              ? "border-amber-500/50 bg-amber-500/20 text-amber-200"
+              : "border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/15"
+          }`}
+        >
+          <Bell className="h-4 w-4 shrink-0" />
+          <span className="flex-1">
+            🔔 {totalLembretesVencidos} lembrete{totalLembretesVencidos > 1 ? "s" : ""} pendente
+            {totalLembretesVencidos > 1 ? "s" : ""} para hoje ou vencido
+            {totalLembretesVencidos > 1 ? "s" : ""}
+          </span>
+          <span className="text-xs opacity-80">
+            {apenasComLembretesVencidos ? "Mostrar todos" : "Filtrar"}
+          </span>
+        </button>
+      )}
+
+      <div className="mb-4 flex gap-2">
+        {([
+          { key: "todos", label: "Todos" },
+          { key: "ativos", label: "Ativos" },
+          { key: "inativos", label: "Inativos" },
+        ] as const).map((opt) => (
+          <button
+            key={opt.key}
+            onClick={() => setFiltroStatus(opt.key)}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              filtroStatus === opt.key
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted/40 text-muted-foreground hover:bg-muted"
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
 
       <div className="overflow-hidden rounded-xl border border-border">
@@ -148,6 +266,7 @@ const DemoClientes = () => {
               <th className="px-4 py-3 text-center">OS</th>
               <th className="px-4 py-3 text-right">Total gasto</th>
               <th className="px-4 py-3">Última visita</th>
+              <th className="px-4 py-3">Status</th>
               <th className="px-4 py-3 text-center">Veículos</th>
               <th className="w-8" />
             </tr>
@@ -155,41 +274,58 @@ const DemoClientes = () => {
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={7} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                <td colSpan={8} className="px-4 py-8 text-center text-sm text-muted-foreground">
                   Nenhum cliente encontrado.
                 </td>
               </tr>
             ) : (
-              filtered.map((c) => (
-                <tr
-                  key={c.id}
-                  onClick={() => openClienteSheet(c.id)}
-                  className="cursor-pointer border-t border-border transition-colors hover:bg-muted/30"
-                >
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
-                        {getInitials(c.nome)}
+              filtered.map((c) => {
+                const status = getClienteStatus(c.ultima_visita, c.total_os);
+                const temLembreteVencido = clientesComLembreteVencido.has(c.id);
+                return (
+                  <tr
+                    key={c.id}
+                    onClick={() => openClienteSheet(c.id)}
+                    className="cursor-pointer border-t border-border transition-colors hover:bg-muted/30"
+                  >
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
+                            {getInitials(c.nome)}
+                          </div>
+                          {temLembreteVencido && (
+                            <span className="absolute -right-0.5 -top-0.5 flex h-2.5 w-2.5">
+                              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-red-500 opacity-75" />
+                              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-red-500" />
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-sm font-medium text-foreground">{c.nome}</span>
                       </div>
-                      <span className="text-sm font-medium text-foreground">{c.nome}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{c.telefone || "—"}</td>
-                  <td className="px-4 py-3 text-center text-sm font-medium text-foreground">{c.total_os}</td>
-                  <td className="px-4 py-3 text-right text-sm font-semibold text-foreground">
-                    {formatBRL(c.total_gasto)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">
-                    {c.ultima_visita
-                      ? format(new Date(c.ultima_visita), "dd/MM/yyyy", { locale: ptBR })
-                      : "—"}
-                  </td>
-                  <td className="px-4 py-3 text-center text-sm text-muted-foreground">{c.total_veiculos}</td>
-                  <td className="px-2 py-3 text-muted-foreground">
-                    <ChevronRight className="h-4 w-4" />
-                  </td>
-                </tr>
-              ))
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">{c.telefone || "—"}</td>
+                    <td className="px-4 py-3 text-center text-sm font-medium text-foreground">{c.total_os}</td>
+                    <td className="px-4 py-3 text-right text-sm font-semibold text-foreground">
+                      {formatBRL(c.total_gasto)}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">
+                      {c.ultima_visita
+                        ? format(new Date(c.ultima_visita), "dd/MM/yyyy", { locale: ptBR })
+                        : "—"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${status.cls}`}>
+                        {status.label}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-center text-sm text-muted-foreground">{c.total_veiculos}</td>
+                    <td className="px-2 py-3 text-muted-foreground">
+                      <ChevronRight className="h-4 w-4" />
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -224,6 +360,13 @@ interface ClienteDetailSheetProps {
 }
 
 const ClienteDetailSheet = ({ clienteId, onNovaOS }: ClienteDetailSheetProps) => {
+  const { oficina_id } = useAuth();
+  const queryClient = useQueryClient();
+  const [novoLembreteOpen, setNovoLembreteOpen] = useState(false);
+  const [novoTipo, setNovoTipo] = useState<string>("lembrete");
+  const [novoDescricao, setNovoDescricao] = useState("");
+  const [novoData, setNovoData] = useState(format(addDays(new Date(), 7), "yyyy-MM-dd"));
+
   const { data: cliente } = useQuery({
     queryKey: ["cliente-detail", clienteId],
     queryFn: async () => {
@@ -260,6 +403,18 @@ const ClienteDetailSheet = ({ clienteId, onNovaOS }: ClienteDetailSheetProps) =>
     },
   });
 
+  const { data: lembretes = [] } = useQuery({
+    queryKey: ["crm-lembretes", clienteId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("crm_lembretes")
+        .select("*")
+        .eq("cliente_id", clienteId)
+        .order("data_lembrete", { ascending: true });
+      return data || [];
+    },
+  });
+
   const totalGasto = useMemo(
     () =>
       ordens
@@ -268,11 +423,64 @@ const ClienteDetailSheet = ({ clienteId, onNovaOS }: ClienteDetailSheetProps) =>
     [ordens],
   );
 
+  const refreshLembretes = () => {
+    queryClient.invalidateQueries({ queryKey: ["crm-lembretes", clienteId] });
+    queryClient.invalidateQueries({ queryKey: ["crm-lembretes-pendentes", oficina_id] });
+  };
+
+  const toggleLembreteConcluido = async (id: string, concluido: boolean) => {
+    const { error } = await supabase
+      .from("crm_lembretes")
+      .update({ concluido })
+      .eq("id", id);
+    if (error) {
+      toast({ title: "Erro ao atualizar lembrete", description: error.message, variant: "destructive" });
+      return;
+    }
+    refreshLembretes();
+  };
+
+  const removerLembrete = async (id: string) => {
+    const { error } = await supabase.from("crm_lembretes").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Erro ao remover", description: error.message, variant: "destructive" });
+      return;
+    }
+    refreshLembretes();
+  };
+
+  const salvarLembrete = async () => {
+    if (!novoDescricao.trim() || !novoData || !oficina_id) {
+      toast({ title: "Preencha descrição e data", variant: "destructive" });
+      return;
+    }
+    const { error } = await supabase.from("crm_lembretes").insert({
+      oficina_id,
+      cliente_id: clienteId,
+      tipo: novoTipo,
+      descricao: novoDescricao.trim(),
+      data_lembrete: novoData,
+    });
+    if (error) {
+      toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
+      return;
+    }
+    toast({ title: "Lembrete criado" });
+    setNovoLembreteOpen(false);
+    setNovoTipo("lembrete");
+    setNovoDescricao("");
+    setNovoData(format(addDays(new Date(), 7), "yyyy-MM-dd"));
+    refreshLembretes();
+  };
+
   if (!cliente) return null;
 
   const whatsappUrl = cliente.telefone
     ? `https://wa.me/55${cliente.telefone.replace(/\D/g, "")}`
     : null;
+
+  const lembretesPendentes = lembretes.filter((l) => !l.concluido);
+  const hoje = format(new Date(), "yyyy-MM-dd");
 
   return (
     <div className="flex h-full flex-col">
@@ -337,6 +545,110 @@ const ClienteDetailSheet = ({ clienteId, onNovaOS }: ClienteDetailSheetProps) =>
                     </p>
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <div className="mb-3 flex items-center justify-between">
+              <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <Bell className="h-3.5 w-3.5" /> Lembretes ({lembretesPendentes.length})
+              </h3>
+              <Dialog open={novoLembreteOpen} onOpenChange={setNovoLembreteOpen}>
+                <DialogTrigger asChild>
+                  <button className="flex items-center gap-1 rounded-lg border border-border bg-background px-2 py-1 text-xs font-medium text-foreground hover:bg-muted/40">
+                    <Plus className="h-3 w-3" /> Adicionar
+                  </button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Novo lembrete</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">Tipo</label>
+                      <Select value={novoTipo} onValueChange={setNovoTipo}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(TIPO_LEMBRETE_LABELS).map(([k, v]) => (
+                            <SelectItem key={k} value={k}>{v}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">Descrição</label>
+                      <Input
+                        value={novoDescricao}
+                        onChange={(e) => setNovoDescricao(e.target.value)}
+                        placeholder="Ex: Ligar para confirmar retorno"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-xs font-medium text-muted-foreground">Data</label>
+                      <Input
+                        type="date"
+                        value={novoData}
+                        onChange={(e) => setNovoData(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <button
+                      onClick={salvarLembrete}
+                      className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110"
+                    >
+                      Salvar
+                    </button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            {lembretes.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nenhum lembrete cadastrado.</p>
+            ) : (
+              <div className="space-y-2">
+                {lembretes.map((l) => {
+                  const Icon = TIPO_LEMBRETE_ICONS[l.tipo] || Bell;
+                  const vencido = !l.concluido && l.data_lembrete <= hoje;
+                  return (
+                    <div
+                      key={l.id}
+                      className={`flex items-start gap-2 rounded-lg border p-3 ${
+                        l.concluido
+                          ? "border-border bg-muted/20 opacity-60"
+                          : vencido
+                            ? "border-red-500/30 bg-red-500/5"
+                            : "border-border bg-background"
+                      }`}
+                    >
+                      <Checkbox
+                        checked={l.concluido}
+                        onCheckedChange={(v) => toggleLembreteConcluido(l.id, !!v)}
+                        className="mt-0.5"
+                      />
+                      <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${vencido ? "text-red-400" : "text-primary"}`} />
+                      <div className="min-w-0 flex-1">
+                        <p className={`text-sm ${l.concluido ? "line-through text-muted-foreground" : "text-foreground"}`}>
+                          {l.descricao}
+                        </p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {TIPO_LEMBRETE_LABELS[l.tipo]} •{" "}
+                          {format(new Date(l.data_lembrete + "T00:00:00"), "dd/MM/yyyy", { locale: ptBR })}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => removerLembrete(l.id)}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
