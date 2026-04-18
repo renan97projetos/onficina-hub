@@ -282,7 +282,7 @@ const Cadastro = () => {
 
           <button
             type="submit"
-            disabled={!aceitouTermos || loading}
+            disabled={!formValido || loading}
             className="w-full rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50"
           >
             {loading ? "Criando conta..." : "Iniciar teste grátis de 14 dias"}
