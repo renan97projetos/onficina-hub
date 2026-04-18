@@ -10,8 +10,6 @@ const sizeMap = {
 };
 
 const Logo = ({ className = "", size = "md" }: LogoProps) => {
-  // Layout do SVG inteiro (politriz + texto como um único elemento)
-  // A seção 0..100 do viewBox X é a "PolitrizIcon" (o "O" da logo)
   const wheelSize = 100;
   const textX = wheelSize + 4;
   const fontSize = 92;
@@ -27,7 +25,7 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
       role="img"
       preserveAspectRatio="xMinYMid meet"
     >
-      {/* PolitrizIcon — desenhada no espaço 0..100 (mesmo do TireIcon original) */}
+      {/* PolitrizIcon — estilo line-icon, igual à referência */}
       <g
         className="text-primary"
         color="currentColor"
@@ -35,45 +33,69 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
         strokeLinecap="round"
         strokeLinejoin="round"
       >
-        {/* Círculo externo — é o "O" da logo (mesmo raio/stroke do pneu original) */}
-        <circle cx="50" cy="50" r="41.5" strokeWidth="17" fill="none" />
+        {/*
+          Eixo da politriz: diagonal ↙ → ↗
+          - Disco (o "O" da logo): no canto superior-direito
+          - Corpo alongado (cabo): vai do disco em diagonal pra baixo-esquerda
+          - Punho lateral perpendicular: sai do topo do corpo, perto do disco
 
-        {/* === POLITRIZ (corpo line-icon, estilo da referência) === */}
-        {/* Corpo alongado em diagonal ↘ — contorno fechado, traço fino sobre o disco */}
-        {/* Eixo do corpo: do punho (≈ 30,30) descendo até a "boca" do disco (≈ 70,72) */}
+          Para manter o "O" no centro do espaço 0..100 (alinhado com "N"),
+          desenhamos o disco em (50,50) com r=41.5 igual ao pneu original,
+          e o cabo + punho ficam atravessando o disco.
+        */}
+
+        {/* Círculo externo — é o "O" da logo */}
+        <circle cx="50" cy="50" r="41.5" strokeWidth="13" fill="none" />
+
+        {/*
+          Corpo alongado (cabo principal) — capsula em diagonal ↙
+          Eixo do corpo:
+            - extremidade superior (perto/dentro do disco): ≈ (62, 38)
+            - extremidade inferior (ponta arredondada do cabo): ≈ (12, 88)
+          Largura do corpo: ≈ 18
+          Desenhado como contorno fechado (cápsula girada).
+        */}
         <path
           d="
-            M 28 24
-            L 42 24
-            L 46 32
-            L 70 56
-            Q 76 62 70 68
-            Q 64 74 58 68
-            L 34 44
-            L 26 40
+            M 56.36 31.64
+            A 9 9 0 0 1 69.0 44.28
+            L 18.64 94.64
+            A 9 9 0 0 1 6 82
+            L 56.36 31.64
             Z
           "
           fill="hsl(var(--background))"
-          strokeWidth="3"
+          strokeWidth="6"
         />
 
-        {/* Punho retangular saindo da extremidade superior-esquerda (fora do disco) */}
-        <rect
-          x="20"
-          y="20"
-          width="14"
-          height="9"
-          rx="1.5"
+        {/*
+          Punho lateral perpendicular — sai do TOPO do corpo, perto do disco
+          Perpendicular ao eixo do corpo (que tem ângulo 135°),
+          então o punho sai a 45° (↖) do ponto ≈ (52, 42).
+          Tamanho ~ 22 de comprimento, 12 de largura.
+        */}
+        <path
+          d="
+            M 49.66 31.34
+            A 6 6 0 0 1 58.14 39.83
+            L 42.83 55.14
+            A 6 6 0 0 1 34.34 46.66
+            L 49.66 31.34
+            Z
+          "
           fill="hsl(var(--background))"
-          strokeWidth="3"
+          strokeWidth="6"
         />
 
-        {/* Detalhes de "ventilação" na parte central do corpo — duas linhas paralelas */}
-        <line x1="50" y1="46" x2="56" y2="52" strokeWidth="2" />
-        <line x1="54" y1="42" x2="60" y2="48" strokeWidth="2" />
+        {/*
+          Detalhes de "ventilação" no corpo — duas listras curtas paralelas
+          ao eixo do corpo, posicionadas no terço superior (perto do disco).
+        */}
+        <line x1="46" y1="56" x2="54" y2="64" strokeWidth="4" />
+        <line x1="40" y1="62" x2="48" y2="70" strokeWidth="4" />
       </g>
 
-      {/* Texto: "N" primary + "ficina" foreground, na mesma baseline do "O" */}
+      {/* Texto: "N" primary + "ficina" foreground */}
       <text
         x={textX}
         y={textY}
