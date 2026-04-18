@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy } from "lucide-react";
+import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe } from "lucide-react";
 
 const DemoConfig = () => {
   const { oficina_id, user } = useAuth();
