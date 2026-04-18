@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const DemoConfig = () => {
-  const { oficina_id, user, isDono, oficina } = useAuth();
+  const { oficina_id, user, isDono } = useAuth();
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
 
