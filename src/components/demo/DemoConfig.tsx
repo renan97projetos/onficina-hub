@@ -27,7 +27,7 @@ const DemoConfig = () => {
     queryFn: async () => {
       const { data } = await supabase
         .from("oficinas")
-        .select("id, nome, telefone, plano, trial_expires_at, google_review_url, logo_url, cnpj, endereco, slug, landing_template, landing_ativo, landing_descricao, landing_servicos_exibidos")
+        .select("id, nome, telefone, plano, trial_expires_at, google_review_url, logo_url, cnpj, endereco, slug, landing_template, landing_ativo, landing_descricao, landing_servicos_exibidos, email_digest_ativo, email_digest")
         .eq("id", oficina_id!)
         .maybeSingle();
       return data;
@@ -63,6 +63,11 @@ const DemoConfig = () => {
   const [siteDescricao, setSiteDescricao] = useState("");
   const [siteServicos, setSiteServicos] = useState<string[]>([]);
   const [savingSite, setSavingSite] = useState(false);
+
+  // ===== Notificações por e-mail =====
+  const [digestAtivo, setDigestAtivo] = useState(false);
+  const [digestEmail, setDigestEmail] = useState("");
+  const [savingDigest, setSavingDigest] = useState(false);
 
   const { data: servicosCatalogo } = useQuery({
     queryKey: ["servicos-catalogo-config", oficina_id],
@@ -160,8 +165,38 @@ const DemoConfig = () => {
       setSiteDescricao((oficina as any).landing_descricao || "");
       const arr = (oficina as any).landing_servicos_exibidos;
       setSiteServicos(Array.isArray(arr) ? arr : []);
+      setDigestAtivo(!!(oficina as any).email_digest_ativo);
+      setDigestEmail((oficina as any).email_digest || "");
     }
   }, [oficina]);
+
+  async function salvarDigest(novoAtivo: boolean, novoEmail: string) {
+    if (!oficina_id) return;
+    if (novoAtivo) {
+      const e = novoEmail.trim();
+      if (!e || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
+        toast.error("Informe um e-mail válido para receber o resumo.");
+        return;
+      }
+    }
+    setSavingDigest(true);
+    const { error } = await supabase
+      .from("oficinas")
+      .update({
+        email_digest_ativo: novoAtivo,
+        email_digest: novoAtivo ? novoEmail.trim() : null,
+      } as any)
+      .eq("id", oficina_id);
+    setSavingDigest(false);
+    if (error) {
+      toast.error("Erro ao salvar notificações.");
+      return;
+    }
+    toast.success(
+      novoAtivo ? "Resumo diário ativado!" : "Resumo diário desativado.",
+    );
+    qc.invalidateQueries({ queryKey: ["oficina-config"] });
+  }
 
   function slugify(v: string) {
     return v
