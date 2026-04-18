@@ -174,22 +174,21 @@ const Hero = () => {
                   </div>
                 </div>
 
-              </div>
-
-              {/* Conector único central — ponto de encontro dos 3 mockups (brilho estático) */}
-              <div
-                className="pointer-events-none absolute left-1/2 top-1/2 z-20 hidden lg:flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-white"
-                style={{
-                  background: 'radial-gradient(circle, #F59E0B, #D97706)',
-                  boxShadow:
-                    '0 0 16px 6px rgba(245, 158, 11, 0.6), 0 0 32px 12px rgba(245, 158, 11, 0.25)',
-                  fontSize: '18px',
-                  fontWeight: 700,
-                  lineHeight: 1,
-                }}
-                aria-hidden="true"
-              >
-                +
+                {/* Conector único central — posicionado na borda inferior da linha de cima, ponto de encontro dos 3 */}
+                <div
+                  className="pointer-events-none absolute bottom-0 left-1/2 z-20 hidden lg:flex h-9 w-9 -translate-x-1/2 translate-y-1/2 items-center justify-center rounded-full text-white"
+                  style={{
+                    background: 'radial-gradient(circle, #F59E0B, #D97706)',
+                    boxShadow:
+                      '0 0 16px 6px rgba(245, 158, 11, 0.6), 0 0 32px 12px rgba(245, 158, 11, 0.25)',
+                    fontSize: '18px',
+                    fontWeight: 700,
+                    lineHeight: 1,
+                  }}
+                  aria-hidden="true"
+                >
+                  +
+                </div>
               </div>
 
               {/* Linha de baixo: mockup central — mesma largura da linha de cima para conectar */}
