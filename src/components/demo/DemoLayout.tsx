@@ -42,16 +42,23 @@ interface DemoLayoutProps {
 
 const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
   const navigate = useNavigate();
-  const { signOut, oficina, oficina_id } = useAuth();
+  const { signOut, oficina, oficina_id, isDono } = useAuth();
 
   const isPro = !!oficina?.plano && PRO_PLANS.includes(oficina.plano);
+
+  // Operadores não veem Configurações nem Financeiro
+  const filteredBase = baseNavItems.filter((it) => {
+    if (isDono) return true;
+    return it.key !== "config" && it.key !== "financeiro";
+  });
+
   const navItems = isPro
     ? [
-        baseNavItems[0],
+        filteredBase[0],
         { icon: LayoutGrid, label: "Pátio", key: "patio" },
-        ...baseNavItems.slice(1),
+        ...filteredBase.slice(1),
       ]
-    : baseNavItems;
+    : filteredBase;
 
   // Badge: agendamentos pendentes
   const [pendentes, setPendentes] = useState(0);
