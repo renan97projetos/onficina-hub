@@ -372,6 +372,8 @@ export type Database = {
           onboarding_completed: boolean
           plano: string
           slug: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
           telefone: string | null
           trial_expires_at: string | null
         }
@@ -393,6 +395,8 @@ export type Database = {
           onboarding_completed?: boolean
           plano?: string
           slug?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           telefone?: string | null
           trial_expires_at?: string | null
         }
@@ -414,6 +418,8 @@ export type Database = {
           onboarding_completed?: boolean
           plano?: string
           slug?: string | null
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
           telefone?: string | null
           trial_expires_at?: string | null
         }
