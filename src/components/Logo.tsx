@@ -4,12 +4,13 @@ interface LogoProps {
 }
 
 const sizeMap = {
-  sm: { text: "text-xl", icon: "0.83em" },
-  md: { text: "text-2xl", icon: "0.83em" },
-  lg: { text: "text-4xl", icon: "0.83em" },
+  sm: "h-6",
+  md: "h-7",
+  lg: "h-10",
 };
 
-const TireIcon = () => {
+const Logo = ({ className = "", size = "md" }: LogoProps) => {
+  // Geometria da roda (no espaço do SVG)
   const cx = 50;
   const cy = 50;
   const tireWidth = 17;
@@ -24,15 +25,14 @@ const TireIcon = () => {
 
     const hx = cx + hubR * Math.cos(angle);
     const hy = cy + hubR * Math.sin(angle);
-
     const rx = cx + rimR * Math.cos(angle);
     const ry = cy + rimR * Math.sin(angle);
 
     const spokeWidth = 9;
     const perpAngle = angle + Math.PI / 2;
     const sw = spokeWidth / 2;
-
     const hsw = 6;
+
     const h1x = hx + hsw * Math.cos(perpAngle);
     const h1y = hy + hsw * Math.sin(perpAngle);
     const h2x = hx - hsw * Math.cos(perpAngle);
@@ -52,79 +52,50 @@ const TireIcon = () => {
     return `M${h1x},${h1y} Q${c1x},${c1y} ${r1x},${r1y} L${r2x},${r2y} Q${c2x},${c2y} ${h2x},${h2y} Z`;
   });
 
+  // Layout do SVG inteiro (roda + texto como um único elemento)
+  // viewBox: largura calculada pra caber a roda + "ONficina"
+  // Roda ocupa 0..100, texto começa logo após
+  const wheelSize = 100;
+  const textX = wheelSize + 4;
+  const fontSize = 92;
+  const textY = 50; // baseline central via dominantBaseline
+
   return (
     <svg
-      width="100%"
-      height="100%"
-      viewBox="0 0 100 100"
+      viewBox="0 0 470 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="block"
-      aria-hidden="true"
+      className={`${sizeMap[size]} w-auto block ${className}`}
+      aria-label="ONficina"
+      role="img"
+      preserveAspectRatio="xMinYMid meet"
     >
-      <circle cx={cx} cy={cy} r={outerR} stroke="currentColor" strokeWidth={tireWidth} fill="none" />
-      <circle cx={cx} cy={cy} r={rimR} stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
-      {spokes.map((d, i) => (
-        <path key={i} d={d} fill="currentColor" />
-      ))}
-      <circle cx={cx} cy={cy} r={hubR} fill="currentColor" />
-      <circle cx={cx} cy={cy} r="5" fill="var(--background, #0F172A)" />
+      {/* Roda (cor primary) */}
+      <g className="text-primary" color="currentColor">
+        <circle cx={cx} cy={cy} r={outerR} stroke="currentColor" strokeWidth={tireWidth} fill="none" />
+        <circle cx={cx} cy={cy} r={rimR} stroke="currentColor" strokeWidth="1.5" opacity="0.3" />
+        {spokes.map((d, i) => (
+          <path key={i} d={d} fill="currentColor" />
+        ))}
+        <circle cx={cx} cy={cy} r={hubR} fill="currentColor" />
+        <circle cx={cx} cy={cy} r="5" fill="hsl(var(--background))" />
+      </g>
+
+      {/* Texto: "N" primary + "ficina" foreground, tudo na mesma baseline */}
+      <text
+        x={textX}
+        y={textY}
+        dominantBaseline="central"
+        textAnchor="start"
+        fontFamily="Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
+        fontWeight="800"
+        fontSize={fontSize}
+        letterSpacing="-3"
+      >
+        <tspan className="fill-primary">N</tspan>
+        <tspan className="fill-foreground">ficina</tspan>
+      </text>
     </svg>
-  );
-};
-
-const SprayGun = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
-  <svg
-    viewBox="0 0 100 100"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="6"
-    strokeLinecap="square"
-    strokeLinejoin="miter"
-    className={className ?? "block h-full w-full"}
-    style={style}
-    aria-hidden="true"
-    preserveAspectRatio="xMidYMid meet"
-  >
-    {/* Paint cup (top, slightly tilted) */}
-    <path d="M38 8 L70 8 L72 38 L40 42 Z" />
-    {/* Cup neck connecting to body */}
-    <path d="M48 42 L52 52" />
-    {/* Gun body (horizontal) */}
-    <path d="M18 52 L86 52 L86 64 L18 64 Z" />
-    {/* Air cap on left tip */}
-    <path d="M10 54 L18 54 M10 62 L18 62" />
-    {/* Rear cap on right */}
-    <path d="M86 54 L94 54 M86 62 L94 62" />
-    {/* Trigger pivot */}
-    <circle cx="56" cy="64" r="3" fill="currentColor" stroke="none" />
-    {/* Handle */}
-    <path d="M48 64 L42 92 L62 92 L66 64" />
-    {/* Trigger */}
-    <path d="M52 68 Q58 76 60 84" />
-  </svg>
-);
-
-const Logo = ({ className = "", size = "md" }: LogoProps) => {
-  const s = sizeMap[size];
-
-  return (
-    <span className={`font-extrabold tracking-tight ${s.text} ${className} inline-flex items-center leading-none`}>
-      <span className="text-primary inline-flex items-center gap-[0.02em] leading-none">
-        <span
-          className="flex shrink-0 items-center justify-center"
-          style={{
-            width: s.icon,
-            height: s.icon,
-            transform: "translateY(0.02em)",
-          }}
-        >
-          <TireIcon />
-        </span>
-        <span className="leading-none">N</span>
-      </span>
-      <span className="leading-none text-foreground">ficina</span>
-    </span>
   );
 };
 
