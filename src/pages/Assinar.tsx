@@ -125,11 +125,14 @@ const Assinar = () => {
                 ))}
               </ul>
               <button
-                disabled
-                className="mt-6 w-full rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground opacity-60 cursor-not-allowed"
-                title="Em breve — integração de pagamento em andamento"
+                onClick={() => handleAssinar(p.name.toLowerCase() as "starter" | "pro")}
+                disabled={loadingPlano !== null}
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                Assinar {p.name} (em breve)
+                {loadingPlano === p.name.toLowerCase() && (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                )}
+                Assinar {p.name}
               </button>
             </div>
           ))}
