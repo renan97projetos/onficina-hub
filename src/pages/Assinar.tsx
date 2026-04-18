@@ -46,6 +46,26 @@ const plans = [
 
 const Assinar = () => {
   const { trialExpired, oficina } = useAuth();
+  const [loadingPlano, setLoadingPlano] = useState<string | null>(null);
+
+  const handleAssinar = async (plano: "starter" | "pro") => {
+    setLoadingPlano(plano);
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "create-checkout-session",
+        { body: { plano } },
+      );
+      if (error) throw error;
+      if (!data?.url) throw new Error("URL de checkout não retornada");
+      window.location.href = data.url as string;
+    } catch (err) {
+      console.error(err);
+      toast.error(
+        (err as Error).message ?? "Erro ao iniciar checkout. Tente novamente.",
+      );
+      setLoadingPlano(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background px-4 py-12">
