@@ -55,6 +55,30 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
 
   const [saving, setSaving] = useState(false);
 
+  // Validações inline
+  const errNomeCliente =
+    novoCliente && nomeCliente
+      ? nomeClienteSchema.safeParse(nomeCliente).error?.issues[0]?.message ?? null
+      : null;
+  const errTelefoneCliente =
+    novoCliente && telefoneCliente
+      ? telefoneSchema.safeParse(telefoneCliente).error?.issues[0]?.message ?? null
+      : null;
+  const errPlaca =
+    novoVeiculo && placa
+      ? placaSchema.safeParse(placa).error?.issues[0]?.message ?? null
+      : null;
+
+  const clienteValido = novoCliente
+    ? nomeClienteSchema.safeParse(nomeCliente).success &&
+      telefoneSchema.safeParse(telefoneCliente).success
+    : !!clienteId;
+  const veiculoValido = novoVeiculo
+    ? placaSchema.safeParse(placa).success
+    : !!veiculoId;
+  const servicosValidos = Object.keys(selectedServicos).length > 0;
+  const formValido = clienteValido && veiculoValido && servicosValidos;
+
   const { data: clientes = [] } = useQuery({
     queryKey: ["clientes", oficina_id],
     queryFn: async () => {
