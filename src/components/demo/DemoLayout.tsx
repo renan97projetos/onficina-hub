@@ -39,7 +39,7 @@ interface DemoLayoutProps {
 
 const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
   const navigate = useNavigate();
-  const { signOut, oficina } = useAuth();
+  const { signOut, oficina, oficina_id } = useAuth();
 
   const isPro = !!oficina?.plano && PRO_PLANS.includes(oficina.plano);
   const navItems = isPro
@@ -49,6 +49,40 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
         ...baseNavItems.slice(1),
       ]
     : baseNavItems;
+
+  // Badge: agendamentos pendentes
+  const [pendentes, setPendentes] = useState(0);
+
+  useEffect(() => {
+    if (!oficina_id) return;
+    let mounted = true;
+    const fetchCount = async () => {
+      const { count } = await supabase
+        .from("agendamentos")
+        .select("id", { count: "exact", head: true })
+        .eq("oficina_id", oficina_id)
+        .eq("confirmado", false);
+      if (mounted) setPendentes(count || 0);
+    };
+    fetchCount();
+    const ch = supabase
+      .channel("agenda-badge")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "agendamentos", filter: `oficina_id=eq.${oficina_id}` },
+        (payload) => {
+          fetchCount();
+          if (payload.eventType === "INSERT" && (payload.new as { origem?: string })?.origem === "cliente") {
+            toast.info("Novo agendamento online recebido!");
+          }
+        },
+      )
+      .subscribe();
+    return () => {
+      mounted = false;
+      supabase.removeChannel(ch);
+    };
+  }, [oficina_id]);
 
   const handleLogout = async () => {
     await signOut();
