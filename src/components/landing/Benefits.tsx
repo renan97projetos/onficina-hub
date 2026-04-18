@@ -18,7 +18,7 @@ const benefits = [
   },
   {
     icon: GitBranch,
-    title: "Pipeline visual de OS",
+    title: "Gestão completa de OS pela Pipeline",
     description:
       "Acompanhe cada carro do orçamento até a entrega. Etapas claras, sem perder nada no caminho.",
   },
