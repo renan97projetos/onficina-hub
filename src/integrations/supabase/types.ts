@@ -236,6 +236,54 @@ export type Database = {
           },
         ]
       }
+      crm_lembretes: {
+        Row: {
+          cliente_id: string
+          concluido: boolean
+          created_at: string
+          data_lembrete: string
+          descricao: string
+          id: string
+          oficina_id: string
+          tipo: string
+        }
+        Insert: {
+          cliente_id: string
+          concluido?: boolean
+          created_at?: string
+          data_lembrete: string
+          descricao: string
+          id?: string
+          oficina_id: string
+          tipo?: string
+        }
+        Update: {
+          cliente_id?: string
+          concluido?: boolean
+          created_at?: string
+          data_lembrete?: string
+          descricao?: string
+          id?: string
+          oficina_id?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_lembretes_cliente_id_fkey"
+            columns: ["cliente_id"]
+            isOneToOne: false
+            referencedRelation: "clientes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_lembretes_oficina_id_fkey"
+            columns: ["oficina_id"]
+            isOneToOne: false
+            referencedRelation: "oficinas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_send_log: {
         Row: {
           created_at: string
