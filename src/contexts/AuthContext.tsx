@@ -7,6 +7,8 @@ interface Oficina {
   nome: string;
   plano: string;
   trial_expires_at: string | null;
+  stripe_customer_id: string | null;
+  stripe_subscription_id: string | null;
 }
 
 export type UserRole = "dono" | "operador";
