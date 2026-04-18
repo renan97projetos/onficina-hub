@@ -97,11 +97,12 @@ const DemoOS = () => {
         <EmptyModuleState
           icon={ClipboardList}
           title="Sua pipeline está vazia"
-          description="Crie sua primeira ordem de serviço para começar a acompanhar o fluxo de atendimento, do orçamento à entrega do veículo."
-          primaryAction="+ Nova OS"
-          onPrimaryAction={() => setShowForm(true)}
-          helperText="A OS vai aparecer automaticamente nas etapas do pipeline conforme avança."
+          description="Crie seu primeiro orçamento para começar a acompanhar o fluxo de atendimento, do orçamento à entrega do veículo."
+          primaryAction="+ Novo Orçamento"
+          onPrimaryAction={() => setShowOrcamentoForm(true)}
+          helperText="Quando o orçamento for aprovado, vire OS em um clique e siga o fluxo da pipeline."
         />
+        <OrcamentoFormModal open={showOrcamentoForm} onOpenChange={setShowOrcamentoForm} orcamentoId={null} />
         <OSFormModal open={showForm} onOpenChange={setShowForm} />
       </>
     );
