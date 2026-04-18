@@ -14,12 +14,10 @@ import {
   RefreshCw,
   GraduationCap,
   Settings,
-  ClipboardList,
   LayoutGrid,
 } from "lucide-react";
 
 const baseNavItems = [
-  { icon: ClipboardList, label: "Orçamentos", key: "orcamentos" },
   { icon: FileText, label: "Gestão de OS", key: "os" },
   { icon: UserRound, label: "Clientes", key: "clientes" },
   { icon: Wrench, label: "Serviços", key: "servicos" },
@@ -47,9 +45,8 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
   const navItems = isPro
     ? [
         baseNavItems[0],
-        baseNavItems[1],
         { icon: LayoutGrid, label: "Pátio", key: "patio" },
-        ...baseNavItems.slice(2),
+        ...baseNavItems.slice(1),
       ]
     : baseNavItems;
 
