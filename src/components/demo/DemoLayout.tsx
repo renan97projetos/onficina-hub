@@ -15,9 +15,10 @@ import {
   GraduationCap,
   Settings,
   ClipboardList,
+  LayoutGrid,
 } from "lucide-react";
 
-const navItems = [
+const baseNavItems = [
   { icon: ClipboardList, label: "Orçamentos", key: "orcamentos" },
   { icon: FileText, label: "Gestão de OS", key: "os" },
   { icon: UserRound, label: "Clientes", key: "clientes" },
@@ -29,6 +30,8 @@ const navItems = [
   { icon: BarChart3, label: "Relatórios", key: "relatorios" },
   { icon: Settings, label: "Configurações", key: "config" },
 ];
+
+const PRO_PLANS = ["pro", "premium", "trial"];
 
 interface DemoLayoutProps {
   activeKey: string;
