@@ -368,6 +368,99 @@ const DemoConfig = () => {
             </a>
           )}
         </div>
+
+        {/* Agendamento online (Pro) */}
+        <div className="rounded-lg border border-border p-5 lg:col-span-2">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <CalendarDays className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-medium text-foreground">Agendamento online pelo cliente</h3>
+            </div>
+            <label className="flex items-center gap-2 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                checked={!!agendaConfig?.modo_cliente_ativo}
+                onChange={(e) => toggleModoCliente(e.target.checked)}
+                className="h-4 w-4 accent-primary"
+              />
+              Ativar
+            </label>
+          </div>
+          <p className="mb-3 text-xs text-muted-foreground">
+            Quando ativo, seus clientes podem escolher um dia disponível e solicitar a entrada do
+            veículo pela URL pública abaixo.
+          </p>
+          {agendaConfig?.modo_cliente_ativo && oficina?.slug && (
+            <div className="mb-3 flex flex-col gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center">
+              <code className="flex-1 truncate text-xs text-primary">
+                {window.location.origin}/agendar/{oficina.slug}
+              </code>
+              <button
+                type="button"
+                onClick={() => {
+                  navigator.clipboard.writeText(`${window.location.origin}/agendar/${oficina.slug}`);
+                  toast.success("Link copiado!");
+                }}
+                className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground hover:bg-muted"
+              >
+                <Copy className="h-3 w-3" /> Copiar
+              </button>
+            </div>
+          )}
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Vagas/dia</label>
+              <input
+                type="number"
+                min={1}
+                defaultValue={agendaConfig?.limite_por_dia ?? 4}
+                key={`lim-${agendaConfig?.limite_por_dia}`}
+                onBlur={(e) =>
+                  salvarLimites(
+                    Math.max(1, Number(e.target.value) || 4),
+                    agendaConfig?.dias_antecedencia_min ?? 1,
+                    agendaConfig?.dias_antecedencia_max ?? 14,
+                  )
+                }
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Mín. dias futuros</label>
+              <input
+                type="number"
+                min={0}
+                defaultValue={agendaConfig?.dias_antecedencia_min ?? 1}
+                key={`min-${agendaConfig?.dias_antecedencia_min}`}
+                onBlur={(e) =>
+                  salvarLimites(
+                    agendaConfig?.limite_por_dia ?? 4,
+                    Math.max(0, Number(e.target.value) || 1),
+                    agendaConfig?.dias_antecedencia_max ?? 14,
+                  )
+                }
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-muted-foreground">Máx. dias futuros</label>
+              <input
+                type="number"
+                min={1}
+                defaultValue={agendaConfig?.dias_antecedencia_max ?? 14}
+                key={`max-${agendaConfig?.dias_antecedencia_max}`}
+                onBlur={(e) =>
+                  salvarLimites(
+                    agendaConfig?.limite_por_dia ?? 4,
+                    agendaConfig?.dias_antecedencia_min ?? 1,
+                    Math.max(1, Number(e.target.value) || 14),
+                  )
+                }
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
