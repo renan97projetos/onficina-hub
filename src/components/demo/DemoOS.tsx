@@ -51,6 +51,7 @@ const DemoOS = () => {
   const [activeStage, setActiveStage] = useState("orcamento");
   const [selectedOS, setSelectedOS] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [showOrcamentoForm, setShowOrcamentoForm] = useState(false);
 
   const { data: ordens = [] } = useQuery({
     queryKey: ["ordens_servico", oficina_id],
