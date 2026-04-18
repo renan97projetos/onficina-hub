@@ -256,10 +256,9 @@ const DemoAnalytics = () => {
   if (!isPro) {
     return (
       <EmptyModuleState
+        icon={TrendingUp}
         title="Analytics avançado"
         description="Disponível nos planos Pro e Premium. Veja conversão, ticket médio, sazonalidade e clientes inativos."
-        ctaLabel="Conhecer planos"
-        ctaTo="/#planos"
       />
     );
   }
