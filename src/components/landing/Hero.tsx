@@ -54,9 +54,9 @@ const Hero = () => {
 
           {/* Right — 3 mockups conectados */}
           <div className="relative">
-            <div className="relative flex flex-col gap-4 lg:gap-6">
+            <div className="relative flex flex-col gap-4 lg:gap-3">
               {/* Linha de cima: 2 mockups lado a lado */}
-              <div className="relative grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-6">
+              <div className="relative grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-3">
                 {/* Mockup 1 — Pipeline OS (escuro) */}
                 <div
                   className="overflow-hidden rounded-2xl border border-white/10 bg-card p-4 shadow-xl opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
@@ -176,13 +176,13 @@ const Hero = () => {
 
               </div>
 
-              {/* Conector único central — ponto de encontro dos 3 mockups */}
+              {/* Conector único central — ponto de encontro dos 3 mockups (brilho estático) */}
               <div
-                className="hero-glow-connector pointer-events-none absolute left-1/2 z-10 hidden lg:flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-white opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
+                className="pointer-events-none absolute left-1/2 top-1/2 z-20 hidden lg:flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full text-white"
                 style={{
-                  top: 'calc(50% - 12px)',
                   background: 'radial-gradient(circle, #F59E0B, #D97706)',
-                  animationDelay: '500ms',
+                  boxShadow:
+                    '0 0 16px 6px rgba(245, 158, 11, 0.6), 0 0 32px 12px rgba(245, 158, 11, 0.25)',
                   fontSize: '18px',
                   fontWeight: 700,
                   lineHeight: 1,
@@ -192,11 +192,10 @@ const Hero = () => {
                 +
               </div>
 
-
-              {/* Linha de baixo: mockup central maior */}
-              <div className="flex justify-center">
+              {/* Linha de baixo: mockup central — mesma largura da linha de cima para conectar */}
+              <div className="flex">
                 <div
-                  className="w-full max-w-md overflow-hidden rounded-2xl border border-white/10 bg-card p-4 shadow-xl opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
+                  className="w-full overflow-hidden rounded-2xl border border-white/10 bg-card p-4 shadow-xl opacity-0 animate-[fade-in_0.5s_ease-out_forwards]"
                   style={{ animationDelay: '300ms' }}
                 >
                   <div className="mb-2 flex items-center gap-2">
