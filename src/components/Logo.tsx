@@ -25,43 +25,56 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
       role="img"
       preserveAspectRatio="xMinYMid meet"
     >
-      {/* PolitrizIcon — estilo line-icon, igual à referência */}
+      {/*
+        PolitrizIcon — fiel à referência, line-icon:
+          1) Disco grande (o "O" da logo)
+          2) Corpo/base alongado em diagonal ↙ — gordo perto do disco, fino na ponta
+          3) Punho lateral perpendicular — saindo do lado esquerdo do corpo, perto do disco
+          4) Listras de ventilação — dentro do corpo, perto do disco
+
+        Eixo do corpo: ângulo 135° (de cima-direita para baixo-esquerda)
+        - Centro do "ombro" do corpo (perto do disco): (60, 40)
+        - Centro da ponta inferior do corpo: (15, 85)
+        - Largura do corpo no ombro: ~22; na ponta: ~14
+      */}
       <g
         className="text-primary"
         color="currentColor"
         stroke="currentColor"
         strokeLinecap="round"
         strokeLinejoin="round"
+        fill="none"
       >
-        {/*
-          Eixo da politriz: diagonal ↙ → ↗
-          - Disco (o "O" da logo): no canto superior-direito
-          - Corpo alongado (cabo): vai do disco em diagonal pra baixo-esquerda
-          - Punho lateral perpendicular: sai do topo do corpo, perto do disco
-
-          Para manter o "O" no centro do espaço 0..100 (alinhado com "N"),
-          desenhamos o disco em (50,50) com r=41.5 igual ao pneu original,
-          e o cabo + punho ficam atravessando o disco.
-        */}
-
-        {/* Círculo externo — é o "O" da logo */}
-        <circle cx="50" cy="50" r="41.5" strokeWidth="13" fill="none" />
+        {/* 1) Disco — o "O" */}
+        <circle cx="50" cy="50" r="41.5" strokeWidth="10" />
 
         {/*
-          Corpo alongado (cabo principal) — capsula em diagonal ↙
-          Eixo do corpo:
-            - extremidade superior (perto/dentro do disco): ≈ (62, 38)
-            - extremidade inferior (ponta arredondada do cabo): ≈ (12, 88)
-          Largura do corpo: ≈ 18
-          Desenhado como contorno fechado (cápsula girada).
+          2) Corpo da politriz (forma de "boliche" alongado, atravessando o disco)
+          Construído como contorno fechado, simétrico ao eixo 135°.
+          Cápsula com leve estreitamento (gordo no ombro, fino na ponta).
+          Coordenadas calculadas no eixo (u = ao longo, v = perpendicular).
+          Eixo: dir = (cos135°, sin135°) = (-0.707, 0.707)
+                perp = (-0.707, -0.707)
+          Ombro centro: (60, 40), largura 22 → extremos:
+            S1 = (60 + 11*-0.707, 40 + 11*-0.707) = (52.22, 32.22)
+            S2 = (60 - 11*-0.707, 40 - 11*-0.707) = (67.78, 47.78)
+          Meio centro: (37.5, 62.5), largura 19 → extremos:
+            M1 = (37.5 + 9.5*-0.707, 62.5 + 9.5*-0.707) = (30.78, 55.78)
+            M2 = (37.5 - 9.5*-0.707, 62.5 - 9.5*-0.707) = (44.22, 69.22)
+          Ponta centro: (15, 85), largura 14 → extremos:
+            P1 = (15 + 7*-0.707, 85 + 7*-0.707) = (10.05, 80.05)
+            P2 = (15 - 7*-0.707, 85 - 7*-0.707) = (19.95, 89.95)
+          Ponta arredondada via arco de raio 7.
         */}
         <path
           d="
-            M 56.36 31.64
-            A 9 9 0 0 1 69.0 44.28
-            L 18.64 94.64
-            A 9 9 0 0 1 6 82
-            L 56.36 31.64
+            M 52.22 32.22
+            L 30.78 55.78
+            L 10.05 80.05
+            A 7 7 0 0 0 19.95 89.95
+            L 44.22 69.22
+            L 67.78 47.78
+            A 11 11 0 0 0 52.22 32.22
             Z
           "
           fill="hsl(var(--background))"
@@ -69,18 +82,26 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
         />
 
         {/*
-          Punho lateral perpendicular — sai do TOPO do corpo, perto do disco
-          Perpendicular ao eixo do corpo (que tem ângulo 135°),
-          então o punho sai a 45° (↖) do ponto ≈ (52, 42).
-          Tamanho ~ 22 de comprimento, 12 de largura.
+          3) Punho lateral perpendicular — sai do lado esquerdo do "ombro" do corpo
+          Eixo do punho: perpendicular ao corpo → dir perp = (-0.707, -0.707) — ↖
+          Base do punho conectada ao corpo em ≈ (45, 47)
+          Ponta do punho em ≈ (28, 30) — para ↖
+          Largura do punho: ~10
+          Construído como cápsula com ponta arredondada.
+          Coordenadas:
+            Base centro: (45, 47), perp ao punho = (0.707, -0.707) → largura 5:
+              B1 = (45 + 5*0.707, 47 + 5*-0.707) = (48.54, 43.46)
+              B2 = (45 - 5*0.707, 47 - 5*-0.707) = (41.46, 50.54)
+            Ponta centro: (28, 30), extremos:
+              T1 = (28 + 5*0.707, 30 + 5*-0.707) = (31.54, 26.46)
+              T2 = (28 - 5*0.707, 30 - 5*-0.707) = (24.46, 33.54)
         */}
         <path
           d="
-            M 49.66 31.34
-            A 6 6 0 0 1 58.14 39.83
-            L 42.83 55.14
-            A 6 6 0 0 1 34.34 46.66
-            L 49.66 31.34
+            M 48.54 43.46
+            L 31.54 26.46
+            A 5 5 0 0 0 24.46 33.54
+            L 41.46 50.54
             Z
           "
           fill="hsl(var(--background))"
@@ -88,11 +109,14 @@ const Logo = ({ className = "", size = "md" }: LogoProps) => {
         />
 
         {/*
-          Detalhes de "ventilação" no corpo — duas listras curtas paralelas
-          ao eixo do corpo, posicionadas no terço superior (perto do disco).
+          4) Listras de ventilação — duas linhas curtas dentro do corpo, perto do disco
+          Posicionadas no centro do corpo, alinhadas ao eixo (135°).
+          Centro entre o ombro e o meio: ≈ (50, 50) — mas dentro do corpo visível
+          Listra 1: de (52, 48) a (44, 56)  (ao longo do eixo)
+          Listra 2: de (56, 52) a (48, 60)
         */}
-        <line x1="46" y1="56" x2="54" y2="64" strokeWidth="4" />
-        <line x1="40" y1="62" x2="48" y2="70" strokeWidth="4" />
+        <line x1="52" y1="48" x2="44" y2="56" strokeWidth="3" />
+        <line x1="56" y1="52" x2="48" y2="60" strokeWidth="3" />
       </g>
 
       {/* Texto: "N" primary + "ficina" foreground */}
