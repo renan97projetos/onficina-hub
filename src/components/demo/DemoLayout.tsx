@@ -18,6 +18,7 @@ import {
   GraduationCap,
   Settings,
   LayoutGrid,
+  TrendingUp,
 } from "lucide-react";
 
 const baseNavItems = [
@@ -30,6 +31,10 @@ const baseNavItems = [
   { icon: DollarSign, label: "Financeiro", key: "financeiro" },
   { icon: BarChart3, label: "Relatórios", key: "relatorios" },
   { icon: Settings, label: "Configurações", key: "config" },
+];
+
+const PRO_ONLY_NAV = [
+  { icon: TrendingUp, label: "Analytics", key: "analytics" },
 ];
 
 const PRO_PLANS = ["pro", "premium", "trial"];
@@ -52,11 +57,14 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
     return it.key !== "config" && it.key !== "financeiro";
   });
 
+  const proExtras = PRO_ONLY_NAV;
+
   const navItems = isPro
     ? [
         filteredBase[0],
         { icon: LayoutGrid, label: "Pátio", key: "patio" },
         ...filteredBase.slice(1),
+        ...proExtras,
       ]
     : filteredBase;
 
