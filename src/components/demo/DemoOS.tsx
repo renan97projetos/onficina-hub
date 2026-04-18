@@ -8,6 +8,8 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import OSFormModal from "./OSFormModal";
 import OSSheetContent from "./OSSheetContent";
 import EmptyModuleState from "./EmptyModuleState";
+import DemoOrcamentos from "./DemoOrcamentos";
+import OrcamentoFormModal from "./OrcamentoFormModal";
 import type { Tables } from "@/integrations/supabase/types";
 
 const STAGES = [
