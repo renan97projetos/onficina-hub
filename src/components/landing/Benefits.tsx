@@ -62,6 +62,7 @@ const benefits = [
   },
   {
     icon: ProductivityGaugeIcon,
+    iconLarge: true,
     title: "Acompanhe a produtividade da sua equipe",
     description:
       "Veja quantos serviços cada técnico entregou, tempo médio por etapa e identifique gargalos antes que virem prejuízo.",
@@ -106,7 +107,7 @@ const Benefits = () => {
                 </div>
               ) : (
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-muted">
-                  <b.icon className="h-5 w-5 text-primary" />
+                  <b.icon className={b.iconLarge ? "h-9 w-9 text-primary" : "h-5 w-5 text-primary"} />
                 </div>
               )}
               <h3 className="mb-2 text-base font-semibold text-foreground">{b.title}</h3>
