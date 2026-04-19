@@ -1,12 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Check, Eye, EyeOff } from "lucide-react";
+import { Check, Eye, EyeOff, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Logo from "@/components/Logo";
-import { cadastroSchema } from "@/lib/validations";
+import { cadastroSchema, formatCnpj, isCnpjValido } from "@/lib/validations";
 import { publicUrl } from "@/lib/publicUrl";
-import { z } from "zod";
 
 const plans = [
   {
@@ -21,6 +20,12 @@ const plans = [
   },
 ];
 
+type CnpjStatus =
+  | { state: "idle" }
+  | { state: "checking" }
+  | { state: "ok"; razaoSocial: string }
+  | { state: "error"; message: string };
+
 const Cadastro = () => {
   const [selectedPlan, setSelectedPlan] = useState("Pro");
   const [showPassword, setShowPassword] = useState(false);
@@ -29,6 +34,8 @@ const Cadastro = () => {
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [senha, setSenha] = useState("");
+  const [cnpj, setCnpj] = useState("");
+  const [cnpjStatus, setCnpjStatus] = useState<CnpjStatus>({ state: "idle" });
   const [aceitouTermos, setAceitouTermos] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -40,10 +47,11 @@ const Cadastro = () => {
       email,
       telefone,
       senha,
+      cnpj,
     });
-  }, [nomeOficina, email, telefone, senha]);
+  }, [nomeOficina, email, telefone, senha, cnpj]);
 
-  const errors: Partial<Record<"nomeOficina" | "email" | "telefone" | "senha", string>> =
+  const errors: Partial<Record<"nomeOficina" | "email" | "telefone" | "senha" | "cnpj", string>> =
     validation.success
       ? {}
       : Object.fromEntries(
@@ -52,7 +60,65 @@ const Cadastro = () => {
           ),
         );
 
-  const formValido = validation.success && aceitouTermos;
+  // Consulta BrasilAPI quando CNPJ for válido (debounce + cancelamento)
+  const lastCheckedRef = useRef<string>("");
+  useEffect(() => {
+    const digits = cnpj.replace(/\D/g, "");
+    if (digits.length !== 14 || !isCnpjValido(digits)) {
+      setCnpjStatus({ state: "idle" });
+      lastCheckedRef.current = "";
+      return;
+    }
+    if (digits === lastCheckedRef.current) return;
+
+    const controller = new AbortController();
+    const timer = setTimeout(async () => {
+      setCnpjStatus({ state: "checking" });
+      try {
+        const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${digits}`, {
+          signal: controller.signal,
+        });
+        if (!res.ok) {
+          if (res.status === 404) {
+            setCnpjStatus({ state: "error", message: "CNPJ não encontrado na Receita" });
+          } else {
+            setCnpjStatus({
+              state: "error",
+              message: "Não foi possível validar o CNPJ agora. Tente novamente.",
+            });
+          }
+          return;
+        }
+        const data = await res.json();
+        const razao: string =
+          data.razao_social || data.nome_fantasia || "Empresa encontrada";
+        const situacao: string | undefined = data.descricao_situacao_cadastral;
+        if (situacao && situacao.toUpperCase() !== "ATIVA") {
+          setCnpjStatus({
+            state: "error",
+            message: `CNPJ com situação "${situacao}" — não é possível cadastrar`,
+          });
+          return;
+        }
+        lastCheckedRef.current = digits;
+        setCnpjStatus({ state: "ok", razaoSocial: razao });
+      } catch (err: any) {
+        if (err.name === "AbortError") return;
+        setCnpjStatus({
+          state: "error",
+          message: "Falha ao consultar a Receita. Verifique sua conexão.",
+        });
+      }
+    }, 400);
+
+    return () => {
+      controller.abort();
+      clearTimeout(timer);
+    };
+  }, [cnpj]);
+
+  const cnpjOk = cnpjStatus.state === "ok";
+  const formValido = validation.success && aceitouTermos && cnpjOk;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +126,15 @@ const Cadastro = () => {
       toast({ title: "Corrija os campos destacados", variant: "destructive" });
       return;
     }
-    const { nomeOficina: nome, email: mail, telefone: tel, senha: pwd } = validation.data;
+    if (!cnpjOk) {
+      toast({
+        title: "Valide o CNPJ",
+        description: "Aguarde a confirmação do CNPJ na Receita antes de continuar.",
+        variant: "destructive",
+      });
+      return;
+    }
+    const { nomeOficina: nome, email: mail, telefone: tel, senha: pwd, cnpj: doc } = validation.data;
     setLoading(true);
 
     try {
@@ -86,6 +160,7 @@ const Cadastro = () => {
       const { error: rpcError } = await supabase.rpc("create_oficina_for_user", {
         _nome: nome,
         _telefone: tel || null,
+        _cnpj: doc.replace(/\D/g, ""),
       });
 
       if (rpcError) {
@@ -152,6 +227,48 @@ const Cadastro = () => {
               )}
             </div>
           </div>
+
+          {/* CNPJ */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">CNPJ *</label>
+            <div className="relative">
+              <input
+                inputMode="numeric"
+                value={cnpj}
+                onChange={(e) => setCnpj(formatCnpj(e.target.value))}
+                placeholder="00.000.000/0000-00"
+                maxLength={18}
+                className={`w-full rounded-lg border bg-background px-4 py-3 pr-10 text-sm outline-none focus:border-primary ${
+                  cnpj && (errors.cnpj || cnpjStatus.state === "error")
+                    ? "border-destructive"
+                    : cnpjStatus.state === "ok"
+                    ? "border-primary"
+                    : "border-input"
+                }`}
+                required
+                aria-invalid={!!(cnpj && (errors.cnpj || cnpjStatus.state === "error"))}
+              />
+              {cnpjStatus.state === "checking" && (
+                <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+              )}
+              {cnpjStatus.state === "ok" && (
+                <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+              )}
+            </div>
+            {cnpj && errors.cnpj && (
+              <p className="mt-1 text-xs text-destructive">{errors.cnpj}</p>
+            )}
+            {!errors.cnpj && cnpjStatus.state === "checking" && (
+              <p className="mt-1 text-xs text-muted-foreground">Consultando Receita Federal…</p>
+            )}
+            {!errors.cnpj && cnpjStatus.state === "ok" && (
+              <p className="mt-1 text-xs text-primary">✓ {cnpjStatus.razaoSocial}</p>
+            )}
+            {!errors.cnpj && cnpjStatus.state === "error" && (
+              <p className="mt-1 text-xs text-destructive">{cnpjStatus.message}</p>
+            )}
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-sm font-medium">E-mail *</label>
