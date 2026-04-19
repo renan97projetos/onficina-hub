@@ -11,14 +11,28 @@ const plans = [
   {
     name: "Starter",
     monthlyPrice: 97,
-    features: ["Pipeline completo", "Até 2 colaboradores", "Notificações", "Financeiro básico"],
+    features: [
+      "Pipeline completa de OS",
+      "Orçamentos em PDF + WhatsApp",
+      "Serviço Ao Vivo para o cliente",
+      "CRM, Financeiro e Avaliações",
+      "1 usuário",
+    ],
   },
   {
     name: "Pro",
     monthlyPrice: 197,
-    features: ["Tudo do Starter", "Até 5 colaboradores", "Agendamento", "CRM", "Relatórios avançados"],
+    features: [
+      "Tudo do Starter",
+      "Gestão de Pátio",
+      "Agendamento online",
+      "Site próprio da oficina",
+      "Equipe + permissões",
+      "Suporte prioritário",
+    ],
   },
 ];
+
 
 type CnpjStatus =
   | { state: "idle" }
