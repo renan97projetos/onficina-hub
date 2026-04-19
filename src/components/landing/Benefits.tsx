@@ -30,7 +30,7 @@ const benefits = [
   },
   {
     icon: Eye,
-    title: "ServiçoAo Vivo",
+    title: "Serviço Ao Vivo",
     description:
       "O cliente acompanha o próprio carro em tempo real pelo celular — igual rastreio de pedido, sem precisar ligar.",
   },
