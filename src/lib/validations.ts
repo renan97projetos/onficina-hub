@@ -106,12 +106,31 @@ export const cnpjSchema = z
   .trim()
   .refine((v) => isCnpjValido(v), { message: "CNPJ inválido" });
 
+/** CEP brasileiro: 8 dígitos */
+export const cepSchema = z
+  .string()
+  .trim()
+  .refine((v) => v.replace(/\D/g, "").length === 8, { message: "CEP deve ter 8 dígitos" });
+
+export function formatCep(value: string): string {
+  const d = (value || "").replace(/\D/g, "").slice(0, 8);
+  if (d.length <= 5) return d;
+  return `${d.slice(0, 5)}-${d.slice(5)}`;
+}
+
 export const cadastroSchema = z.object({
   nomeOficina: nomeOficinaSchema,
   email: emailSchema,
   telefone: telefoneOpcionalSchema,
   senha: senhaSchema,
   cnpj: cnpjSchema,
+  cep: cepSchema,
+  estado: z.string().trim().length(2, "Selecione um estado"),
+  cidade: z.string().trim().min(2, "Selecione uma cidade"),
+  endereco: z.string().trim().min(3, "Informe o endereço").max(200, "Endereço muito longo"),
+  numero: z.string().trim().min(1, "Informe o número").max(20, "Número inválido"),
+  bairro: z.string().trim().min(2, "Informe o bairro").max(100, "Bairro muito longo"),
+  complemento: z.string().trim().max(100, "Complemento muito longo").optional().or(z.literal("")),
 });
 
 export type CadastroInput = z.infer<typeof cadastroSchema>;

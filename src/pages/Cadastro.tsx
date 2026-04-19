@@ -4,7 +4,7 @@ import { Check, Eye, EyeOff, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Logo from "@/components/Logo";
-import { cadastroSchema, formatCnpj, isCnpjValido } from "@/lib/validations";
+import { cadastroSchema, formatCep, formatCnpj, isCnpjValido } from "@/lib/validations";
 import { publicUrl } from "@/lib/publicUrl";
 
 const plans = [
@@ -26,6 +26,9 @@ type CnpjStatus =
   | { state: "ok"; razaoSocial: string }
   | { state: "error"; message: string };
 
+type UF = { sigla: string; nome: string };
+type Municipio = { id: number; nome: string };
+
 const Cadastro = () => {
   const [selectedPlan, setSelectedPlan] = useState("Pro");
   const [showPassword, setShowPassword] = useState(false);
@@ -36,9 +39,80 @@ const Cadastro = () => {
   const [senha, setSenha] = useState("");
   const [cnpj, setCnpj] = useState("");
   const [cnpjStatus, setCnpjStatus] = useState<CnpjStatus>({ state: "idle" });
+
+  // Endereço
+  const [cep, setCep] = useState("");
+  const [estado, setEstado] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [endereco, setEndereco] = useState("");
+  const [numero, setNumero] = useState("");
+  const [bairro, setBairro] = useState("");
+  const [complemento, setComplemento] = useState("");
+
+  const [ufs, setUfs] = useState<UF[]>([]);
+  const [municipios, setMunicipios] = useState<Municipio[]>([]);
+  const [loadingMunicipios, setLoadingMunicipios] = useState(false);
+  const [loadingCep, setLoadingCep] = useState(false);
+
   const [aceitouTermos, setAceitouTermos] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Carrega UFs do IBGE uma vez
+  useEffect(() => {
+    fetch("https://servicodadosibge.gov.br/api/v1/localidades/estados?orderBy=nome")
+      .then((r) => r.json())
+      .then((data: any[]) => {
+        setUfs(data.map((u) => ({ sigla: u.sigla, nome: u.nome })));
+      })
+      .catch(() => {
+        // fallback silencioso — usuário ainda pode tentar via CEP
+      });
+  }, []);
+
+  // Carrega municípios quando muda o estado
+  useEffect(() => {
+    if (!estado) {
+      setMunicipios([]);
+      return;
+    }
+    setLoadingMunicipios(true);
+    fetch(`https://servicodadosibge.gov.br/api/v1/localidades/estados/${estado}/municipios?orderBy=nome`)
+      .then((r) => r.json())
+      .then((data: any[]) => {
+        setMunicipios(data.map((m) => ({ id: m.id, nome: m.nome })));
+      })
+      .catch(() => setMunicipios([]))
+      .finally(() => setLoadingMunicipios(false));
+  }, [estado]);
+
+  // Auto-preencher endereço ao digitar CEP completo (ViaCEP)
+  const lastCepRef = useRef("");
+  useEffect(() => {
+    const digits = cep.replace(/\D/g, "");
+    if (digits.length !== 8 || digits === lastCepRef.current) return;
+    lastCepRef.current = digits;
+    setLoadingCep(true);
+    fetch(`https://viacep.com.br/ws/${digits}/json/`)
+      .then((r) => r.json())
+      .then((data: any) => {
+        if (data?.erro) {
+          toast({ title: "CEP não encontrado", variant: "destructive" });
+          return;
+        }
+        if (data.uf) setEstado(data.uf);
+        // Cidade vem depois que carregar municípios — guardar nome para selecionar
+        if (data.localidade) {
+          setTimeout(() => setCidade(data.localidade), 600);
+        }
+        if (data.logradouro) setEndereco(data.logradouro);
+        if (data.bairro) setBairro(data.bairro);
+      })
+      .catch(() => {
+        toast({ title: "Falha ao buscar CEP", variant: "destructive" });
+      })
+      .finally(() => setLoadingCep(false));
+  }, [cep, toast]);
 
   // Validação reativa
   const validation = useMemo(() => {
@@ -48,17 +122,26 @@ const Cadastro = () => {
       telefone,
       senha,
       cnpj,
+      cep,
+      estado,
+      cidade,
+      endereco,
+      numero,
+      bairro,
+      complemento,
     });
-  }, [nomeOficina, email, telefone, senha, cnpj]);
+  }, [nomeOficina, email, telefone, senha, cnpj, cep, estado, cidade, endereco, numero, bairro, complemento]);
 
-  const errors: Partial<Record<"nomeOficina" | "email" | "telefone" | "senha" | "cnpj", string>> =
-    validation.success
-      ? {}
-      : Object.fromEntries(
-          Object.entries(validation.error.flatten().fieldErrors).map(
-            ([k, v]) => [k, v?.[0] ?? ""],
-          ),
-        );
+  type FieldKey =
+    | "nomeOficina" | "email" | "telefone" | "senha" | "cnpj"
+    | "cep" | "estado" | "cidade" | "endereco" | "numero" | "bairro" | "complemento";
+  const errors: Partial<Record<FieldKey, string>> = validation.success
+    ? {}
+    : Object.fromEntries(
+        Object.entries(validation.error.flatten().fieldErrors).map(
+          ([k, v]) => [k, v?.[0] ?? ""],
+        ),
+      );
 
   // Consulta BrasilAPI quando CNPJ for válido (debounce + cancelamento)
   const lastCheckedRef = useRef<string>("");
@@ -82,32 +165,22 @@ const Cadastro = () => {
           if (res.status === 404) {
             setCnpjStatus({ state: "error", message: "CNPJ não encontrado na Receita" });
           } else {
-            setCnpjStatus({
-              state: "error",
-              message: "Não foi possível validar o CNPJ agora. Tente novamente.",
-            });
+            setCnpjStatus({ state: "error", message: "Não foi possível validar o CNPJ agora. Tente novamente." });
           }
           return;
         }
         const data = await res.json();
-        const razao: string =
-          data.razao_social || data.nome_fantasia || "Empresa encontrada";
+        const razao: string = data.razao_social || data.nome_fantasia || "Empresa encontrada";
         const situacao: string | undefined = data.descricao_situacao_cadastral;
         if (situacao && situacao.toUpperCase() !== "ATIVA") {
-          setCnpjStatus({
-            state: "error",
-            message: `CNPJ com situação "${situacao}" — não é possível cadastrar`,
-          });
+          setCnpjStatus({ state: "error", message: `CNPJ com situação "${situacao}" — não é possível cadastrar` });
           return;
         }
         lastCheckedRef.current = digits;
         setCnpjStatus({ state: "ok", razaoSocial: razao });
       } catch (err: any) {
         if (err.name === "AbortError") return;
-        setCnpjStatus({
-          state: "error",
-          message: "Falha ao consultar a Receita. Verifique sua conexão.",
-        });
+        setCnpjStatus({ state: "error", message: "Falha ao consultar a Receita. Verifique sua conexão." });
       }
     }, 400);
 
@@ -134,44 +207,58 @@ const Cadastro = () => {
       });
       return;
     }
-    const { nomeOficina: nome, email: mail, telefone: tel, senha: pwd, cnpj: doc } = validation.data;
+    const data = validation.data;
     setLoading(true);
 
-    try {
-      // 1. Create auth user
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: mail,
-        password: pwd,
-      });
+    // Monta endereço completo em uma string única
+    const enderecoCompleto = [
+      `${data.endereco}, ${data.numero}`,
+      data.complemento ? data.complemento : null,
+      data.bairro,
+      `${data.cidade} - ${data.estado}`,
+      `CEP ${data.cep}`,
+    ]
+      .filter(Boolean)
+      .join(" • ");
 
+    try {
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.senha,
+      });
       if (authError) {
         toast({ title: "Erro ao criar conta", description: authError.message, variant: "destructive" });
         setLoading(false);
         return;
       }
-
       if (!authData.session) {
         toast({ title: "Erro", description: "Sessão não criada. Tente novamente.", variant: "destructive" });
         setLoading(false);
         return;
       }
 
-      // 2. Create oficina via RPC (sets oficina_id in user metadata)
       const { error: rpcError } = await supabase.rpc("create_oficina_for_user", {
-        _nome: nome,
-        _telefone: tel || null,
-        _cnpj: doc.replace(/\D/g, ""),
+        _nome: data.nomeOficina,
+        _telefone: data.telefone || null,
+        _cnpj: data.cnpj.replace(/\D/g, ""),
       });
-
       if (rpcError) {
         toast({ title: "Erro ao criar oficina", description: rpcError.message, variant: "destructive" });
         setLoading(false);
         return;
       }
 
-      // 3. Refresh session to pick up updated metadata
-      await supabase.auth.refreshSession();
+      // Salva o endereço na oficina recém-criada
+      const { error: updError } = await supabase
+        .from("oficinas")
+        .update({ endereco: enderecoCompleto })
+        .eq("auth_user_id", authData.user!.id);
+      if (updError) {
+        // não bloqueia o cadastro
+        console.warn("Falha ao salvar endereço:", updError.message);
+      }
 
+      await supabase.auth.refreshSession();
       toast({ title: "Conta criada com sucesso!", description: "Bem-vindo ao ONficina." });
       navigate("/admin");
     } catch (err: any) {
@@ -179,6 +266,11 @@ const Cadastro = () => {
       setLoading(false);
     }
   };
+
+  const inputCls = (hasError: boolean, ok = false) =>
+    `w-full rounded-lg border bg-background px-4 py-3 text-sm outline-none focus:border-primary ${
+      hasError ? "border-destructive" : ok ? "border-primary" : "border-input"
+    }`;
 
   return (
     <div className="min-h-screen bg-background px-4 py-12">
@@ -200,11 +292,8 @@ const Cadastro = () => {
               <input
                 value={nomeOficina}
                 onChange={(e) => setNomeOficina(e.target.value)}
-                className={`w-full rounded-lg border bg-background px-4 py-3 text-sm outline-none focus:border-primary ${
-                  nomeOficina && errors.nomeOficina ? "border-destructive" : "border-input"
-                }`}
+                className={inputCls(!!(nomeOficina && errors.nomeOficina))}
                 required
-                aria-invalid={!!(nomeOficina && errors.nomeOficina)}
               />
               {nomeOficina && errors.nomeOficina && (
                 <p className="mt-1 text-xs text-destructive">{errors.nomeOficina}</p>
@@ -217,10 +306,7 @@ const Cadastro = () => {
                 value={telefone}
                 onChange={(e) => setTelefone(e.target.value)}
                 placeholder="(11) 91234-5678"
-                className={`w-full rounded-lg border bg-background px-4 py-3 text-sm outline-none focus:border-primary ${
-                  telefone && errors.telefone ? "border-destructive" : "border-input"
-                }`}
-                aria-invalid={!!(telefone && errors.telefone)}
+                className={inputCls(!!(telefone && errors.telefone))}
               />
               {telefone && errors.telefone && (
                 <p className="mt-1 text-xs text-destructive">{errors.telefone}</p>
@@ -238,15 +324,8 @@ const Cadastro = () => {
                 onChange={(e) => setCnpj(formatCnpj(e.target.value))}
                 placeholder="00.000.000/0000-00"
                 maxLength={18}
-                className={`w-full rounded-lg border bg-background px-4 py-3 pr-10 text-sm outline-none focus:border-primary ${
-                  cnpj && (errors.cnpj || cnpjStatus.state === "error")
-                    ? "border-destructive"
-                    : cnpjStatus.state === "ok"
-                    ? "border-primary"
-                    : "border-input"
-                }`}
+                className={`${inputCls(!!(cnpj && (errors.cnpj || cnpjStatus.state === "error")), cnpjStatus.state === "ok")} pr-10`}
                 required
-                aria-invalid={!!(cnpj && (errors.cnpj || cnpjStatus.state === "error"))}
               />
               {cnpjStatus.state === "checking" && (
                 <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
@@ -255,9 +334,7 @@ const Cadastro = () => {
                 <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
               )}
             </div>
-            {cnpj && errors.cnpj && (
-              <p className="mt-1 text-xs text-destructive">{errors.cnpj}</p>
-            )}
+            {cnpj && errors.cnpj && <p className="mt-1 text-xs text-destructive">{errors.cnpj}</p>}
             {!errors.cnpj && cnpjStatus.state === "checking" && (
               <p className="mt-1 text-xs text-muted-foreground">Consultando Receita Federal…</p>
             )}
@@ -269,6 +346,130 @@ const Cadastro = () => {
             )}
           </div>
 
+          {/* Endereço */}
+          <div className="space-y-4 rounded-xl border border-border/60 bg-background/40 p-4">
+            <h3 className="text-sm font-semibold">Endereço da oficina</h3>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="sm:col-span-1">
+                <label className="mb-1.5 block text-sm font-medium">CEP *</label>
+                <div className="relative">
+                  <input
+                    inputMode="numeric"
+                    value={cep}
+                    onChange={(e) => setCep(formatCep(e.target.value))}
+                    placeholder="00000-000"
+                    maxLength={9}
+                    className={`${inputCls(!!(cep && errors.cep))} pr-10`}
+                    required
+                  />
+                  {loadingCep && (
+                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                  )}
+                </div>
+                {cep && errors.cep && <p className="mt-1 text-xs text-destructive">{errors.cep}</p>}
+              </div>
+
+              <div className="sm:col-span-1">
+                <label className="mb-1.5 block text-sm font-medium">Estado *</label>
+                <select
+                  value={estado}
+                  onChange={(e) => {
+                    setEstado(e.target.value);
+                    setCidade(""); // reseta cidade ao trocar estado
+                  }}
+                  className={inputCls(!!(estado && errors.estado))}
+                  required
+                >
+                  <option value="">Selecione…</option>
+                  {ufs.map((u) => (
+                    <option key={u.sigla} value={u.sigla}>
+                      {u.sigla} — {u.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="sm:col-span-1">
+                <label className="mb-1.5 block text-sm font-medium">Cidade *</label>
+                <select
+                  value={cidade}
+                  onChange={(e) => setCidade(e.target.value)}
+                  disabled={!estado || loadingMunicipios}
+                  className={`${inputCls(!!(cidade && errors.cidade))} disabled:cursor-not-allowed disabled:opacity-50`}
+                  required
+                >
+                  <option value="">
+                    {!estado
+                      ? "Escolha o estado primeiro"
+                      : loadingMunicipios
+                      ? "Carregando…"
+                      : "Selecione…"}
+                  </option>
+                  {municipios.map((m) => (
+                    <option key={m.id} value={m.nome}>
+                      {m.nome}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <div className="sm:col-span-2">
+                <label className="mb-1.5 block text-sm font-medium">Endereço (rua/avenida) *</label>
+                <input
+                  value={endereco}
+                  onChange={(e) => setEndereco(e.target.value)}
+                  placeholder="Av. Brasil"
+                  className={inputCls(!!(endereco && errors.endereco))}
+                  required
+                />
+                {endereco && errors.endereco && (
+                  <p className="mt-1 text-xs text-destructive">{errors.endereco}</p>
+                )}
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">Número *</label>
+                <input
+                  value={numero}
+                  onChange={(e) => setNumero(e.target.value)}
+                  placeholder="123"
+                  className={inputCls(!!(numero && errors.numero))}
+                  required
+                />
+                {numero && errors.numero && (
+                  <p className="mt-1 text-xs text-destructive">{errors.numero}</p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">Bairro *</label>
+                <input
+                  value={bairro}
+                  onChange={(e) => setBairro(e.target.value)}
+                  placeholder="Centro"
+                  className={inputCls(!!(bairro && errors.bairro))}
+                  required
+                />
+                {bairro && errors.bairro && (
+                  <p className="mt-1 text-xs text-destructive">{errors.bairro}</p>
+                )}
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium">Complemento</label>
+                <input
+                  value={complemento}
+                  onChange={(e) => setComplemento(e.target.value)}
+                  placeholder="Sala 2 (opcional)"
+                  className={inputCls(!!(complemento && errors.complemento))}
+                />
+              </div>
+            </div>
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-sm font-medium">E-mail *</label>
@@ -276,11 +477,8 @@ const Cadastro = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`w-full rounded-lg border bg-background px-4 py-3 text-sm outline-none focus:border-primary ${
-                  email && errors.email ? "border-destructive" : "border-input"
-                }`}
+                className={inputCls(!!(email && errors.email))}
                 required
-                aria-invalid={!!(email && errors.email)}
               />
               {email && errors.email && (
                 <p className="mt-1 text-xs text-destructive">{errors.email}</p>
@@ -295,11 +493,8 @@ const Cadastro = () => {
                   onChange={(e) => setSenha(e.target.value)}
                   minLength={8}
                   placeholder="Mínimo 8 caracteres"
-                  className={`w-full rounded-lg border bg-background px-4 py-3 pr-10 text-sm outline-none focus:border-primary ${
-                    senha && errors.senha ? "border-destructive" : "border-input"
-                  }`}
+                  className={`${inputCls(!!(senha && errors.senha))} pr-10`}
                   required
-                  aria-invalid={!!(senha && errors.senha)}
                 />
                 <button
                   type="button"
@@ -357,21 +552,11 @@ const Cadastro = () => {
             />
             <span className="text-xs leading-relaxed text-muted-foreground">
               Li e aceito os{" "}
-              <a
-                href={publicUrl("/termos")}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary underline hover:opacity-80"
-              >
+              <a href={publicUrl("/termos")} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:opacity-80">
                 Termos de Uso
               </a>{" "}
               e a{" "}
-              <a
-                href={publicUrl("/privacidade")}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-primary underline hover:opacity-80"
-              >
+              <a href={publicUrl("/privacidade")} target="_blank" rel="noopener noreferrer" className="text-primary underline hover:opacity-80">
                 Política de Privacidade
               </a>
             </span>
