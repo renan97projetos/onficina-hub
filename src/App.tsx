@@ -23,6 +23,8 @@ import SiteOficina from "./pages/SiteOficina";
 import Unsubscribe from "./pages/Unsubscribe";
 import Termos from "./pages/Termos";
 import Privacidade from "./pages/Privacidade";
+import RecuperarSenha from "./pages/RecuperarSenha";
+import RedefinirSenha from "./pages/RedefinirSenha";
 
 // Code-splitting: rotas pesadas/menos críticas carregam sob demanda
 const Admin = lazy(() => import("./pages/Admin"));
@@ -50,6 +52,8 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/cadastro" element={<Cadastro />} />
+                <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+                <Route path="/redefinir-senha" element={<RedefinirSenha />} />
                 <Route path="/assinar" element={<Assinar />} />
                 <Route
                   path="/admin"
