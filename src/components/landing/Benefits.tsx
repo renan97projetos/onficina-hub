@@ -36,7 +36,7 @@ const benefits = [
   },
   {
     icon: Users,
-    title: "Histórico completo de clientes",
+    title: "CRM — Controle e gestão de clientes",
     description:
       "Todo cliente e veículo que passou pela oficina fica salvo com histórico de serviços, valores e datas.",
   },
