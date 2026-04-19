@@ -91,22 +91,6 @@ const DemoOS = () => {
   const activeLabel = STAGES.find((s) => s.key === activeStage)?.label || "";
   const selectedOSData = ordens.find((os) => os.id === selectedOS) || null;
 
-  if (ordens.length === 0) {
-    return (
-      <>
-        <EmptyModuleState
-          icon={ClipboardList}
-          title="Sua pipeline está vazia"
-          description="Crie seu primeiro orçamento para começar a acompanhar o fluxo de atendimento, do orçamento à entrega do veículo."
-          primaryAction="+ Novo Orçamento"
-          onPrimaryAction={() => setShowOrcamentoForm(true)}
-          helperText="Quando o orçamento for aprovado, vire OS em um clique e siga o fluxo da pipeline."
-        />
-        <OrcamentoFormModal open={showOrcamentoForm} onOpenChange={setShowOrcamentoForm} orcamentoId={null} />
-        <OSFormModal open={showForm} onOpenChange={setShowForm} />
-      </>
-    );
-  }
 
   return (
     <>
