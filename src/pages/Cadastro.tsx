@@ -22,7 +22,6 @@ const plans = [
 ];
 
 const Cadastro = () => {
-  const [annual, setAnnual] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("Pro");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
