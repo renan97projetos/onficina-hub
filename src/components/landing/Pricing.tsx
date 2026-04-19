@@ -14,7 +14,7 @@ const plans = [
       "Serviço Ao Vivo — cliente acompanha o carro em tempo real",
       "Painel do técnico no celular — sem instalar nenhum app",
       "Registro de fotos de entrada e saída do veículo",
-      "CRM — histórico completo de clientes e veículos",
+      "CRM — Controle e gestão de clientes",
       "Avaliação no sistema e encaminhamento para o Google",
       "Controle financeiro — recebimentos, despesas e saldo",
       "Indicadores da sua oficina",
