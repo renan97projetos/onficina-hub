@@ -6,10 +6,19 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import Logo from "@/components/Logo";
 
+const REMEMBER_KEY = "onficina-remember-email";
+
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => {
+    if (typeof window === "undefined") return "";
+    return localStorage.getItem(REMEMBER_KEY) ?? "";
+  });
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return Boolean(localStorage.getItem(REMEMBER_KEY));
+  });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -40,6 +49,12 @@ const Login = () => {
       toast({ title: "Não foi possível entrar", description: msg, variant: "destructive" });
       setLoading(false);
       return;
+    }
+
+    if (rememberMe) {
+      localStorage.setItem(REMEMBER_KEY, email);
+    } else {
+      localStorage.removeItem(REMEMBER_KEY);
     }
 
     navigate(returnUrl);
@@ -140,6 +155,15 @@ const Login = () => {
               </button>
             </div>
           </div>
+          <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground select-none">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-4 w-4 cursor-pointer rounded border-input accent-primary"
+            />
+            Lembrar-me neste dispositivo
+          </label>
           <button
             type="submit"
             disabled={loading}
