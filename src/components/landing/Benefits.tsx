@@ -94,21 +94,22 @@ const Benefits = () => {
               key={i}
               className="rounded-2xl border-2 border-dashed border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-lg"
             >
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-muted">
-                <b.icon className="h-5 w-5 text-primary" />
-              </div>
-              <div className="mb-2 flex flex-wrap items-center gap-2">
-                <h3 className="text-base font-semibold text-foreground">{b.title}</h3>
-                {b.live && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-green-500/40 bg-green-500/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-green-500">
-                    <span className="relative flex h-1.5 w-1.5">
-                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
-                      <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-green-500" />
+              {b.live ? (
+                <div className="mb-5 flex h-12 items-center">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-primary/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-primary">
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
                     </span>
                     Ao vivo
                   </span>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-muted">
+                  <b.icon className="h-5 w-5 text-primary" />
+                </div>
+              )}
+              <h3 className="mb-2 text-base font-semibold text-foreground">{b.title}</h3>
               <p className="text-sm leading-relaxed text-muted-foreground">{b.description}</p>
             </div>
           ))}
