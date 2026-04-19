@@ -16,7 +16,6 @@ const Index = () => {
       <Hero />
       <Benefits />
       <HowItWorks />
-      <SocialProof />
       <Pricing />
       <FAQ />
       <FinalCTA />
