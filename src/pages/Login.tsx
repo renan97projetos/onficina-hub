@@ -155,15 +155,23 @@ const Login = () => {
               </button>
             </div>
           </div>
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground select-none">
-            <input
-              type="checkbox"
-              checked={rememberMe}
-              onChange={(e) => setRememberMe(e.target.checked)}
-              className="h-4 w-4 cursor-pointer rounded border-input accent-primary"
-            />
-            Lembrar-me neste dispositivo
-          </label>
+          <div className="flex items-center justify-between gap-2">
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground select-none">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="h-4 w-4 cursor-pointer rounded border-input accent-primary"
+              />
+              Lembrar-me
+            </label>
+            <Link
+              to="/recuperar-senha"
+              className="text-sm text-primary hover:underline"
+            >
+              Esqueci minha senha
+            </Link>
+          </div>
           <button
             type="submit"
             disabled={loading}
