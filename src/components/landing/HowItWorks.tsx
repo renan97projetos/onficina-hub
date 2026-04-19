@@ -304,16 +304,8 @@ const MockAvaliar = () => {
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 const MockShell = ({ children }: { children: React.ReactNode }) => (
-  <div
-    className="mock-light relative mb-5 h-[200px] overflow-hidden rounded-xl border border-gray-200 bg-white p-4 text-gray-900 shadow-inner"
-    style={{
-      backgroundImage:
-        "radial-gradient(circle, rgba(0,0,0,0.08) 1px, transparent 1px)",
-      backgroundSize: "12px 12px",
-      backgroundPosition: "0 0",
-    }}
-  >
-    <div className="relative z-10">{children}</div>
+  <div className="mock-light mb-5 h-[200px] overflow-hidden rounded-xl border border-gray-200 bg-white p-4 text-gray-900 shadow-inner">
+    {children}
   </div>
 );
 
