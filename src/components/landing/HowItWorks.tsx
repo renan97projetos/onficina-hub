@@ -124,35 +124,35 @@ const MockOrcamento = () => {
   );
 };
 
-/* ---------------- MOCKUP 3: Acompanhar serviço ---------------- */
+/* ---------------- MOCKUP 3: Acompanhar serviço (ao vivo, sem %) ---------------- */
 const ETAPAS = ["Receb.", "Avaliação", "Funilaria", "Pintura", "Polimento", "Entrega"];
 
+type SrvStatus = "aguardando" | "em_andamento" | "concluido";
+
 const MockAcompanhar = () => {
-  const [completas, setCompletas] = useState(0); // quantos check verdes
-  const [funilaria, setFunilaria] = useState(0);
-  const [pintura, setPintura] = useState(0);
+  const [completas, setCompletas] = useState(0);
+  const [funilariaStatus, setFunilariaStatus] = useState<SrvStatus>("aguardando");
+  const [pinturaStatus, setPinturaStatus] = useState<SrvStatus>("aguardando");
 
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
       while (!cancelled) {
-        setCompletas(0); setFunilaria(0); setPintura(0);
+        setCompletas(0);
+        setFunilariaStatus("aguardando");
+        setPinturaStatus("aguardando");
         await wait(400);
         for (let i = 1; i <= 3 && !cancelled; i++) {
           setCompletas(i);
-          await wait(800);
+          await wait(700);
         }
-        // barras avançam suavemente em paralelo
-        const start = Date.now();
-        const dur = 2200;
-        while (!cancelled) {
-          const t = Math.min(1, (Date.now() - start) / dur);
-          setFunilaria(t * 65);
-          setPintura(t * 30);
-          if (t >= 1) break;
-          await wait(40);
-        }
-        await wait(900);
+        if (cancelled) return;
+        setFunilariaStatus("em_andamento");
+        await wait(1600);
+        if (cancelled) return;
+        setFunilariaStatus("concluido");
+        setPinturaStatus("em_andamento");
+        await wait(1800);
       }
     };
     run();
@@ -188,30 +188,39 @@ const MockAcompanhar = () => {
           })}
         </div>
 
-        {/* Barras */}
-        <div className="space-y-2">
-          <ProgressRow label="Funilaria" pct={funilaria} />
-          <ProgressRow label="Pintura" pct={pintura} />
+        {/* Status simples (sem %) */}
+        <div className="space-y-1.5">
+          <StatusRow label="Funilaria" status={funilariaStatus} />
+          <StatusRow label="Pintura" status={pinturaStatus} />
         </div>
       </div>
     </MockShell>
   );
 };
 
-const ProgressRow = ({ label, pct }: { label: string; pct: number }) => (
-  <div>
-    <div className="mb-0.5 flex items-center justify-between text-[10px]">
-      <span className="text-gray-500">{label}</span>
-      <span className="font-semibold text-gray-900">{Math.round(pct)}%</span>
+const StatusRow = ({ label, status }: { label: string; status: SrvStatus }) => {
+  const cfg =
+    status === "concluido"
+      ? { bg: "bg-green-100", text: "text-green-700", dot: "bg-green-500", label: "Concluído" }
+      : status === "em_andamento"
+      ? { bg: "bg-primary/10", text: "text-primary", dot: "bg-primary", label: "Em andamento" }
+      : { bg: "bg-gray-100", text: "text-gray-500", dot: "bg-gray-300", label: "Aguardando" };
+
+  return (
+    <div className="flex items-center justify-between rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1.5">
+      <span className="text-[11px] text-gray-700">{label}</span>
+      <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.bg} ${cfg.text}`}>
+        <span className="relative flex h-1.5 w-1.5">
+          {status === "em_andamento" && (
+            <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-75 ${cfg.dot}`} />
+          )}
+          <span className={`relative inline-flex h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
+        </span>
+        {cfg.label}
+      </span>
     </div>
-    <div className="h-1.5 overflow-hidden rounded-full bg-gray-200">
-      <div
-        className="h-full rounded-full bg-primary transition-[width] duration-100 ease-linear"
-        style={{ width: `${pct}%` }}
-      />
-    </div>
-  </div>
-);
+  );
+};
 
 /* ---------------- MOCKUP 4: Avaliação ---------------- */
 const MockAvaliar = () => {

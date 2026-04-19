@@ -157,18 +157,36 @@ const Acompanhar = () => {
           <div className="space-y-3">
             <h2 className="text-sm font-bold uppercase tracking-wide text-muted-foreground">Serviços</h2>
             {servicos.map((srv: any) => {
-              const etapas = (srv.etapas_snapshot as string[]) || [];
-              const total = etapas.length || 1;
-              const current = srv.status === "concluido" ? total : srv.etapa_atual;
-              const pct = Math.round((current / total) * 100);
+              const isConcluido = srv.status === "concluido";
+              const isEmAndamento =
+                !isConcluido && (srv.status === "em_andamento" || srv.status === "iniciado" || (srv.etapa_atual ?? 0) > 0);
+              const statusLabel = isConcluido
+                ? "Concluído"
+                : isEmAndamento
+                ? "Em andamento"
+                : "Aguardando";
               return (
                 <div key={srv.id} className="rounded-lg border border-border bg-card p-4">
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between gap-3">
                     <span className="text-sm font-medium text-foreground">{srv.nome_servico}</span>
-                    <span className="text-xs text-muted-foreground">{pct}%</span>
-                  </div>
-                  <div className="h-2 rounded-full bg-muted overflow-hidden">
-                    <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                        isConcluido
+                          ? "bg-green-500/15 text-green-500"
+                          : isEmAndamento
+                          ? "bg-primary/15 text-primary"
+                          : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {isEmAndamento && (
+                        <span className="relative flex h-1.5 w-1.5">
+                          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+                          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-primary" />
+                        </span>
+                      )}
+                      {isConcluido && <Check className="h-3 w-3" />}
+                      {statusLabel}
+                    </span>
                   </div>
                 </div>
               );
