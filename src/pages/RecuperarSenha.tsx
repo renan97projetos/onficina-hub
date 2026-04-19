@@ -4,7 +4,6 @@ import { ArrowLeft, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Logo from "@/components/Logo";
-import { publicUrl } from "@/lib/publicUrl";
 import { emailSchema } from "@/lib/validations";
 
 const RecuperarSenha = () => {
@@ -26,7 +25,7 @@ const RecuperarSenha = () => {
     }
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
-      redirectTo: publicUrl("/redefinir-senha"),
+      redirectTo: window.location.origin + "/redefinir-senha",
     });
     setLoading(false);
 
