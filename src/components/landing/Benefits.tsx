@@ -7,8 +7,8 @@ import {
   BarChart3,
   Smartphone,
   LayoutGrid,
-  UserCog,
 } from "lucide-react";
+import ProductivityGaugeIcon from "./icons/ProductivityGaugeIcon";
 
 const benefits = [
   {
