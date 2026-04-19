@@ -51,6 +51,12 @@ const Login = () => {
       return;
     }
 
+    if (rememberMe) {
+      localStorage.setItem(REMEMBER_KEY, email);
+    } else {
+      localStorage.removeItem(REMEMBER_KEY);
+    }
+
     navigate(returnUrl);
   };
 
