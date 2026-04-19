@@ -311,27 +311,27 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
 const steps = [
   {
     num: "01",
-    title: "Cadastre o veículo",
-    description: "Registre o carro com fotos, dados do cliente e descrição do problema. Tudo em menos de 2 minutos.",
-    Mock: MockCadastro,
-  },
-  {
-    num: "02",
-    title: "Crie o orçamento",
-    description: "Adicione peças, mão de obra e prazos. Envie para aprovação do cliente por WhatsApp ou email.",
+    title: "Monte o orçamento",
+    description: "Adicione peças, mão de obra e valor total. Gere o PDF com a logo da sua oficina e envie para o cliente aprovar pelo WhatsApp.",
     Mock: MockOrcamento,
   },
   {
+    num: "02",
+    title: "Abra a OS e aloque no pátio",
+    description: "Com o orçamento aprovado, a OS é criada em 1 clique. Aloque o carro ao técnico certo e defina o prazo.",
+    Mock: MockAlocacao,
+  },
+  {
     num: "03",
-    title: "Acompanhe o serviço",
-    description: "Atualize o status em tempo real. Funilaria, preparação, pintura, polimento. Cada etapa registrada.",
+    title: "Acompanhe cada etapa ao vivo",
+    description: "O cliente acompanha o serviço em tempo real pelo celular. Funilaria, pintura, polimento — cada etapa registrada.",
     Mock: MockAcompanhar,
   },
   {
     num: "04",
-    title: "Finalize e receba",
-    description: "Gere a nota, registre o pagamento e encerre a OS. Histórico completo salvo automaticamente.",
-    Mock: MockFinalizar,
+    title: "Finalize, receba e avalie",
+    description: "Confirme o pagamento, entregue o veículo e colete a avaliação. O cliente avalia e vai direto para o Google Reviews.",
+    Mock: MockAvaliar,
   },
 ];
 
