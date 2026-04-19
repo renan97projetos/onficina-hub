@@ -137,7 +137,7 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
       qc.invalidateQueries({ queryKey: ["orcamentos"] });
     }
 
-    const link = `${window.location.origin}/aprovar/${orc.token_publico}`;
+    const link = publicUrl(`/aprovar/${orc.token_publico}`);
     const msg = encodeURIComponent(
       `Olá ${orc.nome_cliente}, segue o orçamento da ${oficina?.nome || "oficina"}:\n` +
         `Total: ${brl(Number(orc.total_geral) || 0)}\n` +
