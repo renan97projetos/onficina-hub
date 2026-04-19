@@ -201,25 +201,7 @@ const Cadastro = () => {
           {/* Plan selector */}
           <div>
             <label className="mb-3 block text-sm font-medium">Escolha seu plano</label>
-            <div className="mb-4 flex justify-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background p-1">
-                <button
-                  type="button"
-                  onClick={() => setAnnual(false)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all ${!annual ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-                >
-                  Mensal
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setAnnual(true)}
-                  className={`rounded-full px-4 py-1.5 text-xs font-medium transition-all ${annual ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-                >
-                  Anual (-17%)
-                </button>
-              </div>
-            </div>
-            <div className="grid gap-3 sm:grid-cols-3">
+            <div className="mx-auto grid max-w-md gap-3 sm:grid-cols-2">
               {plans.map((p) => (
                 <button
                   key={p.name}
@@ -233,7 +215,7 @@ const Cadastro = () => {
                 >
                   <div className="text-sm font-semibold">{p.name}</div>
                   <div className="mt-1 text-lg font-bold">
-                    R$ {annual ? Math.round(p.yearlyPrice / 12) : p.monthlyPrice}
+                    R$ {p.monthlyPrice}
                     <span className="text-xs font-normal text-muted-foreground">/mês</span>
                   </div>
                   <ul className="mt-2 space-y-1">
