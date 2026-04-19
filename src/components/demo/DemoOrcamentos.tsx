@@ -19,6 +19,7 @@ import {
 import OrcamentoFormModal from "./OrcamentoFormModal";
 import EmptyModuleState from "./EmptyModuleState";
 import { downloadOrcamentoPdf } from "@/lib/orcamentoPdf";
+import { publicUrl } from "@/lib/publicUrl";
 
 const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
   rascunho: { label: "Rascunho", cls: "bg-muted text-muted-foreground" },
