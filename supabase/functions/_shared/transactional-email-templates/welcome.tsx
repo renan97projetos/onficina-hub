@@ -1,57 +1,88 @@
 /// <reference types="npm:@types/react@18.3.1" />
 import * as React from 'npm:react@18.3.1'
 import {
-  Body, Button, Container, Head, Heading, Html, Preview, Text,
+  Body, Button, Container, Head, Heading, Hr, Html, Link, Preview, Section, Text,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = 'ONficina'
 const SITE_URL = 'https://onficina.com'
+const WHATSAPP_NUMERO = '5527992373501' // Renan
+const WHATSAPP_MENSAGEM = encodeURIComponent(
+  'Oi Renan! Acabei de cadastrar minha oficina no ONficina e preciso de uma ajuda.'
+)
+const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMERO}?text=${WHATSAPP_MENSAGEM}`
 
 interface WelcomeProps {
   nome?: string
   oficinaNome?: string
 }
 
-const WelcomeEmail = ({ nome, oficinaNome }: WelcomeProps) => (
-  <Html lang="pt-BR" dir="ltr">
-    <Head />
-    <Preview>Bem-vindo à {SITE_NAME} — sua oficina mais organizada começa agora</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={brand}>{SITE_NAME}</Heading>
-        <Heading style={h1}>
-          {nome ? `Olá, ${nome}!` : 'Boas-vindas!'}
-        </Heading>
-        <Text style={text}>
-          {oficinaNome
-            ? `A ${oficinaNome} está pronta para usar a ${SITE_NAME}.`
-            : `Sua conta na ${SITE_NAME} foi criada com sucesso.`}
-        </Text>
-        <Text style={text}>
-          Você ganhou <strong>14 dias grátis</strong> para testar tudo:
-          pipeline de OS, orçamentos digitais, controle financeiro,
-          agendamento online e muito mais.
-        </Text>
-        <Button style={button} href={`${SITE_URL}/admin`}>
-          Acessar o painel
-        </Button>
-        <Text style={text}>
-          Dica: comece cadastrando seus serviços e colaboradores. Em poucos
-          minutos sua oficina estará organizada.
-        </Text>
-        <Text style={footer}>
-          Qualquer dúvida, é só responder este e-mail. Estamos aqui para ajudar.
-        </Text>
-      </Container>
-    </Body>
-  </Html>
-)
+const WelcomeEmail = ({ nome, oficinaNome }: WelcomeProps) => {
+  const saudacao = nome ? `Oi, ${nome}!` : 'Oi!'
+  return (
+    <Html lang="pt-BR" dir="ltr">
+      <Head />
+      <Preview>Sou o Renan do ONficina — estou aqui se precisar de ajuda</Preview>
+      <Body style={main}>
+        <Container style={container}>
+          <Heading style={brand}>{SITE_NAME}</Heading>
+
+          <Heading style={h1}>{saudacao}</Heading>
+
+          <Text style={text}>
+            Sou o <strong>Renan</strong>, do ONficina. Vi que você acabou de cadastrar
+            {oficinaNome ? <> a <strong>{oficinaNome}</strong></> : ' sua oficina'} —
+            seja muito bem-vindo(a)! 👋
+          </Text>
+
+          <Text style={text}>
+            Estou passando aqui só pra dizer que, se precisar de qualquer ajuda
+            pra configurar o sistema (cadastrar serviços, colaboradores, criar
+            sua primeira OS, gerar orçamento…), é só me chamar. Respondo rápido
+            no WhatsApp.
+          </Text>
+
+          <Section style={{ textAlign: 'center' as const, margin: '8px 0 24px' }}>
+            <Button style={whatsappButton} href={WHATSAPP_LINK}>
+              💬 Falar com o Renan no WhatsApp
+            </Button>
+          </Section>
+
+          <Text style={fallback}>
+            Se o botão não abrir, copie e cole este link:
+            <br />
+            <Link href={WHATSAPP_LINK} style={link}>{WHATSAPP_LINK}</Link>
+          </Text>
+
+          <Hr style={hr} />
+
+          <Text style={text}>
+            Você tem <strong>14 dias grátis</strong> pra testar tudo, sem cartão
+            de crédito. Pra começar, é só acessar seu painel:
+          </Text>
+
+          <Section style={{ textAlign: 'center' as const, margin: '8px 0 24px' }}>
+            <Button style={primaryButton} href={`${SITE_URL}/admin`}>
+              Acessar meu painel
+            </Button>
+          </Section>
+
+          <Text style={footer}>
+            Um abraço,
+            <br />
+            <strong>Renan</strong> — Equipe ONficina
+          </Text>
+        </Container>
+      </Body>
+    </Html>
+  )
+}
 
 export const template = {
   component: WelcomeEmail,
-  subject: 'Bem-vindo à ONficina 🚗',
-  displayName: 'Boas-vindas',
+  subject: 'Bem-vindo ao ONficina — sou o Renan, posso te ajudar?',
+  displayName: 'Boas-vindas (Renan)',
   previewData: { nome: 'João', oficinaNome: 'Auto Center Silva' },
 } satisfies TemplateEntry
 
@@ -60,7 +91,7 @@ const container = { padding: '24px 28px', maxWidth: '560px' }
 const brand = {
   fontSize: '14px',
   fontWeight: 'bold' as const,
-  color: 'hsl(25, 95%, 53%)',
+  color: '#F97316',
   letterSpacing: '0.05em',
   textTransform: 'uppercase' as const,
   margin: '0 0 24px',
@@ -73,8 +104,8 @@ const h1 = {
   margin: '0 0 20px',
 }
 const text = { fontSize: '15px', color: '#525252', lineHeight: '1.6', margin: '0 0 20px' }
-const button = {
-  backgroundColor: 'hsl(25, 95%, 53%)',
+const primaryButton = {
+  backgroundColor: '#F97316',
   color: '#ffffff',
   fontSize: '15px',
   fontWeight: 'bold' as const,
@@ -82,6 +113,20 @@ const button = {
   padding: '14px 24px',
   textDecoration: 'none',
   display: 'inline-block',
-  margin: '8px 0 24px',
+  border: '1px solid #F97316',
 }
-const footer = { fontSize: '13px', color: '#999999', margin: '24px 0 0', lineHeight: '1.5' }
+const whatsappButton = {
+  backgroundColor: '#25D366',
+  color: '#ffffff',
+  fontSize: '15px',
+  fontWeight: 'bold' as const,
+  borderRadius: '12px',
+  padding: '14px 24px',
+  textDecoration: 'none',
+  display: 'inline-block',
+  border: '1px solid #25D366',
+}
+const link = { color: '#25D366', textDecoration: 'underline', wordBreak: 'break-all' as const }
+const fallback = { fontSize: '13px', color: '#737373', lineHeight: '1.5', margin: '0 0 20px' }
+const hr = { borderColor: '#e5e5e5', margin: '24px 0' }
+const footer = { fontSize: '14px', color: '#525252', margin: '24px 0 0', lineHeight: '1.6' }

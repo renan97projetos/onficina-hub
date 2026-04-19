@@ -250,6 +250,23 @@ const Cadastro = () => {
       }
 
       await supabase.auth.refreshSession();
+
+      // Dispara e-mail de boas-vindas pessoal (não bloqueia o cadastro se falhar)
+      try {
+        await supabase.functions.invoke("send-transactional-email", {
+          body: {
+            templateName: "welcome",
+            recipientEmail: data.email,
+            templateData: {
+              nome: data.email.split("@")[0],
+              oficinaNome: data.nomeOficina,
+            },
+          },
+        });
+      } catch (emailErr) {
+        console.warn("Falha ao enviar e-mail de boas-vindas:", emailErr);
+      }
+
       toast({ title: "Conta criada com sucesso!", description: "Bem-vindo ao ONficina." });
       navigate("/admin");
     } catch (err: any) {
