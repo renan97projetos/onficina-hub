@@ -61,11 +61,57 @@ export const senhaSchema = z
   .min(8, "Senha deve ter pelo menos 8 caracteres")
   .max(72, "Senha muito longa");
 
+/**
+ * Valida CNPJ pelos dígitos verificadores (algoritmo oficial).
+ * Aceita com ou sem máscara.
+ */
+export function isCnpjValido(cnpj: string): boolean {
+  const digits = (cnpj || "").replace(/\D/g, "");
+  if (digits.length !== 14) return false;
+  // Rejeita sequências repetidas (ex: 00000000000000)
+  if (/^(\d)\1{13}$/.test(digits)) return false;
+
+  const calcDV = (base: string, pesos: number[]) => {
+    const soma = base
+      .split("")
+      .reduce((acc, d, i) => acc + parseInt(d, 10) * pesos[i], 0);
+    const resto = soma % 11;
+    return resto < 2 ? 0 : 11 - resto;
+  };
+
+  const pesos1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+  const pesos2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+
+  const dv1 = calcDV(digits.substring(0, 12), pesos1);
+  if (dv1 !== parseInt(digits[12], 10)) return false;
+  const dv2 = calcDV(digits.substring(0, 13), pesos2);
+  if (dv2 !== parseInt(digits[13], 10)) return false;
+
+  return true;
+}
+
+/** Formata CNPJ adicionando máscara XX.XXX.XXX/XXXX-XX enquanto digita */
+export function formatCnpj(value: string): string {
+  const d = (value || "").replace(/\D/g, "").slice(0, 14);
+  if (d.length <= 2) return d;
+  if (d.length <= 5) return `${d.slice(0, 2)}.${d.slice(2)}`;
+  if (d.length <= 8) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5)}`;
+  if (d.length <= 12)
+    return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8)}`;
+  return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12)}`;
+}
+
+export const cnpjSchema = z
+  .string()
+  .trim()
+  .refine((v) => isCnpjValido(v), { message: "CNPJ inválido" });
+
 export const cadastroSchema = z.object({
   nomeOficina: nomeOficinaSchema,
   email: emailSchema,
   telefone: telefoneOpcionalSchema,
   senha: senhaSchema,
+  cnpj: cnpjSchema,
 });
 
 export type CadastroInput = z.infer<typeof cadastroSchema>;
