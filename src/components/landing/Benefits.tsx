@@ -7,8 +7,8 @@ import {
   BarChart3,
   Smartphone,
   LayoutGrid,
-  UserCog,
 } from "lucide-react";
+import ProductivityGaugeIcon from "./icons/ProductivityGaugeIcon";
 
 const benefits = [
   {
@@ -61,7 +61,7 @@ const benefits = [
       "Controle quais carros estão na oficina, em qual técnico cada um está alocado e o prazo de entrega de cada serviço.",
   },
   {
-    icon: UserCog,
+    icon: ProductivityGaugeIcon,
     title: "Acompanhe a produtividade da sua equipe",
     description:
       "Veja quantos serviços cada técnico entregou, tempo médio por etapa e identifique gargalos antes que virem prejuízo.",
