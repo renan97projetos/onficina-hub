@@ -12,13 +12,11 @@ const plans = [
   {
     name: "Starter",
     monthlyPrice: 97,
-    yearlyPrice: 970,
     features: ["Pipeline completo", "Até 2 colaboradores", "Notificações", "Financeiro básico"],
   },
   {
     name: "Pro",
     monthlyPrice: 197,
-    yearlyPrice: 1970,
     features: ["Tudo do Starter", "Até 5 colaboradores", "Agendamento", "CRM", "Relatórios avançados"],
   },
 ];
