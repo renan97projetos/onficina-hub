@@ -51,6 +51,11 @@ export const EmailChangeEmail = ({
         <Button style={button} href={confirmationUrl}>
           Confirmar alteração
         </Button>
+        <Text style={fallback}>
+          Se o botão não funcionar, copie e cole este link no navegador:
+          <br />
+          <a href={confirmationUrl} style={linkBreak}>{confirmationUrl}</a>
+        </Text>
         <Text style={footer}>
           Se não foi você quem pediu essa alteração, proteja sua conta imediatamente
           alterando sua senha.
@@ -67,7 +72,7 @@ const container = { padding: '24px 28px', maxWidth: '560px' }
 const brand = {
   fontSize: '14px',
   fontWeight: 'bold' as const,
-  color: 'hsl(25, 95%, 53%)',
+  color: '#F97316',
   letterSpacing: '0.05em',
   textTransform: 'uppercase' as const,
   margin: '0 0 24px',
@@ -85,9 +90,10 @@ const text = {
   lineHeight: '1.6',
   margin: '0 0 20px',
 }
-const link = { color: 'hsl(25, 95%, 53%)', textDecoration: 'underline' }
+const link = { color: '#F97316', textDecoration: 'underline' }
+const linkBreak = { color: '#F97316', textDecoration: 'underline', wordBreak: 'break-all' as const }
 const button = {
-  backgroundColor: 'hsl(25, 95%, 53%)',
+  backgroundColor: '#F97316',
   color: '#ffffff',
   fontSize: '15px',
   fontWeight: 'bold' as const,
@@ -96,5 +102,7 @@ const button = {
   textDecoration: 'none',
   display: 'inline-block',
   margin: '8px 0 24px',
+  border: '1px solid #F97316',
 }
+const fallback = { fontSize: '13px', color: '#525252', lineHeight: '1.5', margin: '0 0 20px' }
 const footer = { fontSize: '13px', color: '#999999', margin: '24px 0 0', lineHeight: '1.5' }
