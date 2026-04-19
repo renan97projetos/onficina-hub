@@ -1,34 +1,28 @@
 import { useEffect, useState } from "react";
 import { Check, Plus } from "lucide-react";
 
-/* ---------------- MOCKUP 1: Cadastrar veículo ---------------- */
-const PLACA = "GHJ-4F52";
-const MODELO = "BMW Série 3";
+/* ---------------- MOCKUP 1: Alocação no pátio ---------------- */
+const MockAlocacao = () => {
+  const [fase, setFase] = useState(0);
+  const [tecnico, setTecnico] = useState("");
 
-const MockCadastro = () => {
-  const [placa, setPlaca] = useState("");
-  const [modelo, setModelo] = useState("");
-  const [pulse, setPulse] = useState(false);
+  const TECNICO = "Carlos — Funileiro";
 
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
       while (!cancelled) {
-        setPlaca(""); setModelo(""); setPulse(false);
-        await wait(400);
-        for (let i = 1; i <= PLACA.length && !cancelled; i++) {
-          setPlaca(PLACA.slice(0, i));
-          await wait(110);
-        }
+        setFase(0); setTecnico("");
+        await wait(800);
+        setFase(1);
         await wait(300);
-        for (let i = 1; i <= MODELO.length && !cancelled; i++) {
-          setModelo(MODELO.slice(0, i));
-          await wait(70);
+        for (let i = 1; i <= TECNICO.length && !cancelled; i++) {
+          setTecnico(TECNICO.slice(0, i));
+          await wait(60);
         }
-        if (cancelled) return;
-        await wait(300);
-        setPulse(true);
-        await wait(1200);
+        await wait(600);
+        setFase(2);
+        await wait(1800);
       }
     };
     run();
@@ -38,20 +32,38 @@ const MockCadastro = () => {
   return (
     <MockShell>
       <div className="space-y-2.5">
-        <Field label="Placa">
-          <span className="font-mono tracking-wider">{placa}</span>
-          <span className="ml-0.5 inline-block h-3 w-px animate-blink bg-primary align-middle" />
-        </Field>
-        <Field label="Modelo">
-          <span>{modelo}</span>
-        </Field>
-        <button
-          className={`mt-2 inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1.5 text-[11px] font-semibold text-primary-foreground transition ${
-            pulse ? "animate-pulse-soft shadow-[0_0_0_4px_hsl(var(--primary)/0.25)]" : "opacity-70"
-          }`}
-        >
-          <Plus className="h-3 w-3" /> Criar OS
-        </button>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-2.5">
+          <div className="mb-1.5">
+            <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold transition-all duration-500 ${
+              fase < 2
+                ? "bg-green-500/15 text-green-600"
+                : "bg-purple-500/15 text-purple-600"
+            }`}>
+              {fase < 2 ? "Orçamento aprovado" : "Alocado no pátio"}
+            </span>
+          </div>
+          <p className="text-[11px] font-semibold text-gray-900">
+            BMW Série 3 · GHJ-4F52
+          </p>
+          <p className="text-[11px] text-primary font-bold">R$ 2.370</p>
+          {fase === 2 && (
+            <p className="mt-1 text-[10px] text-gray-500 animate-fade-in">
+              Prazo: 3 dias
+            </p>
+          )}
+        </div>
+
+        <div className={`transition-all duration-300 ${fase >= 1 ? "opacity-100" : "opacity-0"}`}>
+          <p className="mb-1 text-[10px] text-gray-500">
+            Alocar técnico:
+          </p>
+          <div className="rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-[11px] font-medium text-gray-900 min-h-[26px]">
+            {tecnico}
+            {fase === 1 && (
+              <span className="ml-0.5 inline-block h-3 w-px animate-blink bg-primary align-middle" />
+            )}
+          </div>
+        </div>
       </div>
     </MockShell>
   );
@@ -201,23 +213,30 @@ const ProgressRow = ({ label, pct }: { label: string; pct: number }) => (
   </div>
 );
 
-/* ---------------- MOCKUP 4: Finalizar e receber ---------------- */
-const MockFinalizar = () => {
+/* ---------------- MOCKUP 4: Avaliação ---------------- */
+const MockAvaliar = () => {
   const [showPix, setShowPix] = useState(false);
   const [confirmado, setConfirmado] = useState(false);
-  const [finalizado, setFinalizado] = useState(false);
+  const [estrelas, setEstrelas] = useState(0);
+  const [showGoogle, setShowGoogle] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
       while (!cancelled) {
-        setShowPix(false); setConfirmado(false); setFinalizado(false);
+        setShowPix(false); setConfirmado(false);
+        setEstrelas(0); setShowGoogle(false);
         await wait(500);
         setShowPix(true);
-        await wait(1100);
+        await wait(1000);
         setConfirmado(true);
-        await wait(800);
-        setFinalizado(true);
+        await wait(700);
+        for (let i = 1; i <= 5 && !cancelled; i++) {
+          setEstrelas(i);
+          await wait(200);
+        }
+        await wait(400);
+        setShowGoogle(true);
         await wait(1500);
       }
     };
@@ -227,31 +246,45 @@ const MockFinalizar = () => {
 
   return (
     <MockShell>
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         <div className="rounded-md border border-gray-200 bg-gray-50 p-2.5">
-          <p className="text-[10px] uppercase tracking-wide text-gray-500">Total</p>
-          <p className="text-lg font-extrabold text-gray-900">R$ 2.370</p>
+          <p className="text-[10px] uppercase tracking-wide text-gray-500">
+            Total
+          </p>
+          <p className="text-base font-extrabold text-gray-900">R$ 2.370</p>
         </div>
+
         <div className={`transition-all duration-300 ${showPix ? "opacity-100" : "opacity-0"}`}>
           <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
             PIX
           </span>
         </div>
-        {!finalizado ? (
-          <button
-            className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition ${
-              confirmado
-                ? "bg-green-500 text-white"
-                : "bg-primary text-primary-foreground"
-            }`}
-          >
-            {confirmado ? <Check className="h-3 w-3" /> : null}
-            {confirmado ? "Confirmado" : "Confirmar"}
-          </button>
-        ) : (
-          <span className="inline-flex items-center gap-1 rounded-full border border-green-500/40 bg-green-500/10 px-2.5 py-1 text-[11px] font-semibold text-green-600 animate-scale-in">
-            <Check className="h-3 w-3" /> Finalizado
-          </span>
+
+        <button className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition ${
+          confirmado ? "bg-green-500 text-white" : "bg-primary text-primary-foreground"
+        }`}>
+          {confirmado && <Check className="h-3 w-3" />}
+          {confirmado ? "Confirmado" : "Confirmar"}
+        </button>
+
+        {confirmado && (
+          <div className="space-y-1">
+            <p className="text-[10px] text-gray-500">
+              Avaliação enviada ao cliente
+            </p>
+            <div className="flex gap-0.5">
+              {[1,2,3,4,5].map(i => (
+                <span key={i} className={`text-sm transition-all duration-200 ${
+                  i <= estrelas ? "text-amber-400" : "text-gray-300"
+                }`}>★</span>
+              ))}
+            </div>
+            {showGoogle && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-green-500/40 bg-green-500/10 px-2 py-0.5 text-[10px] font-semibold text-green-600 animate-fade-in">
+                <Check className="h-3 w-3" /> Google Reviews
+              </span>
+            )}
+          </div>
         )}
       </div>
     </MockShell>
@@ -278,27 +311,27 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
 const steps = [
   {
     num: "01",
-    title: "Cadastre o veículo",
-    description: "Registre o carro com fotos, dados do cliente e descrição do problema. Tudo em menos de 2 minutos.",
-    Mock: MockCadastro,
-  },
-  {
-    num: "02",
-    title: "Crie o orçamento",
-    description: "Adicione peças, mão de obra e prazos. Envie para aprovação do cliente por WhatsApp ou email.",
+    title: "Monte o orçamento",
+    description: "Adicione peças, mão de obra e valor total. Gere o PDF com a logo da sua oficina e envie para o cliente aprovar pelo WhatsApp.",
     Mock: MockOrcamento,
   },
   {
+    num: "02",
+    title: "Abra a OS e aloque no pátio",
+    description: "Com o orçamento aprovado, a OS é criada em 1 clique. Aloque o carro ao técnico certo e defina o prazo.",
+    Mock: MockAlocacao,
+  },
+  {
     num: "03",
-    title: "Acompanhe o serviço",
-    description: "Atualize o status em tempo real. Funilaria, preparação, pintura, polimento. Cada etapa registrada.",
+    title: "Acompanhe cada etapa ao vivo",
+    description: "O cliente acompanha o serviço em tempo real pelo celular. Funilaria, pintura, polimento — cada etapa registrada.",
     Mock: MockAcompanhar,
   },
   {
     num: "04",
-    title: "Finalize e receba",
-    description: "Gere a nota, registre o pagamento e encerre a OS. Histórico completo salvo automaticamente.",
-    Mock: MockFinalizar,
+    title: "Finalize, receba e avalie",
+    description: "Confirme o pagamento, entregue o veículo e colete a avaliação. O cliente avalia e vai direto para o Google Reviews.",
+    Mock: MockAvaliar,
   },
 ];
 
