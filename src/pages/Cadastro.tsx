@@ -40,8 +40,8 @@ type CnpjStatus =
   | { state: "ok"; razaoSocial: string }
   | { state: "error"; message: string };
 
-type UF = { sigla: string; nome: string };
-type Municipio = { id: number; nome: string };
+
+
 
 const Cadastro = () => {
   const [selectedPlan, setSelectedPlan] = useState("Pro");
@@ -72,39 +72,16 @@ const Cadastro = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Carrega UFs do IBGE uma vez
-  useEffect(() => {
-    fetch("https://servicodadosibge.gov.br/api/v1/localidades/estados?orderBy=nome")
-      .then((r) => r.json())
-      .then((data: any[]) => {
-        setUfs(data.map((u) => ({ sigla: u.sigla, nome: u.nome })));
-      })
-      .catch(() => {
-        // fallback silencioso — usuário ainda pode tentar via CEP
-      });
-  }, []);
-
-  // Carrega municípios quando muda o estado
-  useEffect(() => {
-    if (!estado) {
-      setMunicipios([]);
-      return;
-    }
-    setLoadingMunicipios(true);
-    fetch(`https://servicodadosibge.gov.br/api/v1/localidades/estados/${estado}/municipios?orderBy=nome`)
-      .then((r) => r.json())
-      .then((data: any[]) => {
-        setMunicipios(data.map((m) => ({ id: m.id, nome: m.nome })));
-      })
-      .catch(() => setMunicipios([]))
-      .finally(() => setLoadingMunicipios(false));
-  }, [estado]);
-
-  // Auto-preencher endereço ao digitar CEP completo (ViaCEP)
+  // Auto-preencher endereço, estado e cidade ao digitar CEP completo (ViaCEP)
   const lastCepRef = useRef("");
   useEffect(() => {
     const digits = cep.replace(/\D/g, "");
-    if (digits.length !== 8 || digits === lastCepRef.current) return;
+    if (digits.length !== 8) {
+      setCepEncontrado(false);
+      lastCepRef.current = "";
+      return;
+    }
+    if (digits === lastCepRef.current) return;
     lastCepRef.current = digits;
     setLoadingCep(true);
     fetch(`https://viacep.com.br/ws/${digits}/json/`)
@@ -112,18 +89,20 @@ const Cadastro = () => {
       .then((data: any) => {
         if (data?.erro) {
           toast({ title: "CEP não encontrado", variant: "destructive" });
+          setCepEncontrado(false);
+          setEstado("");
+          setCidade("");
           return;
         }
-        if (data.uf) setEstado(data.uf);
-        // Cidade vem depois que carregar municípios — guardar nome para selecionar
-        if (data.localidade) {
-          setTimeout(() => setCidade(data.localidade), 600);
-        }
+        setEstado(data.uf || "");
+        setCidade(data.localidade || "");
         if (data.logradouro) setEndereco(data.logradouro);
         if (data.bairro) setBairro(data.bairro);
+        setCepEncontrado(true);
       })
       .catch(() => {
         toast({ title: "Falha ao buscar CEP", variant: "destructive" });
+        setCepEncontrado(false);
       })
       .finally(() => setLoadingCep(false));
   }, [cep, toast]);
