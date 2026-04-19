@@ -629,7 +629,7 @@ const DemoConfig = () => {
           {agendaConfig?.modo_cliente_ativo && oficina?.slug && (
             <div className="mb-3 flex flex-col gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center">
               <code className="flex-1 truncate text-xs text-primary">
-                {window.location.origin}/agendar/{oficina.slug}
+                {getPublicBaseUrl()}/agendar/{oficina.slug}
               </code>
               <button
                 type="button"
