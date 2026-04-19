@@ -12,17 +12,37 @@ const RedefinirSenha = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [sessionPronta, setSessionPronta] = useState(false);
+  const [linkErro, setLinkErro] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Quando o usuário clica no link do e-mail, o Supabase cria uma sessão de recovery
+  // Quando o usuário clica no link do e-mail, o Supabase cria uma sessão de recovery.
+  // Se o link estiver expirado/inválido, o Supabase devolve os erros no hash (#error=...).
   useEffect(() => {
+    // 1) Detecta erro vindo no hash da URL (link expirado, já usado, etc.)
+    const hash = window.location.hash.startsWith("#")
+      ? window.location.hash.slice(1)
+      : window.location.hash;
+    if (hash) {
+      const params = new URLSearchParams(hash);
+      const errCode = params.get("error_code");
+      const errDesc = params.get("error_description");
+      if (errCode || errDesc) {
+        const msg =
+          errCode === "otp_expired"
+            ? "Este link de redefinição expirou ou já foi utilizado. Peça um novo link abaixo."
+            : (errDesc?.replace(/\+/g, " ") ?? "Link inválido. Peça um novo link abaixo.");
+        setLinkErro(msg);
+        return;
+      }
+    }
+
+    // 2) Caminho normal: aguarda o evento de PASSWORD_RECOVERY ou sessão já criada
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY" || event === "SIGNED_IN") {
         setSessionPronta(true);
       }
     });
-    // Caso a sessão já exista (refresh)
     supabase.auth.getSession().then(({ data }) => {
       if (data.session) setSessionPronta(true);
     });
@@ -73,7 +93,17 @@ const RedefinirSenha = () => {
           </p>
         </div>
 
-        {!sessionPronta ? (
+        {linkErro ? (
+          <div className="rounded-2xl border border-destructive/40 bg-destructive/10 p-8 text-center text-sm">
+            <p className="font-medium text-destructive">{linkErro}</p>
+            <Link
+              to="/recuperar-senha"
+              className="mt-4 inline-block rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110"
+            >
+              Pedir novo link
+            </Link>
+          </div>
+        ) : !sessionPronta ? (
           <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
             Validando seu link de recuperação...
             <p className="mt-3 text-xs">
