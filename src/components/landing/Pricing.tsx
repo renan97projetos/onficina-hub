@@ -35,7 +35,7 @@ const plans = [
       "Site próprio da sua oficina — 3 modelos prontos + personalizado sob consulta",
       "Gestão de performance da equipe",
       "Analytics avançado do negócio",
-      "Acesso para sua equipe com permissões separadas",
+      "Gestão de acessos e permissões de equipes",
       "Suporte prioritário",
     ],
   },
