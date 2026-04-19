@@ -213,23 +213,30 @@ const ProgressRow = ({ label, pct }: { label: string; pct: number }) => (
   </div>
 );
 
-/* ---------------- MOCKUP 4: Finalizar e receber ---------------- */
-const MockFinalizar = () => {
+/* ---------------- MOCKUP 4: Avaliação ---------------- */
+const MockAvaliar = () => {
   const [showPix, setShowPix] = useState(false);
   const [confirmado, setConfirmado] = useState(false);
-  const [finalizado, setFinalizado] = useState(false);
+  const [estrelas, setEstrelas] = useState(0);
+  const [showGoogle, setShowGoogle] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
       while (!cancelled) {
-        setShowPix(false); setConfirmado(false); setFinalizado(false);
+        setShowPix(false); setConfirmado(false);
+        setEstrelas(0); setShowGoogle(false);
         await wait(500);
         setShowPix(true);
-        await wait(1100);
+        await wait(1000);
         setConfirmado(true);
-        await wait(800);
-        setFinalizado(true);
+        await wait(700);
+        for (let i = 1; i <= 5 && !cancelled; i++) {
+          setEstrelas(i);
+          await wait(200);
+        }
+        await wait(400);
+        setShowGoogle(true);
         await wait(1500);
       }
     };
@@ -239,31 +246,45 @@ const MockFinalizar = () => {
 
   return (
     <MockShell>
-      <div className="space-y-2.5">
+      <div className="space-y-2">
         <div className="rounded-md border border-gray-200 bg-gray-50 p-2.5">
-          <p className="text-[10px] uppercase tracking-wide text-gray-500">Total</p>
-          <p className="text-lg font-extrabold text-gray-900">R$ 2.370</p>
+          <p className="text-[10px] uppercase tracking-wide text-gray-500">
+            Total
+          </p>
+          <p className="text-base font-extrabold text-gray-900">R$ 2.370</p>
         </div>
+
         <div className={`transition-all duration-300 ${showPix ? "opacity-100" : "opacity-0"}`}>
           <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
             PIX
           </span>
         </div>
-        {!finalizado ? (
-          <button
-            className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition ${
-              confirmado
-                ? "bg-green-500 text-white"
-                : "bg-primary text-primary-foreground"
-            }`}
-          >
-            {confirmado ? <Check className="h-3 w-3" /> : null}
-            {confirmado ? "Confirmado" : "Confirmar"}
-          </button>
-        ) : (
-          <span className="inline-flex items-center gap-1 rounded-full border border-green-500/40 bg-green-500/10 px-2.5 py-1 text-[11px] font-semibold text-green-600 animate-scale-in">
-            <Check className="h-3 w-3" /> Finalizado
-          </span>
+
+        <button className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[11px] font-semibold transition ${
+          confirmado ? "bg-green-500 text-white" : "bg-primary text-primary-foreground"
+        }`}>
+          {confirmado && <Check className="h-3 w-3" />}
+          {confirmado ? "Confirmado" : "Confirmar"}
+        </button>
+
+        {confirmado && (
+          <div className="space-y-1">
+            <p className="text-[10px] text-gray-500">
+              Avaliação enviada ao cliente
+            </p>
+            <div className="flex gap-0.5">
+              {[1,2,3,4,5].map(i => (
+                <span key={i} className={`text-sm transition-all duration-200 ${
+                  i <= estrelas ? "text-amber-400" : "text-gray-300"
+                }`}>★</span>
+              ))}
+            </div>
+            {showGoogle && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-green-500/40 bg-green-500/10 px-2 py-0.5 text-[10px] font-semibold text-green-600 animate-fade-in">
+                <Check className="h-3 w-3" /> Google Reviews
+              </span>
+            )}
+          </div>
         )}
       </div>
     </MockShell>
