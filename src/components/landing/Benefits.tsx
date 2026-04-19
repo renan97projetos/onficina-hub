@@ -6,7 +6,7 @@ import {
   Users,
   BarChart3,
   Smartphone,
-  LayoutGrid,
+  CarFront,
 } from "lucide-react";
 import ProductivityGaugeIcon from "./icons/ProductivityGaugeIcon";
 
