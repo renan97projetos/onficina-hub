@@ -351,58 +351,40 @@ const Cadastro = () => {
                     onChange={(e) => setCep(formatCep(e.target.value))}
                     placeholder="00000-000"
                     maxLength={9}
-                    className={`${inputCls(!!(cep && errors.cep))} pr-10`}
+                    className={`${inputCls(!!(cep && errors.cep), cepEncontrado)} pr-10`}
                     required
                   />
                   {loadingCep && (
                     <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
                   )}
+                  {!loadingCep && cepEncontrado && (
+                    <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+                  )}
                 </div>
                 {cep && errors.cep && <p className="mt-1 text-xs text-destructive">{errors.cep}</p>}
+                {!errors.cep && !cep && (
+                  <p className="mt-1 text-xs text-muted-foreground">Digite o CEP para preencher automaticamente</p>
+                )}
               </div>
 
               <div className="sm:col-span-1">
-                <label className="mb-1.5 block text-sm font-medium">Estado *</label>
-                <select
+                <label className="mb-1.5 block text-sm font-medium">Estado</label>
+                <input
                   value={estado}
-                  onChange={(e) => {
-                    setEstado(e.target.value);
-                    setCidade(""); // reseta cidade ao trocar estado
-                  }}
-                  className={inputCls(!!(estado && errors.estado))}
-                  required
-                >
-                  <option value="">Selecione…</option>
-                  {ufs.map((u) => (
-                    <option key={u.sigla} value={u.sigla}>
-                      {u.sigla} — {u.nome}
-                    </option>
-                  ))}
-                </select>
+                  readOnly
+                  placeholder="—"
+                  className={`${inputCls(false)} cursor-not-allowed bg-muted/40`}
+                />
               </div>
 
               <div className="sm:col-span-1">
-                <label className="mb-1.5 block text-sm font-medium">Cidade *</label>
-                <select
+                <label className="mb-1.5 block text-sm font-medium">Cidade</label>
+                <input
                   value={cidade}
-                  onChange={(e) => setCidade(e.target.value)}
-                  disabled={!estado || loadingMunicipios}
-                  className={`${inputCls(!!(cidade && errors.cidade))} disabled:cursor-not-allowed disabled:opacity-50`}
-                  required
-                >
-                  <option value="">
-                    {!estado
-                      ? "Escolha o estado primeiro"
-                      : loadingMunicipios
-                      ? "Carregando…"
-                      : "Selecione…"}
-                  </option>
-                  {municipios.map((m) => (
-                    <option key={m.id} value={m.nome}>
-                      {m.nome}
-                    </option>
-                  ))}
-                </select>
+                  readOnly
+                  placeholder="—"
+                  className={`${inputCls(false)} cursor-not-allowed bg-muted/40`}
+                />
               </div>
             </div>
 
