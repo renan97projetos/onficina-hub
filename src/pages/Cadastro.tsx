@@ -249,9 +249,6 @@ const Cadastro = () => {
         console.warn("Falha ao salvar endereço:", updError.message);
       }
 
-      const { data: refreshed } = await supabase.auth.refreshSession();
-      const accessToken = refreshed.session?.access_token ?? authData.session.access_token;
-
       // Dispara e-mail de boas-vindas pessoal (await para não ser cancelado pelo navigate)
       try {
         const { error: emailError } = await supabase.functions.invoke(
@@ -264,9 +261,6 @@ const Cadastro = () => {
                 nome: data.email.split("@")[0],
                 oficinaNome: data.nomeOficina,
               },
-            },
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
             },
           },
         );
