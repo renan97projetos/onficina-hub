@@ -6,7 +6,7 @@ import {
   Users,
   BarChart3,
   Smartphone,
-  LayoutGrid,
+  CarFront,
 } from "lucide-react";
 import ProductivityGaugeIcon from "./icons/ProductivityGaugeIcon";
 
@@ -55,7 +55,7 @@ const benefits = [
       "Sistema 100% responsivo. Veja a pipeline, status das OS e indicadores direto do celular, onde estiver.",
   },
   {
-    icon: LayoutGrid,
+    icon: CarFront,
     title: "Gestão de Pátio",
     description:
       "Controle quais carros estão na oficina, em qual técnico cada um está alocado e o prazo de entrega de cada serviço.",
