@@ -60,56 +60,6 @@ const Login = () => {
     navigate(returnUrl);
   };
 
-  const handleDevAccess = async () => {
-    setLoading(true);
-    const devEmail = "admin@onficina.dev";
-    const devPassword = "dev123456!A";
-
-    const { error: signInError } = await supabase.auth.signInWithPassword({
-      email: devEmail,
-      password: devPassword,
-    });
-
-    if (!signInError) {
-      navigate("/admin");
-      return;
-    }
-
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email: devEmail,
-      password: devPassword,
-    });
-
-    if (signUpError) {
-      toast({ title: "Erro", description: signUpError.message, variant: "destructive" });
-      setLoading(false);
-      return;
-    }
-
-    if (data.session) {
-      await supabase.rpc("create_oficina_for_user", {
-        _nome: "Oficina Dev",
-        _telefone: null,
-      });
-      await supabase.auth.refreshSession();
-      navigate("/admin");
-      return;
-    }
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email: devEmail,
-      password: devPassword,
-    });
-
-    if (error) {
-      toast({ title: "Erro", description: error.message, variant: "destructive" });
-      setLoading(false);
-      return;
-    }
-
-    navigate("/admin");
-  };
-
   if (session) return null;
 
   return (
