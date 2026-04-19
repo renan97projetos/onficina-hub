@@ -736,7 +736,7 @@ const DemoConfig = () => {
               </div>
               {siteSlug && (
                 <p className="mt-1 truncate text-xs text-primary">
-                  {window.location.origin}/oficina/{siteSlug}
+                  {getPublicBaseUrl()}/oficina/{siteSlug}
                 </p>
               )}
             </div>
