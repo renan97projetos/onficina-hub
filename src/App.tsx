@@ -53,7 +53,9 @@ const App = () => (
                 <Route path="/login" element={<Login />} />
                 <Route path="/cadastro" element={<Cadastro />} />
                 <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+                <Route path="/forgot-password" element={<RecuperarSenha />} />
                 <Route path="/redefinir-senha" element={<RedefinirSenha />} />
+                <Route path="/reset-password" element={<RedefinirSenha />} />
                 <Route path="/assinar" element={<Assinar />} />
                 <Route
                   path="/admin"
