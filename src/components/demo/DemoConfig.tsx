@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe, Users, UserPlus, Trash2 } from "lucide-react";
+import { publicUrl, getPublicBaseUrl } from "@/lib/publicUrl";
 import {
   AlertDialog,
   AlertDialogAction,
