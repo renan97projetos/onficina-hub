@@ -40,8 +40,8 @@ type CnpjStatus =
   | { state: "ok"; razaoSocial: string }
   | { state: "error"; message: string };
 
-type UF = { sigla: string; nome: string };
-type Municipio = { id: number; nome: string };
+
+
 
 const Cadastro = () => {
   const [selectedPlan, setSelectedPlan] = useState("Pro");
@@ -63,48 +63,23 @@ const Cadastro = () => {
   const [bairro, setBairro] = useState("");
   const [complemento, setComplemento] = useState("");
 
-  const [ufs, setUfs] = useState<UF[]>([]);
-  const [municipios, setMunicipios] = useState<Municipio[]>([]);
-  const [loadingMunicipios, setLoadingMunicipios] = useState(false);
   const [loadingCep, setLoadingCep] = useState(false);
+  const [cepEncontrado, setCepEncontrado] = useState(false);
 
   const [aceitouTermos, setAceitouTermos] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  // Carrega UFs do IBGE uma vez
-  useEffect(() => {
-    fetch("https://servicodadosibge.gov.br/api/v1/localidades/estados?orderBy=nome")
-      .then((r) => r.json())
-      .then((data: any[]) => {
-        setUfs(data.map((u) => ({ sigla: u.sigla, nome: u.nome })));
-      })
-      .catch(() => {
-        // fallback silencioso — usuário ainda pode tentar via CEP
-      });
-  }, []);
-
-  // Carrega municípios quando muda o estado
-  useEffect(() => {
-    if (!estado) {
-      setMunicipios([]);
-      return;
-    }
-    setLoadingMunicipios(true);
-    fetch(`https://servicodadosibge.gov.br/api/v1/localidades/estados/${estado}/municipios?orderBy=nome`)
-      .then((r) => r.json())
-      .then((data: any[]) => {
-        setMunicipios(data.map((m) => ({ id: m.id, nome: m.nome })));
-      })
-      .catch(() => setMunicipios([]))
-      .finally(() => setLoadingMunicipios(false));
-  }, [estado]);
-
-  // Auto-preencher endereço ao digitar CEP completo (ViaCEP)
+  // Auto-preencher endereço, estado e cidade ao digitar CEP completo (ViaCEP)
   const lastCepRef = useRef("");
   useEffect(() => {
     const digits = cep.replace(/\D/g, "");
-    if (digits.length !== 8 || digits === lastCepRef.current) return;
+    if (digits.length !== 8) {
+      setCepEncontrado(false);
+      lastCepRef.current = "";
+      return;
+    }
+    if (digits === lastCepRef.current) return;
     lastCepRef.current = digits;
     setLoadingCep(true);
     fetch(`https://viacep.com.br/ws/${digits}/json/`)
@@ -112,18 +87,20 @@ const Cadastro = () => {
       .then((data: any) => {
         if (data?.erro) {
           toast({ title: "CEP não encontrado", variant: "destructive" });
+          setCepEncontrado(false);
+          setEstado("");
+          setCidade("");
           return;
         }
-        if (data.uf) setEstado(data.uf);
-        // Cidade vem depois que carregar municípios — guardar nome para selecionar
-        if (data.localidade) {
-          setTimeout(() => setCidade(data.localidade), 600);
-        }
+        setEstado(data.uf || "");
+        setCidade(data.localidade || "");
         if (data.logradouro) setEndereco(data.logradouro);
         if (data.bairro) setBairro(data.bairro);
+        setCepEncontrado(true);
       })
       .catch(() => {
         toast({ title: "Falha ao buscar CEP", variant: "destructive" });
+        setCepEncontrado(false);
       })
       .finally(() => setLoadingCep(false));
   }, [cep, toast]);
@@ -374,58 +351,40 @@ const Cadastro = () => {
                     onChange={(e) => setCep(formatCep(e.target.value))}
                     placeholder="00000-000"
                     maxLength={9}
-                    className={`${inputCls(!!(cep && errors.cep))} pr-10`}
+                    className={`${inputCls(!!(cep && errors.cep), cepEncontrado)} pr-10`}
                     required
                   />
                   {loadingCep && (
                     <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
                   )}
+                  {!loadingCep && cepEncontrado && (
+                    <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary" />
+                  )}
                 </div>
                 {cep && errors.cep && <p className="mt-1 text-xs text-destructive">{errors.cep}</p>}
+                {!errors.cep && !cep && (
+                  <p className="mt-1 text-xs text-muted-foreground">Digite o CEP para preencher automaticamente</p>
+                )}
               </div>
 
               <div className="sm:col-span-1">
-                <label className="mb-1.5 block text-sm font-medium">Estado *</label>
-                <select
+                <label className="mb-1.5 block text-sm font-medium">Estado</label>
+                <input
                   value={estado}
-                  onChange={(e) => {
-                    setEstado(e.target.value);
-                    setCidade(""); // reseta cidade ao trocar estado
-                  }}
-                  className={inputCls(!!(estado && errors.estado))}
-                  required
-                >
-                  <option value="">Selecione…</option>
-                  {ufs.map((u) => (
-                    <option key={u.sigla} value={u.sigla}>
-                      {u.sigla} — {u.nome}
-                    </option>
-                  ))}
-                </select>
+                  readOnly
+                  placeholder="—"
+                  className={`${inputCls(false)} cursor-not-allowed bg-muted/40`}
+                />
               </div>
 
               <div className="sm:col-span-1">
-                <label className="mb-1.5 block text-sm font-medium">Cidade *</label>
-                <select
+                <label className="mb-1.5 block text-sm font-medium">Cidade</label>
+                <input
                   value={cidade}
-                  onChange={(e) => setCidade(e.target.value)}
-                  disabled={!estado || loadingMunicipios}
-                  className={`${inputCls(!!(cidade && errors.cidade))} disabled:cursor-not-allowed disabled:opacity-50`}
-                  required
-                >
-                  <option value="">
-                    {!estado
-                      ? "Escolha o estado primeiro"
-                      : loadingMunicipios
-                      ? "Carregando…"
-                      : "Selecione…"}
-                  </option>
-                  {municipios.map((m) => (
-                    <option key={m.id} value={m.nome}>
-                      {m.nome}
-                    </option>
-                  ))}
-                </select>
+                  readOnly
+                  placeholder="—"
+                  className={`${inputCls(false)} cursor-not-allowed bg-muted/40`}
+                />
               </div>
             </div>
 
