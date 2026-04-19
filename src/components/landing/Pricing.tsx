@@ -15,7 +15,7 @@ const plans = [
       "Painel do técnico no celular — sem instalar nenhum app",
       "Registro de fotos de entrada e saída do veículo",
       "CRM — Controle e gestão de clientes",
-      "Avaliação no sistema e encaminhamento para o Google",
+      "Avaliação no sistema e no Google",
       "Controle financeiro — recebimentos, despesas e saldo",
       "Indicadores da sua oficina",
       "Notificações automáticas por e-mail para a oficina",
