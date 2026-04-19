@@ -1,34 +1,28 @@
 import { useEffect, useState } from "react";
 import { Check, Plus } from "lucide-react";
 
-/* ---------------- MOCKUP 1: Cadastrar veículo ---------------- */
-const PLACA = "GHJ-4F52";
-const MODELO = "BMW Série 3";
+/* ---------------- MOCKUP 1: Alocação no pátio ---------------- */
+const MockAlocacao = () => {
+  const [fase, setFase] = useState(0);
+  const [tecnico, setTecnico] = useState("");
 
-const MockCadastro = () => {
-  const [placa, setPlaca] = useState("");
-  const [modelo, setModelo] = useState("");
-  const [pulse, setPulse] = useState(false);
+  const TECNICO = "Carlos — Funileiro";
 
   useEffect(() => {
     let cancelled = false;
     const run = async () => {
       while (!cancelled) {
-        setPlaca(""); setModelo(""); setPulse(false);
-        await wait(400);
-        for (let i = 1; i <= PLACA.length && !cancelled; i++) {
-          setPlaca(PLACA.slice(0, i));
-          await wait(110);
-        }
+        setFase(0); setTecnico("");
+        await wait(800);
+        setFase(1);
         await wait(300);
-        for (let i = 1; i <= MODELO.length && !cancelled; i++) {
-          setModelo(MODELO.slice(0, i));
-          await wait(70);
+        for (let i = 1; i <= TECNICO.length && !cancelled; i++) {
+          setTecnico(TECNICO.slice(0, i));
+          await wait(60);
         }
-        if (cancelled) return;
-        await wait(300);
-        setPulse(true);
-        await wait(1200);
+        await wait(600);
+        setFase(2);
+        await wait(1800);
       }
     };
     run();
@@ -38,20 +32,38 @@ const MockCadastro = () => {
   return (
     <MockShell>
       <div className="space-y-2.5">
-        <Field label="Placa">
-          <span className="font-mono tracking-wider">{placa}</span>
-          <span className="ml-0.5 inline-block h-3 w-px animate-blink bg-primary align-middle" />
-        </Field>
-        <Field label="Modelo">
-          <span>{modelo}</span>
-        </Field>
-        <button
-          className={`mt-2 inline-flex items-center gap-1.5 rounded-md bg-primary px-2.5 py-1.5 text-[11px] font-semibold text-primary-foreground transition ${
-            pulse ? "animate-pulse-soft shadow-[0_0_0_4px_hsl(var(--primary)/0.25)]" : "opacity-70"
-          }`}
-        >
-          <Plus className="h-3 w-3" /> Criar OS
-        </button>
+        <div className="rounded-md border border-gray-200 bg-gray-50 p-2.5">
+          <div className="mb-1.5">
+            <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold transition-all duration-500 ${
+              fase < 2
+                ? "bg-green-500/15 text-green-600"
+                : "bg-purple-500/15 text-purple-600"
+            }`}>
+              {fase < 2 ? "Orçamento aprovado" : "Alocado no pátio"}
+            </span>
+          </div>
+          <p className="text-[11px] font-semibold text-gray-900">
+            BMW Série 3 · GHJ-4F52
+          </p>
+          <p className="text-[11px] text-primary font-bold">R$ 2.370</p>
+          {fase === 2 && (
+            <p className="mt-1 text-[10px] text-gray-500 animate-fade-in">
+              Prazo: 3 dias
+            </p>
+          )}
+        </div>
+
+        <div className={`transition-all duration-300 ${fase >= 1 ? "opacity-100" : "opacity-0"}`}>
+          <p className="mb-1 text-[10px] text-gray-500">
+            Alocar técnico:
+          </p>
+          <div className="rounded-md border border-gray-200 bg-gray-50 px-2.5 py-1.5 text-[11px] font-medium text-gray-900 min-h-[26px]">
+            {tecnico}
+            {fase === 1 && (
+              <span className="ml-0.5 inline-block h-3 w-px animate-blink bg-primary align-middle" />
+            )}
+          </div>
+        </div>
       </div>
     </MockShell>
   );
