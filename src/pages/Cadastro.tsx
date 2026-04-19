@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Logo from "@/components/Logo";
 import { cadastroSchema } from "@/lib/validations";
+import { publicUrl } from "@/lib/publicUrl";
 import { z } from "zod";
 
 const plans = [
