@@ -36,11 +36,6 @@ export const RecoveryEmail = ({
         <Button style={button} href={confirmationUrl}>
           Redefinir senha
         </Button>
-        <Text style={fallback}>
-          Se o botão não funcionar, copie e cole este link no navegador:
-          <br />
-          <a href={confirmationUrl} style={link}>{confirmationUrl}</a>
-        </Text>
         <Text style={footer}>
           Se você não pediu essa redefinição, ignore este e-mail. Sua senha
           atual continuará funcionando normalmente.
