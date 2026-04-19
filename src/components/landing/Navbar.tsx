@@ -1,12 +1,9 @@
 import { Link } from "react-router-dom";
-import { Moon, Sun } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useTheme } from "@/contexts/ThemeContext";
 import Logo from "@/components/Logo";
 
 const Navbar = () => {
   const { session } = useAuth();
-  const { theme, toggleTheme } = useTheme();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
