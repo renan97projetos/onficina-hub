@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Logo from "@/components/Logo";
 import { cadastroSchema } from "@/lib/validations";
+import { publicUrl } from "@/lib/publicUrl";
 import { z } from "zod";
 
 const plans = [
@@ -261,7 +262,7 @@ const Cadastro = () => {
             <span className="text-xs leading-relaxed text-muted-foreground">
               Li e aceito os{" "}
               <a
-                href="/termos"
+                href={publicUrl("/termos")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary underline hover:opacity-80"
@@ -270,7 +271,7 @@ const Cadastro = () => {
               </a>{" "}
               e a{" "}
               <a
-                href="/privacidade"
+                href={publicUrl("/privacidade")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-primary underline hover:opacity-80"
