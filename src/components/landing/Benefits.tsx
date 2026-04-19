@@ -62,6 +62,7 @@ const benefits = [
   },
   {
     icon: ProductivityGaugeIcon,
+    iconLarge: true,
     title: "Acompanhe a produtividade da sua equipe",
     description:
       "Veja quantos serviços cada técnico entregou, tempo médio por etapa e identifique gargalos antes que virem prejuízo.",
