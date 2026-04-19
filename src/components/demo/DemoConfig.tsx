@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe, Users, UserPlus, Trash2 } from "lucide-react";
+import { publicUrl, getPublicBaseUrl } from "@/lib/publicUrl";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -628,12 +629,12 @@ const DemoConfig = () => {
           {agendaConfig?.modo_cliente_ativo && oficina?.slug && (
             <div className="mb-3 flex flex-col gap-2 rounded-lg border border-primary/30 bg-primary/5 p-3 sm:flex-row sm:items-center">
               <code className="flex-1 truncate text-xs text-primary">
-                {window.location.origin}/agendar/{oficina.slug}
+                {getPublicBaseUrl()}/agendar/{oficina.slug}
               </code>
               <button
                 type="button"
                 onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/agendar/${oficina.slug}`);
+                  navigator.clipboard.writeText(publicUrl(`/agendar/${oficina.slug}`));
                   toast.success("Link copiado!");
                 }}
                 className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground hover:bg-muted"
@@ -735,7 +736,7 @@ const DemoConfig = () => {
               </div>
               {siteSlug && (
                 <p className="mt-1 truncate text-xs text-primary">
-                  {window.location.origin}/oficina/{siteSlug}
+                  {getPublicBaseUrl()}/oficina/{siteSlug}
                 </p>
               )}
             </div>
