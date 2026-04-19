@@ -249,22 +249,34 @@ const Cadastro = () => {
         console.warn("Falha ao salvar endereço:", updError.message);
       }
 
-      await supabase.auth.refreshSession();
+      const { data: refreshed } = await supabase.auth.refreshSession();
+      const accessToken = refreshed.session?.access_token ?? authData.session.access_token;
 
-      // Dispara e-mail de boas-vindas pessoal (não bloqueia o cadastro se falhar)
+      // Dispara e-mail de boas-vindas pessoal (await para não ser cancelado pelo navigate)
       try {
-        await supabase.functions.invoke("send-transactional-email", {
-          body: {
-            templateName: "welcome",
-            recipientEmail: data.email,
-            templateData: {
-              nome: data.email.split("@")[0],
-              oficinaNome: data.nomeOficina,
+        const { error: emailError } = await supabase.functions.invoke(
+          "send-transactional-email",
+          {
+            body: {
+              templateName: "welcome",
+              recipientEmail: data.email,
+              templateData: {
+                nome: data.email.split("@")[0],
+                oficinaNome: data.nomeOficina,
+              },
+            },
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
             },
           },
-        });
+        );
+        if (emailError) {
+          console.error("Falha ao enviar e-mail de boas-vindas:", emailError);
+        } else {
+          console.log("E-mail de boas-vindas enfileirado para", data.email);
+        }
       } catch (emailErr) {
-        console.warn("Falha ao enviar e-mail de boas-vindas:", emailErr);
+        console.error("Exceção ao enviar e-mail de boas-vindas:", emailErr);
       }
 
       toast({ title: "Conta criada com sucesso!", description: "Bem-vindo ao ONficina." });
