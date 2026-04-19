@@ -62,7 +62,7 @@ const benefits = [
   },
   {
     icon: UserCog,
-    title: "Gestão de performance da sua equipe",
+    title: "Acompanhe a produtividade da sua equipe",
     description:
       "Veja quantos serviços cada técnico entregou, tempo médio por etapa e identifique gargalos antes que virem prejuízo.",
   },
