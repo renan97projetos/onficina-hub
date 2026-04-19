@@ -148,7 +148,7 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
   }
 
   function copiarLink(orc: any) {
-    const link = `${window.location.origin}/aprovar/${orc.token_publico}`;
+    const link = publicUrl(`/aprovar/${orc.token_publico}`);
     navigator.clipboard.writeText(link);
     toast.success("Link copiado!");
   }
