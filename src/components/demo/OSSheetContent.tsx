@@ -359,11 +359,11 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   }
 
   const allServicosCompleted = os.os_servicos?.every((s) => s.status === "concluido") ?? false;
-  const clienteUrl = `${window.location.origin}/acompanhar/${os.token_cliente}`;
-  const tecnicoUrl = `${window.location.origin}/tecnico/${os.id}`;
+  const clienteUrl = publicUrl(`/acompanhar/${os.token_cliente}`);
+  const tecnicoUrl = publicUrl(`/tecnico/${os.id}`);
   const whatsappUrl = os.clientes?.telefone ? `https://wa.me/55${os.clientes.telefone.replace(/\D/g, "")}` : null;
 
-  const avaliacaoUrl = `${window.location.origin}/avaliacao?os=${os.id}`;
+  const avaliacaoUrl = publicUrl(`/avaliacao?os=${os.id}`);
   const oficinaNome = oficina?.nome || "nossa oficina";
 
   function buildWhatsappAvaliacao() {
