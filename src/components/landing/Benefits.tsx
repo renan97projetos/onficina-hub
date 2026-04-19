@@ -92,7 +92,13 @@ const Benefits = () => {
           {benefits.map((b, i) => (
             <div
               key={i}
-              className="rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+              className="relative overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+              style={{
+                backgroundImage:
+                  "radial-gradient(circle, hsl(var(--foreground) / 0.08) 1px, transparent 1px)",
+                backgroundSize: "14px 14px",
+                backgroundPosition: "0 0",
+              }}
             >
               <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-border bg-muted">
                 <b.icon className="h-5 w-5 text-primary" />
