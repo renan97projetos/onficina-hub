@@ -41,7 +41,7 @@ const container = { padding: '24px 28px', maxWidth: '560px' }
 const brand = {
   fontSize: '14px',
   fontWeight: 'bold' as const,
-  color: 'hsl(25, 95%, 53%)',
+  color: '#F97316',
   letterSpacing: '0.05em',
   textTransform: 'uppercase' as const,
   margin: '0 0 24px',
@@ -63,7 +63,7 @@ const codeStyle = {
   fontFamily: 'Courier, monospace',
   fontSize: '28px',
   fontWeight: 'bold' as const,
-  color: 'hsl(25, 95%, 53%)',
+  color: '#F97316',
   letterSpacing: '0.1em',
   margin: '0 0 28px',
 }
