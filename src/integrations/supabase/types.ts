@@ -909,10 +909,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_oficina_for_user: {
-        Args: { _nome: string; _telefone?: string }
-        Returns: string
-      }
+      create_oficina_for_user:
+        | { Args: { _nome: string; _telefone?: string }; Returns: string }
+        | {
+            Args: { _cnpj?: string; _nome: string; _telefone?: string }
+            Returns: string
+          }
       criar_agendamento_publico: {
         Args: {
           _cliente_nome: string
