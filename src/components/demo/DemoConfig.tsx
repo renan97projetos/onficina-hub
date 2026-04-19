@@ -634,7 +634,7 @@ const DemoConfig = () => {
               <button
                 type="button"
                 onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/agendar/${oficina.slug}`);
+                  navigator.clipboard.writeText(publicUrl(`/agendar/${oficina.slug}`));
                   toast.success("Link copiado!");
                 }}
                 className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-xs text-foreground hover:bg-muted"
