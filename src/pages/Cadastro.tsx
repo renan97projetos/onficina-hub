@@ -63,10 +63,8 @@ const Cadastro = () => {
   const [bairro, setBairro] = useState("");
   const [complemento, setComplemento] = useState("");
 
-  const [ufs, setUfs] = useState<UF[]>([]);
-  const [municipios, setMunicipios] = useState<Municipio[]>([]);
-  const [loadingMunicipios, setLoadingMunicipios] = useState(false);
   const [loadingCep, setLoadingCep] = useState(false);
+  const [cepEncontrado, setCepEncontrado] = useState(false);
 
   const [aceitouTermos, setAceitouTermos] = useState(false);
   const navigate = useNavigate();
