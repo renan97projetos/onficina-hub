@@ -4,7 +4,19 @@ import { ArrowLeft, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import Logo from "@/components/Logo";
+import { getPublicBaseUrl } from "@/lib/publicUrl";
 import { emailSchema } from "@/lib/validations";
+
+const resolveResetRedirectUrl = () => {
+  const { hostname, origin } = window.location;
+  const shouldUsePublicDomain =
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname.endsWith(".lovable.app") ||
+    hostname.endsWith(".lovableproject.com");
+
+  return new URL("/redefinir-senha", shouldUsePublicDomain ? getPublicBaseUrl() : origin).toString();
+};
 
 const RecuperarSenha = () => {
   const [email, setEmail] = useState("");
@@ -25,7 +37,7 @@ const RecuperarSenha = () => {
     }
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(parsed.data, {
-      redirectTo: window.location.origin + "/redefinir-senha",
+      redirectTo: resolveResetRedirectUrl(),
     });
     setLoading(false);
 
