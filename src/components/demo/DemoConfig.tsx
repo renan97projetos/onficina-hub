@@ -644,59 +644,97 @@ const DemoConfig = () => {
               </button>
             </div>
           )}
-          <div className="grid gap-3 sm:grid-cols-3">
-            <div>
-              <label className="mb-1 block text-xs text-muted-foreground">Vagas/dia</label>
-              <input
-                type="number"
-                min={1}
-                defaultValue={agendaConfig?.limite_por_dia ?? 4}
-                key={`lim-${agendaConfig?.limite_por_dia}`}
-                onBlur={(e) =>
-                  salvarLimites(
-                    Math.max(1, Number(e.target.value) || 4),
-                    agendaConfig?.dias_antecedencia_min ?? 1,
-                    agendaConfig?.dias_antecedencia_max ?? 14,
-                  )
-                }
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-              />
+          <TooltipProvider delayDuration={150}>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div>
+                <label className="mb-1 flex items-center gap-1 text-xs text-muted-foreground">
+                  Vagas/dia
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button type="button" className="text-muted-foreground hover:text-foreground" aria-label="Sobre Vagas/dia">
+                        <Info className="h-3 w-3" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[240px] text-xs">
+                      Quantidade máxima de agendamentos que sua oficina aceita por dia. Quando o limite é atingido, o cliente não consegue mais escolher aquela data.
+                    </TooltipContent>
+                  </Tooltip>
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  defaultValue={agendaConfig?.limite_por_dia ?? 4}
+                  key={`lim-${agendaConfig?.limite_por_dia}`}
+                  onBlur={(e) =>
+                    salvarLimites(
+                      Math.max(1, Number(e.target.value) || 4),
+                      agendaConfig?.dias_antecedencia_min ?? 1,
+                      agendaConfig?.dias_antecedencia_max ?? 14,
+                    )
+                  }
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="mb-1 flex items-center gap-1 text-xs text-muted-foreground">
+                  Mín. dias futuros
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button type="button" className="text-muted-foreground hover:text-foreground" aria-label="Sobre Mín. dias futuros">
+                        <Info className="h-3 w-3" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[240px] text-xs">
+                      Antecedência mínima exigida para agendar. Ex.: "1" significa que o cliente só pode marcar a partir de amanhã. Use "0" para permitir agendamento no mesmo dia.
+                    </TooltipContent>
+                  </Tooltip>
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  defaultValue={agendaConfig?.dias_antecedencia_min ?? 1}
+                  key={`min-${agendaConfig?.dias_antecedencia_min}`}
+                  onBlur={(e) =>
+                    salvarLimites(
+                      agendaConfig?.limite_por_dia ?? 4,
+                      Math.max(0, Number(e.target.value) || 1),
+                      agendaConfig?.dias_antecedencia_max ?? 14,
+                    )
+                  }
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="mb-1 flex items-center gap-1 text-xs text-muted-foreground">
+                  Máx. dias futuros
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button type="button" className="text-muted-foreground hover:text-foreground" aria-label="Sobre Máx. dias futuros">
+                        <Info className="h-3 w-3" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="max-w-[240px] text-xs">
+                      Janela máxima de agendamento à frente. Ex.: "14" permite que o cliente marque até 14 dias no futuro. Evita reservas longe demais que possam ser esquecidas.
+                    </TooltipContent>
+                  </Tooltip>
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  defaultValue={agendaConfig?.dias_antecedencia_max ?? 14}
+                  key={`max-${agendaConfig?.dias_antecedencia_max}`}
+                  onBlur={(e) =>
+                    salvarLimites(
+                      agendaConfig?.limite_por_dia ?? 4,
+                      agendaConfig?.dias_antecedencia_min ?? 1,
+                      Math.max(1, Number(e.target.value) || 14),
+                    )
+                  }
+                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+                />
+              </div>
             </div>
-            <div>
-              <label className="mb-1 block text-xs text-muted-foreground">Mín. dias futuros</label>
-              <input
-                type="number"
-                min={0}
-                defaultValue={agendaConfig?.dias_antecedencia_min ?? 1}
-                key={`min-${agendaConfig?.dias_antecedencia_min}`}
-                onBlur={(e) =>
-                  salvarLimites(
-                    agendaConfig?.limite_por_dia ?? 4,
-                    Math.max(0, Number(e.target.value) || 1),
-                    agendaConfig?.dias_antecedencia_max ?? 14,
-                  )
-                }
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs text-muted-foreground">Máx. dias futuros</label>
-              <input
-                type="number"
-                min={1}
-                defaultValue={agendaConfig?.dias_antecedencia_max ?? 14}
-                key={`max-${agendaConfig?.dias_antecedencia_max}`}
-                onBlur={(e) =>
-                  salvarLimites(
-                    agendaConfig?.limite_por_dia ?? 4,
-                    agendaConfig?.dias_antecedencia_min ?? 1,
-                    Math.max(1, Number(e.target.value) || 14),
-                  )
-                }
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
-              />
-            </div>
-          </div>
+          </TooltipProvider>
         </div>
 
         {/* Site da oficina (Pro) */}
