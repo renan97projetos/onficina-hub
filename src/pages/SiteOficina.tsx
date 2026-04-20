@@ -260,9 +260,6 @@ const Template3 = ({ data }: { data: SiteData }) => {
                   {s.descricao && (
                     <p className="mt-1 text-sm text-muted-foreground">{s.descricao}</p>
                   )}
-                  <p className="mt-3 font-bold text-primary">
-                    {formatBRL(Number(s.preco_base))}
-                  </p>
                 </div>
               ))}
             </div>
