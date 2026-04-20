@@ -89,6 +89,7 @@ const DemoConfig = () => {
   const [novoNome, setNovoNome] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
   const [criandoMembro, setCriandoMembro] = useState(false);
+  const [section, setSection] = useState<string>("dados");
 
   const { data: membros, refetch: refetchMembros } = useQuery({
     queryKey: ["usuarios-oficina", oficina_id],
@@ -400,7 +401,6 @@ const DemoConfig = () => {
     { key: "site", label: "Site da oficina", icon: Globe, desc: "Página pública e templates" },
     ...(isDono ? [{ key: "equipe", label: "Minha equipe", icon: Users, desc: "Operadores e permissões" }] : []),
   ];
-  const [section, setSection] = useState<string>("dados");
   const ActiveIcon = sections.find((s) => s.key === section)?.icon ?? SettingsIcon;
   const activeLabel = sections.find((s) => s.key === section)?.label ?? "Configurações";
 
