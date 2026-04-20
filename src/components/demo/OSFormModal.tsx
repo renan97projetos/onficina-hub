@@ -48,6 +48,7 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
   const [colaboradorId, setColaboradorId] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [prazoManual, setPrazoManual] = useState("");
+  const [kmInicial, setKmInicial] = useState("");
 
   // Photos
   const [fotosEntrada, setFotosEntrada] = useState<File[]>([]);
