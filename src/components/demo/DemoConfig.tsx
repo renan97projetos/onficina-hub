@@ -447,6 +447,7 @@ const DemoConfig = () => {
         {/* Área de conteúdo (mostra só a seção ativa) */}
         <div className="grid gap-6 lg:grid-cols-2">
         {/* Workshop data */}
+        <div hidden={section !== "dados"} className="contents">
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <h3 className="mb-4 text-sm font-medium text-foreground">Dados da oficina</h3>
           <div className="grid gap-4 md:grid-cols-[140px_1fr]">
@@ -539,7 +540,9 @@ const DemoConfig = () => {
           </div>
         </div>
 
+        </div>
         {/* Profile */}
+        <div hidden={section !== "perfil"} className="contents">
         <div className="rounded-lg border border-border p-5">
           <h3 className="mb-4 text-sm font-medium text-foreground">Meu perfil</h3>
           <div className="space-y-3">
@@ -557,7 +560,9 @@ const DemoConfig = () => {
           </div>
         </div>
 
+        </div>
         {/* Subscription */}
+        <div hidden={section !== "assinatura"} className="contents">
         <div className="rounded-lg border border-border p-5">
           <h3 className="mb-4 text-sm font-medium text-foreground">Assinatura</h3>
           <div className="mb-3 flex items-center justify-between">
@@ -575,7 +580,9 @@ const DemoConfig = () => {
           </button>
         </div>
 
+        </div>
         {/* Notificações por e-mail */}
+        <div hidden={section !== "notificacoes"} className="contents">
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <div className="mb-2 flex items-center justify-between gap-2">
             <h3 className="text-sm font-medium text-foreground">Notificações</h3>
@@ -619,7 +626,9 @@ const DemoConfig = () => {
           )}
         </div>
 
+        </div>
         {/* Google Reviews */}
+        <div hidden={section !== "google"} className="contents">
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <div className="mb-2 flex items-center gap-2">
             <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
@@ -657,7 +666,9 @@ const DemoConfig = () => {
           )}
         </div>
 
+        </div>
         {/* Agendamento online (Pro) */}
+        <div hidden={section !== "agenda"} className="contents">
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
@@ -788,7 +799,9 @@ const DemoConfig = () => {
           </TooltipProvider>
         </div>
 
+        </div>
         {/* Site da oficina (Pro) */}
+        <div hidden={section !== "site"} className="contents">
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
