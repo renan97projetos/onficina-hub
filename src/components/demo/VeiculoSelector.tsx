@@ -100,6 +100,14 @@ const VeiculoSelector = ({ value, onChange }: Props) => {
     return Array.from(set).sort((a, b) => a.localeCompare(b, "pt-BR"));
   }, [catalogoModelos, customModelos]);
 
+  const versoesSugeridas = useMemo(
+    () =>
+      value.tipo && value.marca && value.modelo
+        ? getVersoesPorModelo(value.tipo, value.marca, value.modelo)
+        : [],
+    [value.tipo, value.marca, value.modelo],
+  );
+
   // Quando o tipo muda, limpa marca/modelo
   function handleTipoChange(novoTipo: TipoVeiculo) {
     onChange({ ...value, tipo: novoTipo, marca: "", modelo: "" });
