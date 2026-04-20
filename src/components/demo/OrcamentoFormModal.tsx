@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import VeiculoSelector, { type VeiculoSelectorValue } from "./VeiculoSelector";
+import type { TipoVeiculo } from "@/data/veiculosCatalogo";
 
 interface Peca {
   qtd: number;
