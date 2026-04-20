@@ -390,11 +390,62 @@ const DemoConfig = () => {
       )
     : null;
 
+  const sections = [
+    { key: "dados", label: "Dados da oficina", icon: Building2, desc: "Logo, nome, endereço e contato" },
+    { key: "perfil", label: "Meu perfil", icon: UserIcon, desc: "Seu e-mail de acesso" },
+    { key: "assinatura", label: "Assinatura", icon: CreditCard, desc: "Plano atual e mudanças" },
+    { key: "notificacoes", label: "Notificações", icon: Bell, desc: "Resumo diário por e-mail" },
+    { key: "google", label: "Avaliação do Google", icon: Star, desc: "Link para reviews públicas" },
+    { key: "agenda", label: "Agendamento online", icon: CalendarDays, desc: "Janela e limites de agenda" },
+    { key: "site", label: "Site da oficina", icon: Globe, desc: "Página pública e templates" },
+    ...(isDono ? [{ key: "equipe", label: "Minha equipe", icon: Users, desc: "Operadores e permissões" }] : []),
+  ];
+  const [section, setSection] = useState<string>("dados");
+  const ActiveIcon = sections.find((s) => s.key === section)?.icon ?? SettingsIcon;
+  const activeLabel = sections.find((s) => s.key === section)?.label ?? "Configurações";
+
   return (
     <>
-      <h2 className="mb-6 text-sm font-bold uppercase tracking-wide">Configurações</h2>
+      <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+        <SettingsIcon className="h-4 w-4" />
+        <span className="font-bold uppercase tracking-wide">Configurações</span>
+        <ChevronRight className="h-3.5 w-3.5" />
+        <ActiveIcon className="h-4 w-4 text-primary" />
+        <span className="font-medium text-foreground">{activeLabel}</span>
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+        {/* Painel de navegação */}
+        <aside className="space-y-1 lg:sticky lg:top-4 lg:self-start">
+          {sections.map((s) => {
+            const Icon = s.icon;
+            const active = section === s.key;
+            return (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => setSection(s.key)}
+                className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition ${
+                  active
+                    ? "border-primary/40 bg-primary/10 text-foreground"
+                    : "border-border bg-card hover:border-primary/30 hover:bg-muted/40 text-muted-foreground"
+                }`}
+              >
+                <Icon className={`h-4 w-4 flex-shrink-0 ${active ? "text-primary" : ""}`} />
+                <div className="min-w-0 flex-1">
+                  <p className={`truncate text-sm ${active ? "font-semibold text-foreground" : "font-medium"}`}>
+                    {s.label}
+                  </p>
+                  <p className="truncate text-[11px] text-muted-foreground">{s.desc}</p>
+                </div>
+                {active && <ChevronRight className="h-4 w-4 text-primary" />}
+              </button>
+            );
+          })}
+        </aside>
+
+        {/* Área de conteúdo (mostra só a seção ativa) */}
+        <div className="grid gap-6 lg:grid-cols-2">
         {/* Workshop data */}
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <h3 className="mb-4 text-sm font-medium text-foreground">Dados da oficina</h3>
