@@ -447,7 +447,7 @@ const DemoConfig = () => {
         {/* Área de conteúdo (mostra só a seção ativa) */}
         <div className="grid gap-6 lg:grid-cols-2">
         {/* Workshop data */}
-        <div hidden={section !== "dados"} className="contents">
+        <div hidden={section !== "dados"}>
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <h3 className="mb-4 text-sm font-medium text-foreground">Dados da oficina</h3>
           <div className="grid gap-4 md:grid-cols-[140px_1fr]">
@@ -542,7 +542,7 @@ const DemoConfig = () => {
 
         </div>
         {/* Profile */}
-        <div hidden={section !== "perfil"} className="contents">
+        <div hidden={section !== "perfil"}>
         <div className="rounded-lg border border-border p-5">
           <h3 className="mb-4 text-sm font-medium text-foreground">Meu perfil</h3>
           <div className="space-y-3">
@@ -562,7 +562,7 @@ const DemoConfig = () => {
 
         </div>
         {/* Subscription */}
-        <div hidden={section !== "assinatura"} className="contents">
+        <div hidden={section !== "assinatura"}>
         <div className="rounded-lg border border-border p-5">
           <h3 className="mb-4 text-sm font-medium text-foreground">Assinatura</h3>
           <div className="mb-3 flex items-center justify-between">
@@ -582,7 +582,7 @@ const DemoConfig = () => {
 
         </div>
         {/* Notificações por e-mail */}
-        <div hidden={section !== "notificacoes"} className="contents">
+        <div hidden={section !== "notificacoes"}>
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <div className="mb-2 flex items-center justify-between gap-2">
             <h3 className="text-sm font-medium text-foreground">Notificações</h3>
@@ -628,7 +628,7 @@ const DemoConfig = () => {
 
         </div>
         {/* Google Reviews */}
-        <div hidden={section !== "google"} className="contents">
+        <div hidden={section !== "google"}>
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <div className="mb-2 flex items-center gap-2">
             <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
@@ -668,7 +668,7 @@ const DemoConfig = () => {
 
         </div>
         {/* Agendamento online (Pro) */}
-        <div hidden={section !== "agenda"} className="contents">
+        <div hidden={section !== "agenda"}>
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
@@ -801,7 +801,7 @@ const DemoConfig = () => {
 
         </div>
         {/* Site da oficina (Pro) */}
-        <div hidden={section !== "site"} className="contents">
+        <div hidden={section !== "site"}>
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
@@ -959,7 +959,7 @@ const DemoConfig = () => {
 
         {/* Minha equipe (só dono) */}
         {isDono && (
-          <div hidden={section !== "equipe"} className="contents">
+          <div hidden={section !== "equipe"}>
           <div className="rounded-lg border border-border p-5 lg:col-span-2">
             <div className="mb-4 flex items-center gap-2">
               <Users className="h-4 w-4 text-primary" />
