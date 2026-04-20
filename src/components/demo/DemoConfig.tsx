@@ -414,7 +414,7 @@ const DemoConfig = () => {
         <span className="font-medium text-foreground">{activeLabel}</span>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+      <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
         {/* Painel de navegação */}
         <aside className="space-y-1 lg:sticky lg:top-4 lg:self-start">
           {sections.map((s) => {
