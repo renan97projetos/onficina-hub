@@ -25,6 +25,7 @@ import {
   TipoVeiculo,
   getMarcasPorTipo,
   getModelosPorMarca,
+  getVersoesPorModelo,
 } from "@/data/veiculosCatalogo";
 
 export interface VeiculoSelectorValue {
