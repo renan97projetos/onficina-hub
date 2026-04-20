@@ -363,6 +363,17 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
                 {veiculos.map((v) => <option key={v.id} value={v.id}>{v.placa} — {v.marca} {v.modelo}</option>)}
               </select>
             )}
+            <div className="mt-3">
+              <label className="mb-1 block text-xs text-muted-foreground">KM inicial (opcional)</label>
+              <Input
+                type="number"
+                min="0"
+                placeholder="Ex: 85000"
+                value={kmInicial}
+                onChange={(e) => setKmInicial(e.target.value)}
+                className="sm:max-w-[200px]"
+              />
+            </div>
           </section>
 
           {/* SERVICES */}
