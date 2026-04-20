@@ -50,6 +50,10 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const [motivoRecusa, setMotivoRecusa] = useState("");
   const [pagamentoForma, setPagamentoForma] = useState(os.pagamento_forma || "");
   const [notificado, setNotificado] = useState(os.cliente_notificado_entrega || false);
+  const [kmFinal, setKmFinal] = useState<string>(
+    (os as any).km_final != null ? String((os as any).km_final) : "",
+  );
+  const [savingKmFinal, setSavingKmFinal] = useState(false);
 
   // Edit OS dialog
   const [editOpen, setEditOpen] = useState(false);
@@ -767,6 +771,53 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                   </p>
                 </div>
 
+                {/* KM final */}
+                <div className="rounded-xl border border-border bg-background p-5 space-y-2">
+                  <label className="text-xs font-semibold text-muted-foreground">
+                    KM final do veículo (opcional)
+                  </label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      min="0"
+                      placeholder={
+                        (os as any).km_inicial != null
+                          ? `Ex: ${Number((os as any).km_inicial) + 100}`
+                          : "Ex: 85100"
+                      }
+                      value={kmFinal}
+                      onChange={(e) => setKmFinal(e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      disabled={savingKmFinal}
+                      onClick={async () => {
+                        setSavingKmFinal(true);
+                        const valor = kmFinal ? parseInt(kmFinal, 10) : null;
+                        const { error } = await supabase
+                          .from("ordens_servico")
+                          .update({ km_final: valor } as any)
+                          .eq("id", os.id);
+                        setSavingKmFinal(false);
+                        if (error) {
+                          toast.error("Erro ao salvar KM final");
+                          return;
+                        }
+                        toast.success("KM final salva");
+                        queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+                      }}
+                      className="rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50"
+                    >
+                      Salvar
+                    </button>
+                  </div>
+                  {(os as any).km_inicial != null && (
+                    <p className="text-xs text-muted-foreground">
+                      KM inicial: {(os as any).km_inicial}
+                    </p>
+                  )}
+                </div>
+
                 {/* Exit photos upload */}
                 <div>
                   <h4 className="mb-3 text-sm font-semibold text-foreground flex items-center gap-2">
@@ -945,10 +996,16 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             </div>
 
             {/* Vehicle */}
-            <div className="rounded-lg border border-border bg-background p-4">
+            <div className="rounded-lg border border-border bg-background p-4 space-y-1">
               <p className="text-sm text-foreground">
                 {os.veiculos?.placa} • {os.veiculos?.marca} {os.veiculos?.modelo} {os.veiculos?.cor} {os.veiculos?.ano}
               </p>
+              {((os as any).km_inicial != null || (os as any).km_final != null) && (
+                <p className="text-xs text-muted-foreground">
+                  KM: {(os as any).km_inicial ?? "—"}
+                  {(os as any).km_final != null && ` → ${(os as any).km_final}`}
+                </p>
+              )}
             </div>
 
             {/* Colaborador */}

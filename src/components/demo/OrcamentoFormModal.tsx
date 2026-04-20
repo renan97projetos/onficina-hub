@@ -5,6 +5,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import VeiculoSelector, { type VeiculoSelectorValue } from "./VeiculoSelector";
+import type { TipoVeiculo } from "@/data/veiculosCatalogo";
 
 interface Peca {
   qtd: number;
@@ -28,9 +30,14 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [data, setData] = useState(() => new Date().toISOString().slice(0, 10));
-  const [marca, setMarca] = useState("");
-  const [modelo, setModelo] = useState("");
   const [placa, setPlaca] = useState("");
+  const [veiculo, setVeiculo] = useState<VeiculoSelectorValue>({
+    tipo: "",
+    marca: "",
+    modelo: "",
+    versao: "",
+    ano: "",
+  });
   const [pecas, setPecas] = useState<Peca[]>([]);
   const [maoObraDesc, setMaoObraDesc] = useState("");
   const [maoObraValor, setMaoObraValor] = useState<number>(0);
@@ -52,9 +59,14 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
       setNome(existing.nome_cliente || "");
       setTelefone(existing.telefone_cliente || "");
       setData(existing.data_orcamento || new Date().toISOString().slice(0, 10));
-      setMarca(existing.marca || "");
-      setModelo(existing.modelo || "");
       setPlaca(existing.placa || "");
+      setVeiculo({
+        tipo: ((existing as any).tipo_veiculo as TipoVeiculo) || "",
+        marca: existing.marca || "",
+        modelo: existing.modelo || "",
+        versao: (existing as any).versao || "",
+        ano: (existing as any).ano ? String((existing as any).ano) : "",
+      });
       setPecas(Array.isArray(existing.pecas) ? (existing.pecas as unknown as Peca[]) : []);
       setMaoObraDesc(existing.mao_obra_descricao || "");
       setMaoObraValor(Number(existing.mao_obra_valor) || 0);
@@ -62,9 +74,8 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
       setNome("");
       setTelefone("");
       setData(new Date().toISOString().slice(0, 10));
-      setMarca("");
-      setModelo("");
       setPlaca("");
+      setVeiculo({ tipo: "", marca: "", modelo: "", versao: "", ano: "" });
       setPecas([]);
       setMaoObraDesc("");
       setMaoObraValor(0);
@@ -96,8 +107,11 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
       nome_cliente: nome.trim(),
       telefone_cliente: telefone.trim() || null,
       data_orcamento: data,
-      marca: marca.trim() || null,
-      modelo: modelo.trim() || null,
+      tipo_veiculo: veiculo.tipo || null,
+      marca: veiculo.marca.trim() || null,
+      modelo: veiculo.modelo.trim() || null,
+      versao: veiculo.versao.trim() || null,
+      ano: veiculo.ano ? parseInt(veiculo.ano, 10) || null : null,
       placa: placa.trim() || null,
       pecas: pecas.map((p) => ({
         qtd: Number(p.qtd) || 0,
@@ -164,22 +178,11 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
               className="input-base"
             />
           </Field>
-          <Field label="Marca">
-            <input
-              value={marca}
-              onChange={(e) => setMarca(e.target.value)}
-              placeholder="Ex: Volkswagen"
-              className="input-base"
-            />
-          </Field>
-          <Field label="Veículo">
-            <input
-              value={modelo}
-              onChange={(e) => setModelo(e.target.value)}
-              placeholder="Ex: Gol G5 2015"
-              className="input-base"
-            />
-          </Field>
+        </div>
+
+        {/* Veículo (tipo → marca → modelo → versão → ano) */}
+        <div className="mt-4">
+          <VeiculoSelector value={veiculo} onChange={setVeiculo} />
         </div>
 
         {/* Peças */}

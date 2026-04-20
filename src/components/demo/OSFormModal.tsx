@@ -48,6 +48,7 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
   const [colaboradorId, setColaboradorId] = useState("");
   const [observacoes, setObservacoes] = useState("");
   const [prazoManual, setPrazoManual] = useState("");
+  const [kmInicial, setKmInicial] = useState("");
 
   // Photos
   const [fotosEntrada, setFotosEntrada] = useState<File[]>([]);
@@ -233,7 +234,8 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
         oficina_id, cliente_id: cid, veiculo_id: vid, colaborador_id: colaboradorId || null,
         valor_total: valorTotal, observacoes: observacoes.trim() || null,
         prazo_estimado: prazoEstimado, prazo_horas_calculado: tempoTotal || null,
-      }).select("id").single();
+        km_inicial: kmInicial ? parseInt(kmInicial, 10) || null : null,
+      } as any).select("id").single();
       if (osError) throw osError;
 
       // 5. Upload entry photos
@@ -272,7 +274,7 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
     setClienteId(""); setNovoCliente(false); setNomeCliente(""); setTelefoneCliente("");
     setEmailCliente(""); setVeiculoId(""); setNovoVeiculo(false); setPlaca(""); setMarca("");
     setModelo(""); setCor(""); setAno(""); setSelectedServicos({}); setColaboradorId(""); setObservacoes("");
-    setPrazoManual(""); setFotosEntrada([]); setFotoPreviews([]);
+    setPrazoManual(""); setFotosEntrada([]); setFotoPreviews([]); setKmInicial("");
   }
 
   return (
@@ -361,6 +363,17 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
                 {veiculos.map((v) => <option key={v.id} value={v.id}>{v.placa} — {v.marca} {v.modelo}</option>)}
               </select>
             )}
+            <div className="mt-3">
+              <label className="mb-1 block text-xs text-muted-foreground">KM inicial (opcional)</label>
+              <Input
+                type="number"
+                min="0"
+                placeholder="Ex: 85000"
+                value={kmInicial}
+                onChange={(e) => setKmInicial(e.target.value)}
+                className="sm:max-w-[200px]"
+              />
+            </div>
           </section>
 
           {/* SERVICES */}
