@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe, Users, UserPlus, Trash2 } from "lucide-react";
+import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe, Users, UserPlus, Trash2, MessageCircle } from "lucide-react";
 import { publicUrl, getPublicBaseUrl } from "@/lib/publicUrl";
 import {
   AlertDialog,
@@ -837,10 +837,20 @@ const DemoConfig = () => {
             )}
           </div>
 
-          <p className="mt-3 rounded-md bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-            💡 Quer um site totalmente personalizado, com mais páginas e identidade visual
-            exclusiva? <strong className="text-foreground">Fale com o suporte</strong>.
-          </p>
+          <a
+            href="https://wa.me/5527992373501?text=Ol%C3%A1%2C%20gostaria%20de%20um%20site%20personalizado%20para%20minha%20oficina"
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm transition hover:bg-primary/10"
+          >
+            <div>
+              <p className="font-medium text-foreground">Quer um site personalizado?</p>
+              <p className="text-xs text-muted-foreground">
+                Templates exclusivos e identidade visual única para sua oficina — fale com a gente.
+              </p>
+            </div>
+            <MessageCircle className="ml-3 h-5 w-5 flex-shrink-0 text-primary" />
+          </a>
         </div>
 
         {/* Minha equipe (só dono) */}
