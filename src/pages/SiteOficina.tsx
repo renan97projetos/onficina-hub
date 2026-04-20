@@ -136,31 +136,50 @@ const Template2 = ({ data }: { data: SiteData }) => {
   const { oficina, servicos, avaliacoes } = data;
   return (
     <div className="min-h-screen bg-white text-zinc-900">
-      <header className="px-4 py-8">
+      <header className="px-4 py-10">
         <div className="mx-auto flex max-w-4xl flex-col items-center gap-3 text-center">
           {oficina.logo_url && (
-            <img src={oficina.logo_url} alt={oficina.nome} className="h-20 w-20 rounded-full object-cover" />
+            <img
+              src={oficina.logo_url}
+              alt={oficina.nome}
+              className="h-28 w-28 rounded-full object-cover shadow-md"
+            />
           )}
           <h1 className="text-3xl font-light tracking-wide">{oficina.nome}</h1>
-          <Stars media={avaliacoes.media} total={avaliacoes.total} />
-        </div>
-      </header>
-
-      <section className="px-4 py-12">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-lg leading-relaxed text-zinc-600">
-            {oficina.landing_descricao || "Cuidado e estética automotiva com acabamento impecável."}
-          </p>
+          <div className="mx-auto w-16 border-t border-zinc-200" />
+          {oficina.landing_descricao && (
+            <p className="max-w-xl text-sm leading-relaxed text-zinc-500">
+              {oficina.landing_descricao}
+            </p>
+          )}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            {servicos.length > 0 && (
+              <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-2 text-center">
+                <p className="text-lg font-semibold text-zinc-900">{servicos.length}</p>
+                <p className="text-[10px] uppercase tracking-wider text-zinc-500">
+                  Serviços disponíveis
+                </p>
+              </div>
+            )}
+            {avaliacoes.total > 0 && (
+              <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-2">
+                <Stars media={avaliacoes.media} total={avaliacoes.total} />
+              </div>
+            )}
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-medium text-emerald-700">
+              Orçamento grátis
+            </div>
+          </div>
           <a
             href={waLink(oficina.telefone, oficina.nome)}
             target="_blank"
             rel="noreferrer"
-            className="mt-8 inline-flex items-center gap-2 rounded-full border border-zinc-900 px-6 py-3 text-sm font-medium transition hover:bg-zinc-900 hover:text-white"
+            className="mt-6 inline-flex items-center gap-2 rounded-full border border-zinc-900 px-6 py-3 text-sm font-medium transition hover:bg-zinc-900 hover:text-white"
           >
             <MessageCircle className="h-4 w-4" /> Falar no WhatsApp
           </a>
         </div>
-      </section>
+      </header>
 
       {servicos.length > 0 && (
         <section className="bg-zinc-50 px-4 py-16">
@@ -169,9 +188,14 @@ const Template2 = ({ data }: { data: SiteData }) => {
               Serviços
             </h3>
             <div className="grid gap-3 md:grid-cols-3">
-              {servicos.map((s) => (
-                <div key={s.id} className="rounded-lg bg-white p-5 shadow-sm">
-                  <Wrench className="mb-3 h-5 w-5 text-zinc-400" />
+              {servicos.map((s, idx) => (
+                <div
+                  key={s.id}
+                  className="rounded-lg border border-transparent bg-white p-5 shadow-sm transition hover:border-zinc-300 hover:shadow-md"
+                >
+                  <p className="mb-3 text-3xl font-light text-zinc-300">
+                    {String(idx + 1).padStart(2, "0")}
+                  </p>
                   <h4 className="text-sm font-semibold">{s.nome}</h4>
                   {s.descricao && <p className="mt-1 text-xs text-zinc-500">{s.descricao}</p>}
                   <p className="mt-3 text-sm font-medium">
@@ -215,7 +239,7 @@ const Template3 = ({ data }: { data: SiteData }) => {
             <img
               src={oficina.logo_url}
               alt={oficina.nome}
-              className="h-20 w-20 rounded-full border-4 border-primary-foreground/30 object-cover"
+              className="h-28 w-28 rounded-full border-4 border-primary-foreground/30 object-cover shadow-xl"
             />
           )}
           <div className="flex-1">
