@@ -21,16 +21,6 @@ const Footer = () => {
               <li><a href="#recursos" className="transition-colors hover:text-foreground">Recursos</a></li>
               <li><a href="#planos" className="transition-colors hover:text-foreground">Preços</a></li>
               <li><a href="#faq" className="transition-colors hover:text-foreground">FAQ</a></li>
-              <li>
-                <a
-                  href={`https://wa.me/${WHATSAPP_SUPORTE}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="transition-colors hover:text-foreground"
-                >
-                  Contato
-                </a>
-              </li>
             </ul>
           </div>
 
