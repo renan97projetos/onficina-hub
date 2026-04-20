@@ -304,7 +304,7 @@ const DemoColaboradores = () => {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">Função</label>
-              <Input value={funcao} onChange={(e) => setFuncao(e.target.value)} placeholder="Ex: Funileiro, Pintor, Técnico" />
+              <Input value={funcao} onChange={(e) => setFuncao(e.target.value)} placeholder="Ex: Lanterneiro, Pintor, Polidor" />
             </div>
 
             {editingColaborador && (
