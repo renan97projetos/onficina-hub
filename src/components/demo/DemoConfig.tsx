@@ -445,7 +445,7 @@ const DemoConfig = () => {
         </aside>
 
         {/* Área de conteúdo (mostra só a seção ativa) */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-6 min-w-0">
         {/* Workshop data */}
         <div hidden={section !== "dados"}>
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
