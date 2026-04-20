@@ -30,9 +30,14 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [data, setData] = useState(() => new Date().toISOString().slice(0, 10));
-  const [marca, setMarca] = useState("");
-  const [modelo, setModelo] = useState("");
   const [placa, setPlaca] = useState("");
+  const [veiculo, setVeiculo] = useState<VeiculoSelectorValue>({
+    tipo: "",
+    marca: "",
+    modelo: "",
+    versao: "",
+    ano: "",
+  });
   const [pecas, setPecas] = useState<Peca[]>([]);
   const [maoObraDesc, setMaoObraDesc] = useState("");
   const [maoObraValor, setMaoObraValor] = useState<number>(0);
