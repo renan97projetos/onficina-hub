@@ -955,9 +955,11 @@ const DemoConfig = () => {
             <MessageCircle className="ml-3 h-5 w-5 flex-shrink-0 text-primary" />
           </a>
         </div>
+        </div>
 
         {/* Minha equipe (só dono) */}
         {isDono && (
+          <div hidden={section !== "equipe"} className="contents">
           <div className="rounded-lg border border-border p-5 lg:col-span-2">
             <div className="mb-4 flex items-center gap-2">
               <Users className="h-4 w-4 text-primary" />
@@ -1082,7 +1084,9 @@ const DemoConfig = () => {
               )}
             </div>
           </div>
+          </div>
         )}
+        </div>
       </div>
     </>
   );
