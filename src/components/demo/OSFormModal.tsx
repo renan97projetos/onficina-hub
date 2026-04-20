@@ -234,7 +234,8 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
         oficina_id, cliente_id: cid, veiculo_id: vid, colaborador_id: colaboradorId || null,
         valor_total: valorTotal, observacoes: observacoes.trim() || null,
         prazo_estimado: prazoEstimado, prazo_horas_calculado: tempoTotal || null,
-      }).select("id").single();
+        km_inicial: kmInicial ? parseInt(kmInicial, 10) || null : null,
+      } as any).select("id").single();
       if (osError) throw osError;
 
       // 5. Upload entry photos
@@ -273,7 +274,7 @@ const OSFormModal = ({ open, onOpenChange, clienteId: presetClienteId }: Props) 
     setClienteId(""); setNovoCliente(false); setNomeCliente(""); setTelefoneCliente("");
     setEmailCliente(""); setVeiculoId(""); setNovoVeiculo(false); setPlaca(""); setMarca("");
     setModelo(""); setCor(""); setAno(""); setSelectedServicos({}); setColaboradorId(""); setObservacoes("");
-    setPrazoManual(""); setFotosEntrada([]); setFotoPreviews([]);
+    setPrazoManual(""); setFotosEntrada([]); setFotoPreviews([]); setKmInicial("");
   }
 
   return (
