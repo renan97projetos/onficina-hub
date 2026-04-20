@@ -49,16 +49,6 @@ const Footer = () => {
                   Central de ajuda
                 </a>
               </li>
-              <li>
-                <a
-                  href={`https://wa.me/${WHATSAPP_SUPORTE}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="transition-colors hover:text-foreground"
-                >
-                  WhatsApp
-                </a>
-              </li>
             </ul>
           </div>
         </div>
