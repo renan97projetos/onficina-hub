@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe, Users, UserPlus, Trash2, MessageCircle, Info } from "lucide-react";
+import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe, Users, UserPlus, Trash2, MessageCircle, Info, Building2, User as UserIcon, CreditCard, Bell, ChevronRight, Settings as SettingsIcon } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { publicUrl, getPublicBaseUrl } from "@/lib/publicUrl";
 import {
@@ -89,6 +89,7 @@ const DemoConfig = () => {
   const [novoNome, setNovoNome] = useState("");
   const [novaSenha, setNovaSenha] = useState("");
   const [criandoMembro, setCriandoMembro] = useState(false);
+  const [section, setSection] = useState<string>("dados");
 
   const { data: membros, refetch: refetchMembros } = useQuery({
     queryKey: ["usuarios-oficina", oficina_id],
@@ -390,12 +391,63 @@ const DemoConfig = () => {
       )
     : null;
 
+  const sections = [
+    { key: "dados", label: "Dados da oficina", icon: Building2, desc: "Logo, nome, endereço e contato" },
+    { key: "perfil", label: "Meu perfil", icon: UserIcon, desc: "Seu e-mail de acesso" },
+    { key: "assinatura", label: "Assinatura", icon: CreditCard, desc: "Plano atual e mudanças" },
+    { key: "notificacoes", label: "Notificações", icon: Bell, desc: "Resumo diário por e-mail" },
+    { key: "google", label: "Avaliação do Google", icon: Star, desc: "Link para reviews públicas" },
+    { key: "agenda", label: "Agendamento online", icon: CalendarDays, desc: "Janela e limites de agenda" },
+    { key: "site", label: "Site da oficina", icon: Globe, desc: "Página pública e templates" },
+    ...(isDono ? [{ key: "equipe", label: "Minha equipe", icon: Users, desc: "Operadores e permissões" }] : []),
+  ];
+  const ActiveIcon = sections.find((s) => s.key === section)?.icon ?? SettingsIcon;
+  const activeLabel = sections.find((s) => s.key === section)?.label ?? "Configurações";
+
   return (
     <>
-      <h2 className="mb-6 text-sm font-bold uppercase tracking-wide">Configurações</h2>
+      <div className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+        <SettingsIcon className="h-4 w-4" />
+        <span className="font-bold uppercase tracking-wide">Configurações</span>
+        <ChevronRight className="h-3.5 w-3.5" />
+        <ActiveIcon className="h-4 w-4 text-primary" />
+        <span className="font-medium text-foreground">{activeLabel}</span>
+      </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+        {/* Painel de navegação */}
+        <aside className="space-y-1 lg:sticky lg:top-4 lg:self-start">
+          {sections.map((s) => {
+            const Icon = s.icon;
+            const active = section === s.key;
+            return (
+              <button
+                key={s.key}
+                type="button"
+                onClick={() => setSection(s.key)}
+                className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2.5 text-left transition ${
+                  active
+                    ? "border-primary/40 bg-primary/10 text-foreground"
+                    : "border-border bg-card hover:border-primary/30 hover:bg-muted/40 text-muted-foreground"
+                }`}
+              >
+                <Icon className={`h-4 w-4 flex-shrink-0 ${active ? "text-primary" : ""}`} />
+                <div className="min-w-0 flex-1">
+                  <p className={`truncate text-sm ${active ? "font-semibold text-foreground" : "font-medium"}`}>
+                    {s.label}
+                  </p>
+                  <p className="truncate text-[11px] text-muted-foreground">{s.desc}</p>
+                </div>
+                {active && <ChevronRight className="h-4 w-4 text-primary" />}
+              </button>
+            );
+          })}
+        </aside>
+
+        {/* Área de conteúdo (mostra só a seção ativa) */}
+        <div className="grid gap-6 lg:grid-cols-2">
         {/* Workshop data */}
+        <div hidden={section !== "dados"} className="contents">
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <h3 className="mb-4 text-sm font-medium text-foreground">Dados da oficina</h3>
           <div className="grid gap-4 md:grid-cols-[140px_1fr]">
@@ -488,7 +540,9 @@ const DemoConfig = () => {
           </div>
         </div>
 
+        </div>
         {/* Profile */}
+        <div hidden={section !== "perfil"} className="contents">
         <div className="rounded-lg border border-border p-5">
           <h3 className="mb-4 text-sm font-medium text-foreground">Meu perfil</h3>
           <div className="space-y-3">
@@ -506,7 +560,9 @@ const DemoConfig = () => {
           </div>
         </div>
 
+        </div>
         {/* Subscription */}
+        <div hidden={section !== "assinatura"} className="contents">
         <div className="rounded-lg border border-border p-5">
           <h3 className="mb-4 text-sm font-medium text-foreground">Assinatura</h3>
           <div className="mb-3 flex items-center justify-between">
@@ -524,7 +580,9 @@ const DemoConfig = () => {
           </button>
         </div>
 
+        </div>
         {/* Notificações por e-mail */}
+        <div hidden={section !== "notificacoes"} className="contents">
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <div className="mb-2 flex items-center justify-between gap-2">
             <h3 className="text-sm font-medium text-foreground">Notificações</h3>
@@ -568,7 +626,9 @@ const DemoConfig = () => {
           )}
         </div>
 
+        </div>
         {/* Google Reviews */}
+        <div hidden={section !== "google"} className="contents">
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <div className="mb-2 flex items-center gap-2">
             <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
@@ -606,7 +666,9 @@ const DemoConfig = () => {
           )}
         </div>
 
+        </div>
         {/* Agendamento online (Pro) */}
+        <div hidden={section !== "agenda"} className="contents">
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
@@ -737,7 +799,9 @@ const DemoConfig = () => {
           </TooltipProvider>
         </div>
 
+        </div>
         {/* Site da oficina (Pro) */}
+        <div hidden={section !== "site"} className="contents">
         <div className="rounded-lg border border-border p-5 lg:col-span-2">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
@@ -891,9 +955,11 @@ const DemoConfig = () => {
             <MessageCircle className="ml-3 h-5 w-5 flex-shrink-0 text-primary" />
           </a>
         </div>
+        </div>
 
         {/* Minha equipe (só dono) */}
         {isDono && (
+          <div hidden={section !== "equipe"} className="contents">
           <div className="rounded-lg border border-border p-5 lg:col-span-2">
             <div className="mb-4 flex items-center gap-2">
               <Users className="h-4 w-4 text-primary" />
@@ -1018,7 +1084,9 @@ const DemoConfig = () => {
               )}
             </div>
           </div>
+          </div>
         )}
+        </div>
       </div>
     </>
   );
