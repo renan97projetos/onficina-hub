@@ -49,12 +49,6 @@ const WelcomeEmail = ({ nome, oficinaNome }: WelcomeProps) => {
             </Button>
           </Section>
 
-          <Text style={fallback}>
-            Se o botão não abrir, copie e cole este link:
-            <br />
-            <Link href={WHATSAPP_LINK} style={link}>{WHATSAPP_LINK}</Link>
-          </Text>
-
           <Hr style={hr} />
 
           <Text style={text}>
