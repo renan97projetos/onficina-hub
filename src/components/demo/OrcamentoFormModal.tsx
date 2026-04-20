@@ -59,9 +59,14 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
       setNome(existing.nome_cliente || "");
       setTelefone(existing.telefone_cliente || "");
       setData(existing.data_orcamento || new Date().toISOString().slice(0, 10));
-      setMarca(existing.marca || "");
-      setModelo(existing.modelo || "");
       setPlaca(existing.placa || "");
+      setVeiculo({
+        tipo: ((existing as any).tipo_veiculo as TipoVeiculo) || "",
+        marca: existing.marca || "",
+        modelo: existing.modelo || "",
+        versao: (existing as any).versao || "",
+        ano: (existing as any).ano ? String((existing as any).ano) : "",
+      });
       setPecas(Array.isArray(existing.pecas) ? (existing.pecas as unknown as Peca[]) : []);
       setMaoObraDesc(existing.mao_obra_descricao || "");
       setMaoObraValor(Number(existing.mao_obra_valor) || 0);
@@ -69,9 +74,8 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
       setNome("");
       setTelefone("");
       setData(new Date().toISOString().slice(0, 10));
-      setMarca("");
-      setModelo("");
       setPlaca("");
+      setVeiculo({ tipo: "", marca: "", modelo: "", versao: "", ano: "" });
       setPecas([]);
       setMaoObraDesc("");
       setMaoObraValor(0);
