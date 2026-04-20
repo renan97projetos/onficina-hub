@@ -107,8 +107,11 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
       nome_cliente: nome.trim(),
       telefone_cliente: telefone.trim() || null,
       data_orcamento: data,
-      marca: marca.trim() || null,
-      modelo: modelo.trim() || null,
+      tipo_veiculo: veiculo.tipo || null,
+      marca: veiculo.marca.trim() || null,
+      modelo: veiculo.modelo.trim() || null,
+      versao: veiculo.versao.trim() || null,
+      ano: veiculo.ano ? parseInt(veiculo.ano, 10) || null : null,
       placa: placa.trim() || null,
       pecas: pecas.map((p) => ({
         qtd: Number(p.qtd) || 0,
