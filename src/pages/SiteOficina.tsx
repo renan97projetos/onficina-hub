@@ -97,12 +97,7 @@ const Template1 = ({ data }: { data: SiteData }) => {
             <div className="grid gap-4 md:grid-cols-2">
               {servicos.map((s) => (
                 <div key={s.id} className="border border-zinc-800 bg-zinc-900 p-5">
-                  <div className="flex items-start justify-between gap-3">
-                    <h4 className="font-semibold uppercase">{s.nome}</h4>
-                    <span className="whitespace-nowrap text-amber-500">
-                      a partir de {formatBRL(Number(s.preco_base))}
-                    </span>
-                  </div>
+                  <h4 className="font-semibold uppercase">{s.nome}</h4>
                   {s.descricao && <p className="mt-2 text-sm text-zinc-400">{s.descricao}</p>}
                 </div>
               ))}
@@ -152,24 +147,11 @@ const Template2 = ({ data }: { data: SiteData }) => {
               {oficina.landing_descricao}
             </p>
           )}
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
-            {servicos.length > 0 && (
-              <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-2 text-center">
-                <p className="text-lg font-semibold text-zinc-900">{servicos.length}</p>
-                <p className="text-[10px] uppercase tracking-wider text-zinc-500">
-                  Serviços disponíveis
-                </p>
-              </div>
-            )}
-            {avaliacoes.total > 0 && (
-              <div className="rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-2">
-                <Stars media={avaliacoes.media} total={avaliacoes.total} />
-              </div>
-            )}
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-2 text-xs font-medium text-emerald-700">
-              Orçamento grátis
+          {avaliacoes.total > 0 && (
+            <div className="mt-2">
+              <Stars media={avaliacoes.media} total={avaliacoes.total} />
             </div>
-          </div>
+          )}
           <a
             href={waLink(oficina.telefone, oficina.nome)}
             target="_blank"
@@ -198,9 +180,6 @@ const Template2 = ({ data }: { data: SiteData }) => {
                   </p>
                   <h4 className="text-sm font-semibold">{s.nome}</h4>
                   {s.descricao && <p className="mt-1 text-xs text-zinc-500">{s.descricao}</p>}
-                  <p className="mt-3 text-sm font-medium">
-                    {formatBRL(Number(s.preco_base))}
-                  </p>
                 </div>
               ))}
             </div>
@@ -281,9 +260,6 @@ const Template3 = ({ data }: { data: SiteData }) => {
                   {s.descricao && (
                     <p className="mt-1 text-sm text-muted-foreground">{s.descricao}</p>
                   )}
-                  <p className="mt-3 font-bold text-primary">
-                    {formatBRL(Number(s.preco_base))}
-                  </p>
                 </div>
               ))}
             </div>
