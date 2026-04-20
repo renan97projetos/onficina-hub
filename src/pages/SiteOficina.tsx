@@ -218,7 +218,7 @@ const Template3 = ({ data }: { data: SiteData }) => {
             <img
               src={oficina.logo_url}
               alt={oficina.nome}
-              className="h-28 w-28 rounded-full border-4 border-primary-foreground/30 object-cover shadow-xl"
+              className="h-40 w-40 rounded-full border-4 border-primary-foreground/30 object-cover shadow-xl"
             />
           )}
           <div className="flex-1">
