@@ -63,7 +63,7 @@ const Template1 = ({ data }: { data: SiteData }) => {
             <img src={oficina.logo_url} alt={oficina.nome} className="h-14 w-14 rounded-full object-cover" />
           )}
           <div className="flex-1">
-            <h1 className="text-2xl font-black uppercase tracking-tight">{oficina.nome}</h1>
+            <h1 className="text-2xl font-bold uppercase tracking-tight">{oficina.nome}</h1>
             <Stars media={avaliacoes.media} total={avaliacoes.total} />
           </div>
         </div>
@@ -74,7 +74,7 @@ const Template1 = ({ data }: { data: SiteData }) => {
           <p className="mb-2 text-sm font-bold uppercase tracking-widest text-amber-500">
             Funilaria & Pintura
           </p>
-          <h2 className="mb-6 text-4xl font-black leading-tight md:text-6xl">
+          <h2 className="mb-6 text-3xl font-bold leading-snug md:text-5xl">
             {oficina.landing_descricao || "Restauração que devolve o brilho do seu carro."}
           </h2>
           <a
@@ -98,7 +98,7 @@ const Template1 = ({ data }: { data: SiteData }) => {
               {servicos.map((s) => (
                 <div key={s.id} className="border border-zinc-800 bg-zinc-900 p-5">
                   <div className="flex items-start justify-between gap-3">
-                    <h4 className="font-bold uppercase">{s.nome}</h4>
+                    <h4 className="font-semibold uppercase">{s.nome}</h4>
                     <span className="whitespace-nowrap text-amber-500">
                       a partir de {formatBRL(Number(s.preco_base))}
                     </span>
