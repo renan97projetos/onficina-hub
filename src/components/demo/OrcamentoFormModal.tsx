@@ -178,22 +178,11 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
               className="input-base"
             />
           </Field>
-          <Field label="Marca">
-            <input
-              value={marca}
-              onChange={(e) => setMarca(e.target.value)}
-              placeholder="Ex: Volkswagen"
-              className="input-base"
-            />
-          </Field>
-          <Field label="Veículo">
-            <input
-              value={modelo}
-              onChange={(e) => setModelo(e.target.value)}
-              placeholder="Ex: Gol G5 2015"
-              className="input-base"
-            />
-          </Field>
+        </div>
+
+        {/* Veículo (tipo → marca → modelo → versão → ano) */}
+        <div className="mt-4">
+          <VeiculoSelector value={veiculo} onChange={setVeiculo} />
         </div>
 
         {/* Peças */}
