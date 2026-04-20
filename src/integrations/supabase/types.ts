@@ -475,6 +475,7 @@ export type Database = {
       }
       orcamentos: {
         Row: {
+          ano: number | null
           aprovado_em: string | null
           created_at: string
           data_orcamento: string
@@ -494,12 +495,15 @@ export type Database = {
           recusado_em: string | null
           status: string
           telefone_cliente: string | null
+          tipo_veiculo: string | null
           token_publico: string
           total_geral: number
           total_pecas: number
           updated_at: string
+          versao: string | null
         }
         Insert: {
+          ano?: number | null
           aprovado_em?: string | null
           created_at?: string
           data_orcamento?: string
@@ -519,12 +523,15 @@ export type Database = {
           recusado_em?: string | null
           status?: string
           telefone_cliente?: string | null
+          tipo_veiculo?: string | null
           token_publico?: string
           total_geral?: number
           total_pecas?: number
           updated_at?: string
+          versao?: string | null
         }
         Update: {
+          ano?: number | null
           aprovado_em?: string | null
           created_at?: string
           data_orcamento?: string
@@ -544,10 +551,12 @@ export type Database = {
           recusado_em?: string | null
           status?: string
           telefone_cliente?: string | null
+          tipo_veiculo?: string | null
           token_publico?: string
           total_geral?: number
           total_pecas?: number
           updated_at?: string
+          versao?: string | null
         }
         Relationships: []
       }
@@ -561,6 +570,8 @@ export type Database = {
           fotos_entrada: Json | null
           fotos_saida: Json | null
           id: string
+          km_final: number | null
+          km_inicial: number | null
           motivo_recusa: string | null
           observacoes: string | null
           oficina_id: string
@@ -584,6 +595,8 @@ export type Database = {
           fotos_entrada?: Json | null
           fotos_saida?: Json | null
           id?: string
+          km_final?: number | null
+          km_inicial?: number | null
           motivo_recusa?: string | null
           observacoes?: string | null
           oficina_id: string
@@ -607,6 +620,8 @@ export type Database = {
           fotos_entrada?: Json | null
           fotos_saida?: Json | null
           id?: string
+          km_final?: number | null
+          km_inicial?: number | null
           motivo_recusa?: string | null
           observacoes?: string | null
           oficina_id?: string
@@ -903,6 +918,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      veiculos_customizados: {
+        Row: {
+          created_at: string
+          id: string
+          marca: string
+          modelo: string | null
+          oficina_id: string
+          tipo: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          marca: string
+          modelo?: string | null
+          oficina_id: string
+          tipo: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          marca?: string
+          modelo?: string | null
+          oficina_id?: string
+          tipo?: string
+        }
+        Relationships: []
       }
     }
     Views: {
