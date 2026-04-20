@@ -50,6 +50,10 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const [motivoRecusa, setMotivoRecusa] = useState("");
   const [pagamentoForma, setPagamentoForma] = useState(os.pagamento_forma || "");
   const [notificado, setNotificado] = useState(os.cliente_notificado_entrega || false);
+  const [kmFinal, setKmFinal] = useState<string>(
+    (os as any).km_final != null ? String((os as any).km_final) : "",
+  );
+  const [savingKmFinal, setSavingKmFinal] = useState(false);
 
   // Edit OS dialog
   const [editOpen, setEditOpen] = useState(false);
