@@ -224,11 +224,21 @@ const VeiculoSelector = ({ value, onChange }: Props) => {
             <label className="mb-1 block text-xs font-semibold text-foreground">
               Versão
             </label>
-            <input
+            <ComboboxAddable
               value={value.versao}
-              onChange={(e) => onChange({ ...value, versao: e.target.value })}
-              placeholder="Ex: 1.0 Trend, Highline, Sport..."
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              options={versoesSugeridas}
+              placeholder={
+                !value.modelo
+                  ? "Selecione o modelo primeiro"
+                  : versoesSugeridas.length
+                    ? "Selecione a versão..."
+                    : "Digite a versão..."
+              }
+              emptyText="Nenhuma versão sugerida."
+              addLabel="Usar versão:"
+              disabled={!value.modelo}
+              onSelect={(v) => onChange({ ...value, versao: v })}
+              onAdd={(v) => onChange({ ...value, versao: v })}
             />
           </div>
 
