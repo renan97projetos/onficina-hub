@@ -414,7 +414,7 @@ const DemoConfig = () => {
         <span className="font-medium text-foreground">{activeLabel}</span>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+      <div className="grid gap-6 lg:grid-cols-[240px_minmax(0,1fr)]">
         {/* Painel de navegação */}
         <aside className="space-y-1 lg:sticky lg:top-4 lg:self-start">
           {sections.map((s) => {
@@ -445,10 +445,10 @@ const DemoConfig = () => {
         </aside>
 
         {/* Área de conteúdo (mostra só a seção ativa) */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="space-y-6 min-w-0">
         {/* Workshop data */}
         <div hidden={section !== "dados"}>
-        <div className="rounded-lg border border-border p-5 lg:col-span-2">
+        <div className="rounded-lg border border-border p-5">
           <h3 className="mb-4 text-sm font-medium text-foreground">Dados da oficina</h3>
           <div className="grid gap-4 md:grid-cols-[140px_1fr]">
             {/* Logo */}
@@ -583,7 +583,7 @@ const DemoConfig = () => {
         </div>
         {/* Notificações por e-mail */}
         <div hidden={section !== "notificacoes"}>
-        <div className="rounded-lg border border-border p-5 lg:col-span-2">
+        <div className="rounded-lg border border-border p-5">
           <div className="mb-2 flex items-center justify-between gap-2">
             <h3 className="text-sm font-medium text-foreground">Notificações</h3>
             <label className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -629,7 +629,7 @@ const DemoConfig = () => {
         </div>
         {/* Google Reviews */}
         <div hidden={section !== "google"}>
-        <div className="rounded-lg border border-border p-5 lg:col-span-2">
+        <div className="rounded-lg border border-border p-5">
           <div className="mb-2 flex items-center gap-2">
             <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
             <h3 className="text-sm font-medium text-foreground">Link de avaliação do Google</h3>
@@ -669,7 +669,7 @@ const DemoConfig = () => {
         </div>
         {/* Agendamento online (Pro) */}
         <div hidden={section !== "agenda"}>
-        <div className="rounded-lg border border-border p-5 lg:col-span-2">
+        <div className="rounded-lg border border-border p-5">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <CalendarDays className="h-4 w-4 text-primary" />
@@ -802,7 +802,7 @@ const DemoConfig = () => {
         </div>
         {/* Site da oficina (Pro) */}
         <div hidden={section !== "site"}>
-        <div className="rounded-lg border border-border p-5 lg:col-span-2">
+        <div className="rounded-lg border border-border p-5">
           <div className="mb-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <Globe className="h-4 w-4 text-primary" />
@@ -960,7 +960,7 @@ const DemoConfig = () => {
         {/* Minha equipe (só dono) */}
         {isDono && (
           <div hidden={section !== "equipe"}>
-          <div className="rounded-lg border border-border p-5 lg:col-span-2">
+          <div className="rounded-lg border border-border p-5">
             <div className="mb-4 flex items-center gap-2">
               <Users className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-medium text-foreground">Minha equipe</h3>
