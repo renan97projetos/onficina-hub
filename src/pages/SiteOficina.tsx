@@ -74,7 +74,7 @@ const Template1 = ({ data }: { data: SiteData }) => {
           <p className="mb-2 text-sm font-bold uppercase tracking-widest text-amber-500">
             Funilaria & Pintura
           </p>
-          <h2 className="mb-6 text-3xl font-bold leading-snug md:text-5xl">
+          <h2 className="mb-6 text-xl font-normal leading-snug text-zinc-300 md:text-2xl">
             {oficina.landing_descricao || "Restauração que devolve o brilho do seu carro."}
           </h2>
           <a
