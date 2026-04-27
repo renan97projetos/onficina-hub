@@ -45,7 +45,13 @@ export function getPrazoBadge(prazo: string | null, stage: string) {
   return { label: `${dias}d restantes`, color: "bg-blue-900/30 text-blue-400" };
 }
 
-const DemoOS = () => {
+interface DemoOSProps {
+  initialOsId?: string | null;
+  onConsumeInitialOsId?: () => void;
+  onNavigate?: (key: string, osId?: string) => void;
+}
+
+const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
   const { oficina_id } = useAuth();
   const queryClient = useQueryClient();
   const [activeStage, setActiveStage] = useState("orcamento");
