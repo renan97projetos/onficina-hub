@@ -506,8 +506,6 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
           </tbody>
         </table>
       </div>
-{/* placeholder */}
-{false && (<></>)}
 
       <OrcamentoFormModal open={showForm} onOpenChange={setShowForm} orcamentoId={editingId} />
 
