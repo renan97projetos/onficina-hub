@@ -554,6 +554,29 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             {/* EM_ATENDIMENTO */}
             {os.stage === "em_atendimento" && (
               <div className="space-y-5">
+                {Array.isArray((os as any).pecas) && (os as any).pecas.length > 0 && (
+                  <div>
+                    <h4 className="mb-2 text-sm font-semibold text-foreground">Peças</h4>
+                    <div className="overflow-hidden rounded-xl border border-border">
+                      <div className="grid grid-cols-[60px_1fr_120px] gap-2 bg-muted/40 px-3 py-2 text-xs font-bold text-muted-foreground">
+                        <span>QTD</span>
+                        <span>Descrição</span>
+                        <span className="text-right">Valor</span>
+                      </div>
+                      {((os as any).pecas as any[]).map((p, i) => (
+                        <div key={i} className="grid grid-cols-[60px_1fr_120px] gap-2 border-t border-border px-3 py-2 text-xs">
+                          <span className="text-center">{Number(p.qtd) || 0}</span>
+                          <span>{p.descricao || "—"}</span>
+                          <span className="text-right">
+                            {new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
+                              (Number(p.qtd) || 0) * (Number(p.valor) || 0),
+                            )}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <h4 className="text-sm font-semibold text-foreground">Serviços</h4>
                 {os.os_servicos?.map((srv) => {
                   const etapas = getEtapasSnapshot(srv.etapas_snapshot);
