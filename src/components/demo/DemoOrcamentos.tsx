@@ -260,7 +260,10 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
           oficina_id,
           cliente_id: clienteId,
           veiculo_id: veiculoId,
-          colaborador_id: null,
+          colaborador_id: opts?.colaboradorId || null,
+          prazo_estimado: opts?.prazoEstimado
+            ? new Date(opts.prazoEstimado).toISOString()
+            : null,
           stage: "criado",
           valor_total: valorTotal,
           observacoes: orc.observacao || null,
