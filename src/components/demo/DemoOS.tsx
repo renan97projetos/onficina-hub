@@ -144,7 +144,7 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
           >
             <Plus className="h-4 w-4" /> Novo Orçamento
           </button>
-        ) : (
+        ) : activeStage === "criado" ? (
           <button
             type="button"
             onClick={() => setShowForm(true)}
@@ -152,7 +152,7 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
           >
             <Plus className="h-4 w-4" /> Nova OS
           </button>
-        )}
+        ) : null}
       </div>
 
       {/* Conteúdo: orçamentos na etapa "orcamento", OS nas demais */}
