@@ -503,16 +503,11 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
                 </tr>
               );
             })}
-            {orcamentos.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-3 py-8 text-center text-sm text-muted-foreground">
-                  Nenhum orçamento neste filtro.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
+{/* placeholder */}
+{false && (<></>)}
 
       <OrcamentoFormModal open={showForm} onOpenChange={setShowForm} orcamentoId={editingId} />
 
