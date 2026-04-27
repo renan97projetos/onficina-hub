@@ -332,56 +332,102 @@ const ComboboxAddable = ({
         className="w-[--radix-popover-trigger-width] p-0"
         align="start"
       >
-        <Command shouldFilter>
-          <CommandInput
-            placeholder="Buscar ou digitar novo..."
-            value={search}
-            onValueChange={setSearch}
-          />
-          <CommandList>
-            <CommandEmpty>{emptyText}</CommandEmpty>
-            <CommandGroup>
-              {options.map((opt) => (
-                <CommandItem
-                  key={opt}
-                  value={opt}
-                  onSelect={() => {
-                    onSelect(opt);
-                    setOpen(false);
-                    setSearch("");
-                  }}
-                >
-                  <Check
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      value === opt ? "opacity-100" : "opacity-0",
-                    )}
-                  />
-                  {opt}
-                </CommandItem>
-              ))}
-            </CommandGroup>
-            {trimmed && !exactExists && (
-              <>
-                <CommandSeparator />
-                <CommandGroup heading="Outro">
+        {outroMode ? (
+          <div className="p-3 space-y-2">
+            <label className="block text-xs font-semibold text-foreground">
+              {addLabel}
+            </label>
+            <input
+              autoFocus
+              value={outroValue}
+              onChange={(e) => setOutroValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  confirmOutro();
+                } else if (e.key === "Escape") {
+                  setOutroMode(false);
+                }
+              }}
+              placeholder="Digite aqui..."
+              className="w-full rounded-md border border-border bg-background px-2 py-1.5 text-sm outline-none focus:border-primary"
+            />
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                onClick={() => setOutroMode(false)}
+                className="rounded-md border border-border px-2 py-1 text-xs hover:bg-muted"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={confirmOutro}
+                disabled={!outroValue.trim()}
+                className="rounded-md bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                Adicionar
+              </button>
+            </div>
+          </div>
+        ) : (
+          <Command shouldFilter>
+            <CommandInput
+              placeholder="Buscar ou digitar novo..."
+              value={search}
+              onValueChange={setSearch}
+            />
+            <CommandList>
+              <CommandEmpty>{emptyText}</CommandEmpty>
+              <CommandGroup>
+                {options.map((opt) => (
+                  <CommandItem
+                    key={opt}
+                    value={opt}
+                    onSelect={() => {
+                      onSelect(opt);
+                      resetAndClose();
+                    }}
+                  >
+                    <Check
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        value === opt ? "opacity-100" : "opacity-0",
+                      )}
+                    />
+                    {opt}
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+              <CommandSeparator />
+              <CommandGroup heading="Outro">
+                {trimmed && !exactExists && (
                   <CommandItem
                     value={`__add__${trimmed}`}
                     onSelect={() => {
                       onAdd(trimmed);
-                      setOpen(false);
-                      setSearch("");
+                      resetAndClose();
                     }}
                   >
                     <Plus className="mr-2 h-4 w-4" />
                     {addLabel}{" "}
                     <span className="ml-1 font-semibold">{trimmed}</span>
                   </CommandItem>
-                </CommandGroup>
-              </>
-            )}
-          </CommandList>
-        </Command>
+                )}
+                <CommandItem
+                  value="__outro_manual__"
+                  onSelect={() => {
+                    setOutroValue(trimmed);
+                    setOutroMode(true);
+                  }}
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  Outro (digitar manualmente)
+                </CommandItem>
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        )}
       </PopoverContent>
     </Popover>
   );
