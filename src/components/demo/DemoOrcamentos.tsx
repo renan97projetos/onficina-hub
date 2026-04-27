@@ -410,7 +410,13 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
             </tr>
           </thead>
           <tbody>
-            {orcamentos.map((o: any) => {
+            {orcamentosFiltrados.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-3 py-10 text-center text-sm text-muted-foreground">
+                  Nenhum orçamento neste filtro.
+                </td>
+              </tr>
+            ) : orcamentosFiltrados.map((o: any) => {
               const st = STATUS_LABELS[o.status] || STATUS_LABELS.rascunho;
               return (
                 <tr key={o.id} className="border-t border-border hover:bg-muted/20">
