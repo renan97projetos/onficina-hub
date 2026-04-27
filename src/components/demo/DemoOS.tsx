@@ -88,6 +88,17 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
     return () => { supabase.removeChannel(channel); };
   }, [oficina_id, queryClient]);
 
+  // Quando navegamos para OS com um id (vindo da conversão de orçamento),
+  // abre o sheet daquela OS automaticamente e muda para o stage correto.
+  useEffect(() => {
+    if (!initialOsId || ordens.length === 0) return;
+    const found = ordens.find((o) => o.id === initialOsId);
+    if (!found) return;
+    setActiveStage(found.stage);
+    setSelectedOS(found.id);
+    onConsumeInitialOsId?.();
+  }, [initialOsId, ordens, onConsumeInitialOsId]);
+
   const counts = STAGES.map((stage) => ({
     ...stage,
     count: ordens.filter((os) => os.stage === stage.key).length,
