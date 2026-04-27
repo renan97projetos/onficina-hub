@@ -20,6 +20,14 @@ import OrcamentoFormModal from "./OrcamentoFormModal";
 import EmptyModuleState from "./EmptyModuleState";
 import { downloadOrcamentoPdf } from "@/lib/orcamentoPdf";
 import { publicUrl } from "@/lib/publicUrl";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
   rascunho: { label: "Rascunho", cls: "bg-muted text-muted-foreground" },
@@ -33,8 +41,15 @@ const brl = (n: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n || 0);
 
 interface DemoOrcamentosProps {
-  onNavigate?: (key: string) => void;
+  onNavigate?: (key: string, osId?: string) => void;
   embedded?: boolean;
+}
+
+function defaultPrazo() {
+  const d = new Date();
+  d.setDate(d.getDate() + 3);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 16);
 }
 
 const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = {}) => {
@@ -44,6 +59,23 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("todos");
   const [creatingOsId, setCreatingOsId] = useState<string | null>(null);
+  const [convertOrc, setConvertOrc] = useState<any | null>(null);
+  const [convertColaboradorId, setConvertColaboradorId] = useState<string>("");
+  const [convertPrazo, setConvertPrazo] = useState<string>(defaultPrazo());
+
+  const { data: colaboradoresAtivos } = useQuery({
+    queryKey: ["colaboradores-ativos", oficina_id],
+    enabled: !!oficina_id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("colaboradores")
+        .select("id, nome, funcao")
+        .eq("ativo", true)
+        .eq("oficina_id", oficina_id!)
+        .order("nome");
+      return data || [];
+    },
+  });
 
   const { data: oficina } = useQuery({
     queryKey: ["oficina-pdf-meta", oficina_id],
@@ -153,7 +185,10 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
     toast.success("Link copiado!");
   }
 
-  async function handleCriarOS(orc: any) {
+  async function handleCriarOS(
+    orc: any,
+    opts?: { colaboradorId?: string | null; prazoEstimado?: string | null },
+  ) {
     if (!oficina_id) return;
     setCreatingOsId(orc.id);
     try {
@@ -225,7 +260,10 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
           oficina_id,
           cliente_id: clienteId,
           veiculo_id: veiculoId,
-          colaborador_id: null,
+          colaborador_id: opts?.colaboradorId || null,
+          prazo_estimado: opts?.prazoEstimado
+            ? new Date(opts.prazoEstimado).toISOString()
+            : null,
           stage: "criado",
           valor_total: valorTotal,
           observacoes: orc.observacao || null,
@@ -271,7 +309,8 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
 
       toast.success("OS criada com peças e serviços do orçamento!");
       qc.invalidateQueries({ queryKey: ["ordens_servico"] });
-      onNavigate?.("os");
+      qc.invalidateQueries({ queryKey: ["orcamentos"] });
+      onNavigate?.("os", osCriada?.id);
     } catch (e: any) {
       console.error(e);
       toast.error(e?.message || "Erro ao criar OS.");
@@ -414,16 +453,20 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
                         <button
                           type="button"
                           disabled={creatingOsId === o.id}
-                          onClick={() => handleCriarOS(o)}
+                          onClick={() => {
+                            setConvertColaboradorId("");
+                            setConvertPrazo(defaultPrazo());
+                            setConvertOrc(o);
+                          }}
                           className="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2 py-1 text-xs font-semibold text-emerald-400 transition-colors hover:bg-emerald-500/20 disabled:opacity-50"
-                          title="Criar OS a partir deste orçamento"
+                          title="Cria uma OS com todos os dados deste orçamento"
                         >
                           {creatingOsId === o.id ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
                           ) : (
                             <Wrench className="h-3.5 w-3.5" />
                           )}
-                          Criar OS
+                          Converter em OS →
                         </button>
                       )}
                       {o.status === "recusado" && (
@@ -463,6 +506,103 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
       </div>
 
       <OrcamentoFormModal open={showForm} onOpenChange={setShowForm} orcamentoId={editingId} />
+
+      <Dialog open={!!convertOrc} onOpenChange={(o) => !o && setConvertOrc(null)}>
+        <DialogContent className="max-w-md">
+          {convertOrc && (() => {
+            const servicosArr: any[] = Array.isArray(convertOrc.servicos) ? convertOrc.servicos : [];
+            const tituloVeic = [convertOrc.marca, convertOrc.modelo].filter(Boolean).join(" ") || "Veículo";
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle>
+                    Criar OS — {tituloVeic}
+                    {convertOrc.placa ? ` · ${convertOrc.placa}` : ""}
+                  </DialogTitle>
+                  <DialogDescription>
+                    Defina o técnico e prazo. Cliente, peças e serviços serão copiados automaticamente.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4 py-2">
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Técnico responsável
+                    </label>
+                    <select
+                      value={convertColaboradorId}
+                      onChange={(e) => setConvertColaboradorId(e.target.value)}
+                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                    >
+                      <option value="">Definir depois</option>
+                      {(colaboradoresAtivos || []).map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.nome}{c.funcao ? ` — ${c.funcao}` : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Prazo estimado
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={convertPrazo}
+                      onChange={(e) => setConvertPrazo(e.target.value)}
+                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                    />
+                  </div>
+
+                  <div className="rounded-md border border-border bg-muted/20 p-3 text-xs space-y-1">
+                    <div>
+                      <span className="font-semibold text-muted-foreground">Cliente: </span>
+                      {convertOrc.nome_cliente}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-muted-foreground">Serviços: </span>
+                      {servicosArr.length > 0
+                        ? servicosArr.map((s) => s.nome).filter(Boolean).join(", ")
+                        : "Nenhum"}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-muted-foreground">Valor total: </span>
+                      <span className="font-semibold text-foreground">{brl(Number(convertOrc.total_geral))}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <button
+                    type="button"
+                    onClick={() => setConvertOrc(null)}
+                    className="rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-muted"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    disabled={creatingOsId === convertOrc.id}
+                    onClick={async () => {
+                      const orc = convertOrc;
+                      setConvertOrc(null);
+                      await handleCriarOS(orc, {
+                        colaboradorId: convertColaboradorId || null,
+                        prazoEstimado: convertPrazo || null,
+                      });
+                    }}
+                    className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
+                  >
+                    {creatingOsId === convertOrc.id && <Loader2 className="h-4 w-4 animate-spin" />}
+                    Confirmar e criar OS
+                  </button>
+                </DialogFooter>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

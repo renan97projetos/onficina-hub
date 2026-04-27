@@ -45,7 +45,13 @@ export function getPrazoBadge(prazo: string | null, stage: string) {
   return { label: `${dias}d restantes`, color: "bg-blue-900/30 text-blue-400" };
 }
 
-const DemoOS = () => {
+interface DemoOSProps {
+  initialOsId?: string | null;
+  onConsumeInitialOsId?: () => void;
+  onNavigate?: (key: string, osId?: string) => void;
+}
+
+const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
   const { oficina_id } = useAuth();
   const queryClient = useQueryClient();
   const [activeStage, setActiveStage] = useState("orcamento");
@@ -81,6 +87,17 @@ const DemoOS = () => {
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [oficina_id, queryClient]);
+
+  // Quando navegamos para OS com um id (vindo da conversão de orçamento),
+  // abre o sheet daquela OS automaticamente e muda para o stage correto.
+  useEffect(() => {
+    if (!initialOsId || ordens.length === 0) return;
+    const found = ordens.find((o) => o.id === initialOsId);
+    if (!found) return;
+    setActiveStage(found.stage);
+    setSelectedOS(found.id);
+    onConsumeInitialOsId?.();
+  }, [initialOsId, ordens, onConsumeInitialOsId]);
 
   const counts = STAGES.map((stage) => ({
     ...stage,
@@ -140,7 +157,17 @@ const DemoOS = () => {
 
       {/* Conteúdo: orçamentos na etapa "orcamento", OS nas demais */}
       {activeStage === "orcamento" ? (
-        <DemoOrcamentos embedded />
+        <DemoOrcamentos
+          embedded
+          onNavigate={(_key, osId) => {
+            if (osId) {
+              // Já estamos no DemoOS — apenas troca de stage e abre o sheet.
+              const found = ordens.find((o) => o.id === osId);
+              setActiveStage(found?.stage || "criado");
+              setSelectedOS(osId);
+            }
+          }}
+        />
       ) : filtered.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border bg-card/50 px-6 py-12 text-center">
           <p className="text-sm text-muted-foreground">Nenhuma OS nesta etapa.</p>

@@ -15,7 +15,7 @@ import DemoPatio from "@/components/demo/DemoPatio";
 import DemoAnalytics from "@/components/demo/DemoAnalytics";
 import OnboardingChecklist from "@/components/demo/OnboardingChecklist";
 
-const pages: Record<string, React.ComponentType> = {
+const pages: Record<string, React.ComponentType<any>> = {
   os: DemoOS,
   clientes: DemoClientes,
   servicos: DemoServicos,
@@ -35,18 +35,31 @@ const OPERADOR_BLOCKED = new Set(["financeiro", "config"]);
 const Admin = () => {
   const { isDono } = useAuth();
   const [activeKey, setActiveKey] = useState("os");
+  const [pendingOsId, setPendingOsId] = useState<string | null>(null);
 
-  // Bloqueio defensivo: se operador tentar acessar página restrita, redireciona
   const safeKey = !isDono && OPERADOR_BLOCKED.has(activeKey) ? "os" : activeKey;
   const Page = pages[safeKey] || DemoOS;
 
+  const handleNavigate = (key: string, osId?: string) => {
+    setActiveKey(key);
+    if (osId) setPendingOsId(osId);
+  };
+
+  const pageProps =
+    safeKey === "os"
+      ? {
+          initialOsId: pendingOsId,
+          onConsumeInitialOsId: () => setPendingOsId(null),
+          onNavigate: handleNavigate,
+        }
+      : { onNavigate: handleNavigate };
+
   return (
-    <DemoLayout activeKey={safeKey} onNavigate={setActiveKey}>
+    <DemoLayout activeKey={safeKey} onNavigate={handleNavigate}>
       {isDono && <OnboardingChecklist onNavigate={setActiveKey} />}
-      <Page />
+      <Page {...pageProps} />
     </DemoLayout>
   );
 };
 
 export default Admin;
-
