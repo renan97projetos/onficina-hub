@@ -157,7 +157,17 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
 
       {/* Conteúdo: orçamentos na etapa "orcamento", OS nas demais */}
       {activeStage === "orcamento" ? (
-        <DemoOrcamentos embedded />
+        <DemoOrcamentos
+          embedded
+          onNavigate={(_key, osId) => {
+            if (osId) {
+              // Já estamos no DemoOS — apenas troca de stage e abre o sheet.
+              const found = ordens.find((o) => o.id === osId);
+              setActiveStage(found?.stage || "criado");
+              setSelectedOS(osId);
+            }
+          }}
+        />
       ) : filtered.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border bg-card/50 px-6 py-12 text-center">
           <p className="text-sm text-muted-foreground">Nenhuma OS nesta etapa.</p>
