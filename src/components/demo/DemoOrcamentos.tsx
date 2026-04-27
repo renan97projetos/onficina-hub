@@ -41,8 +41,15 @@ const brl = (n: number) =>
   new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n || 0);
 
 interface DemoOrcamentosProps {
-  onNavigate?: (key: string) => void;
+  onNavigate?: (key: string, osId?: string) => void;
   embedded?: boolean;
+}
+
+function defaultPrazo() {
+  const d = new Date();
+  d.setDate(d.getDate() + 3);
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  return d.toISOString().slice(0, 16);
 }
 
 const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = {}) => {
@@ -52,6 +59,23 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>("todos");
   const [creatingOsId, setCreatingOsId] = useState<string | null>(null);
+  const [convertOrc, setConvertOrc] = useState<any | null>(null);
+  const [convertColaboradorId, setConvertColaboradorId] = useState<string>("");
+  const [convertPrazo, setConvertPrazo] = useState<string>(defaultPrazo());
+
+  const { data: colaboradoresAtivos } = useQuery({
+    queryKey: ["colaboradores-ativos", oficina_id],
+    enabled: !!oficina_id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("colaboradores")
+        .select("id, nome, funcao")
+        .eq("ativo", true)
+        .eq("oficina_id", oficina_id!)
+        .order("nome");
+      return data || [];
+    },
+  });
 
   const { data: oficina } = useQuery({
     queryKey: ["oficina-pdf-meta", oficina_id],
