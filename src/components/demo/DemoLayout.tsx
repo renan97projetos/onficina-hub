@@ -41,7 +41,7 @@ const PRO_PLANS = ["pro", "trial"];
 
 interface DemoLayoutProps {
   activeKey: string;
-  onNavigate: (key: string) => void;
+  onNavigate: (key: string, osId?: string) => void;
   children: React.ReactNode;
 }
 
