@@ -309,7 +309,8 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
 
       toast.success("OS criada com peças e serviços do orçamento!");
       qc.invalidateQueries({ queryKey: ["ordens_servico"] });
-      onNavigate?.("os");
+      qc.invalidateQueries({ queryKey: ["orcamentos"] });
+      onNavigate?.("os", osCriada?.id);
     } catch (e: any) {
       console.error(e);
       toast.error(e?.message || "Erro ao criar OS.");
