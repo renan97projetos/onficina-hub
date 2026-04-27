@@ -488,11 +488,13 @@ export type Database = {
           motivo_recusa: string | null
           nome_cliente: string
           numero: number
+          observacao: string | null
           oficina_id: string
           os_id: string | null
           pecas: Json
           placa: string | null
           recusado_em: string | null
+          servicos: Json
           status: string
           telefone_cliente: string | null
           tipo_veiculo: string | null
@@ -516,11 +518,13 @@ export type Database = {
           motivo_recusa?: string | null
           nome_cliente: string
           numero?: number
+          observacao?: string | null
           oficina_id: string
           os_id?: string | null
           pecas?: Json
           placa?: string | null
           recusado_em?: string | null
+          servicos?: Json
           status?: string
           telefone_cliente?: string | null
           tipo_veiculo?: string | null
@@ -544,11 +548,13 @@ export type Database = {
           motivo_recusa?: string | null
           nome_cliente?: string
           numero?: number
+          observacao?: string | null
           oficina_id?: string
           os_id?: string | null
           pecas?: Json
           placa?: string | null
           recusado_em?: string | null
+          servicos?: Json
           status?: string
           telefone_cliente?: string | null
           tipo_veiculo?: string | null
@@ -578,6 +584,7 @@ export type Database = {
           pagamento_confirmado: boolean | null
           pagamento_confirmado_em: string | null
           pagamento_forma: string | null
+          pecas: Json
           prazo_estimado: string | null
           prazo_horas_calculado: number | null
           stage: string
@@ -603,6 +610,7 @@ export type Database = {
           pagamento_confirmado?: boolean | null
           pagamento_confirmado_em?: string | null
           pagamento_forma?: string | null
+          pecas?: Json
           prazo_estimado?: string | null
           prazo_horas_calculado?: number | null
           stage?: string
@@ -628,6 +636,7 @@ export type Database = {
           pagamento_confirmado?: boolean | null
           pagamento_confirmado_em?: string | null
           pagamento_forma?: string | null
+          pecas?: Json
           prazo_estimado?: string | null
           prazo_horas_calculado?: number | null
           stage?: string

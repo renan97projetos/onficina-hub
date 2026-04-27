@@ -205,28 +205,72 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
         }
       }
 
-      const totalPecas = Array.isArray(orc.pecas)
-        ? orc.pecas.reduce(
-            (s: number, p: any) =>
-              s + (Number(p.subtotal) || (Number(p.quantidade) || 0) * (Number(p.preco_unitario) || 0)),
-            0,
-          )
-        : Number(orc.total_pecas) || 0;
-      const valorTotal = (Number(orc.mao_obra_valor) || 0) + totalPecas;
+      const pecasArr = Array.isArray(orc.pecas) ? orc.pecas : [];
+      const pecasNorm = pecasArr.map((p: any) => ({
+        qtd: Number(p.qtd ?? p.quantidade) || 0,
+        descricao: p.descricao || "",
+        valor: Number(p.valor ?? p.preco_unitario) || 0,
+      }));
+      const totalPecas = pecasNorm.reduce(
+        (s: number, p: any) => s + (Number(p.qtd) || 0) * (Number(p.valor) || 0),
+        0,
+      );
+      const servicosArr: any[] = Array.isArray(orc.servicos) ? orc.servicos : [];
+      const totalServicos = servicosArr.reduce((s, sv) => s + (Number(sv.valor) || 0), 0);
+      const valorTotal = totalServicos + totalPecas;
 
-      const { error } = await supabase.from("ordens_servico").insert({
-        oficina_id,
-        cliente_id: clienteId,
-        veiculo_id: veiculoId,
-        colaborador_id: null,
-        stage: "criado",
-        valor_total: valorTotal,
-        observacoes: orc.mao_obra_descricao || null,
-      });
+      const { data: osCriada, error } = await supabase
+        .from("ordens_servico")
+        .insert({
+          oficina_id,
+          cliente_id: clienteId,
+          veiculo_id: veiculoId,
+          colaborador_id: null,
+          stage: "criado",
+          valor_total: valorTotal,
+          observacoes: orc.observacao || null,
+          pecas: pecasNorm,
+        } as any)
+        .select("id")
+        .single();
       if (error) throw error;
 
-      toast.success("OS criada com sucesso!");
-      qc.invalidateQueries({ queryKey: ["ordens-servico"] });
+      // Copia serviços do orçamento para a OS
+      if (osCriada && servicosArr.length > 0) {
+        const servicoIds = servicosArr.map((s) => s.servico_id).filter(Boolean);
+        let etapasMap: Record<string, any> = {};
+        if (servicoIds.length > 0) {
+          const { data: cat } = await supabase
+            .from("servicos_catalogo")
+            .select("id, etapas")
+            .in("id", servicoIds);
+          (cat || []).forEach((c: any) => { etapasMap[c.id] = c.etapas || []; });
+        }
+        const rows = servicosArr
+          .filter((s) => s.servico_id)
+          .map((s) => ({
+            os_id: osCriada.id,
+            servico_id: s.servico_id,
+            nome_servico: s.nome || "",
+            valor: Number(s.valor) || 0,
+            etapas_snapshot: etapasMap[s.servico_id] || [],
+          }));
+        if (rows.length > 0) {
+          await supabase.from("os_servicos").insert(rows);
+        }
+      }
+
+      // Marca movimentação inicial
+      if (osCriada) {
+        await supabase.from("os_movimentacoes").insert({
+          os_id: osCriada.id,
+          stage_novo: "criado",
+          descricao: "OS criada a partir do orçamento aprovado",
+        });
+      }
+
+      toast.success("OS criada com peças e serviços do orçamento!");
+      qc.invalidateQueries({ queryKey: ["ordens_servico"] });
       onNavigate?.("os");
     } catch (e: any) {
       console.error(e);

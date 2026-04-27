@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Trash2, Save, Loader2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -11,6 +13,12 @@ import type { TipoVeiculo } from "@/data/veiculosCatalogo";
 interface Peca {
   qtd: number;
   descricao: string;
+  valor: number;
+}
+
+interface ServicoSel {
+  servico_id: string;
+  nome: string;
   valor: number;
 }
 
@@ -39,9 +47,19 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
     ano: "",
   });
   const [pecas, setPecas] = useState<Peca[]>([]);
-  const [maoObraDesc, setMaoObraDesc] = useState("");
-  const [maoObraValor, setMaoObraValor] = useState<number>(0);
+  const [servicosSel, setServicosSel] = useState<Record<string, number>>({}); // servico_id -> valor
+  const [observacao, setObservacao] = useState("");
   const [saving, setSaving] = useState(false);
+
+  // Catálogo de serviços
+  const { data: servicosCatalogo = [] } = useQuery({
+    queryKey: ["servicos_catalogo", oficina_id],
+    enabled: open && !!oficina_id,
+    queryFn: async () => {
+      const { data } = await supabase.from("servicos_catalogo").select("*").order("nome");
+      return data || [];
+    },
+  });
 
   // Load existing
   const { data: existing } = useQuery({
@@ -68,8 +86,13 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
         ano: (existing as any).ano ? String((existing as any).ano) : "",
       });
       setPecas(Array.isArray(existing.pecas) ? (existing.pecas as unknown as Peca[]) : []);
-      setMaoObraDesc(existing.mao_obra_descricao || "");
-      setMaoObraValor(Number(existing.mao_obra_valor) || 0);
+      const svs = Array.isArray((existing as any).servicos)
+        ? ((existing as any).servicos as ServicoSel[])
+        : [];
+      const map: Record<string, number> = {};
+      svs.forEach((s) => { if (s.servico_id) map[s.servico_id] = Number(s.valor) || 0; });
+      setServicosSel(map);
+      setObservacao((existing as any).observacao || "");
     } else if (!orcamentoId) {
       setNome("");
       setTelefone("");
@@ -77,13 +100,14 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
       setPlaca("");
       setVeiculo({ tipo: "", marca: "", modelo: "", versao: "", ano: "" });
       setPecas([]);
-      setMaoObraDesc("");
-      setMaoObraValor(0);
+      setServicosSel({});
+      setObservacao("");
     }
   }, [open, orcamentoId, existing]);
 
   const totalPecas = pecas.reduce((s, p) => s + (Number(p.qtd) || 0) * (Number(p.valor) || 0), 0);
-  const totalGeral = totalPecas + (Number(maoObraValor) || 0);
+  const totalServicos = Object.values(servicosSel).reduce((s, v) => s + (Number(v) || 0), 0);
+  const totalGeral = totalPecas + totalServicos;
 
   function addPeca() {
     setPecas((prev) => [...prev, { qtd: 1, descricao: "", valor: 0 }]);
@@ -95,6 +119,15 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
     setPecas((prev) => prev.filter((_, i) => i !== idx));
   }
 
+  function toggleServico(id: string, precoBase: number) {
+    setServicosSel((prev) => {
+      const next = { ...prev };
+      if (next[id] !== undefined) delete next[id];
+      else next[id] = precoBase;
+      return next;
+    });
+  }
+
   async function salvar() {
     if (!oficina_id) return;
     if (!nome.trim()) {
@@ -102,6 +135,12 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
       return;
     }
     setSaving(true);
+
+    const servicosPayload: ServicoSel[] = Object.entries(servicosSel).map(([sid, valor]) => {
+      const srv = servicosCatalogo.find((s) => s.id === sid);
+      return { servico_id: sid, nome: srv?.nome || "", valor: Number(valor) || 0 };
+    });
+
     const payload = {
       oficina_id,
       nome_cliente: nome.trim(),
@@ -118,15 +157,18 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
         descricao: p.descricao,
         valor: Number(p.valor) || 0,
       })),
-      mao_obra_descricao: maoObraDesc.trim() || null,
-      mao_obra_valor: Number(maoObraValor) || 0,
+      servicos: servicosPayload,
+      observacao: observacao.trim() || null,
+      // Mantém compat com PDF/legado
+      mao_obra_descricao: servicosPayload.map((s) => s.nome).filter(Boolean).join(", ") || null,
+      mao_obra_valor: totalServicos,
       total_pecas: totalPecas,
       total_geral: totalGeral,
     };
 
     const res = orcamentoId
-      ? await supabase.from("orcamentos").update(payload).eq("id", orcamentoId)
-      : await supabase.from("orcamentos").insert(payload);
+      ? await supabase.from("orcamentos").update(payload as any).eq("id", orcamentoId)
+      : await supabase.from("orcamentos").insert(payload as any);
 
     setSaving(false);
     if (res.error) {
@@ -254,27 +296,70 @@ const OrcamentoFormModal = ({ open, onOpenChange, orcamentoId }: OrcamentoFormMo
           </div>
         </div>
 
-        {/* Mão de obra */}
+        {/* Serviços (catálogo) */}
         <div className="mt-4">
-          <h4 className="mb-2 text-sm font-bold">Mão de Obra</h4>
+          <h4 className="mb-2 text-sm font-bold">Serviços</h4>
+          {servicosCatalogo.length === 0 ? (
+            <p className="rounded-lg border border-dashed border-border bg-card/40 px-3 py-4 text-xs text-muted-foreground">
+              Nenhum serviço cadastrado. Cadastre no módulo Serviços primeiro.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {servicosCatalogo.map((srv) => {
+                const selected = servicosSel[srv.id] !== undefined;
+                return (
+                  <div
+                    key={srv.id}
+                    className={`flex items-center gap-3 rounded-lg border p-3 transition-colors ${
+                      selected ? "border-primary bg-primary/5" : "border-border"
+                    }`}
+                  >
+                    <Checkbox
+                      checked={selected}
+                      onCheckedChange={() => toggleServico(srv.id, Number(srv.preco_base) || 0)}
+                    />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">{srv.nome}</p>
+                      {srv.tempo_medio_horas && (
+                        <p className="text-xs text-muted-foreground">~{srv.tempo_medio_horas}h estimadas</p>
+                      )}
+                    </div>
+                    {selected ? (
+                      <Input
+                        type="number"
+                        step="0.01"
+                        value={servicosSel[srv.id]}
+                        className="w-28 text-right"
+                        onChange={(e) =>
+                          setServicosSel((p) => ({ ...p, [srv.id]: parseFloat(e.target.value) || 0 }))
+                        }
+                      />
+                    ) : (
+                      <span className="text-sm text-muted-foreground">
+                        {Number(srv.preco_base) > 0 ? brl(Number(srv.preco_base)) : "Definir valor"}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+              <div className="flex items-center justify-between rounded-lg bg-muted/40 px-3 py-2 text-sm font-bold">
+                <span>Total Serviços:</span>
+                <span>{brl(totalServicos)}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Observação */}
+        <div className="mt-4">
+          <h4 className="mb-2 text-sm font-bold">Observação</h4>
           <textarea
-            value={maoObraDesc}
-            onChange={(e) => setMaoObraDesc(e.target.value)}
-            placeholder="Descrição dos serviços realizados..."
+            value={observacao}
+            onChange={(e) => setObservacao(e.target.value)}
+            placeholder="Observações sobre o orçamento (opcional)..."
             rows={3}
             className="input-base resize-none"
           />
-          <div className="mt-2 flex items-center justify-end gap-2">
-            <span className="text-sm font-semibold">Total Mão de Obra (R$):</span>
-            <input
-              type="number"
-              step="0.01"
-              min="0"
-              value={maoObraValor}
-              onChange={(e) => setMaoObraValor(Number(e.target.value))}
-              className="input-base w-32 text-right"
-            />
-          </div>
         </div>
 
         {/* Total geral */}
