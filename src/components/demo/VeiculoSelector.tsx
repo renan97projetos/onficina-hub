@@ -290,10 +290,26 @@ const ComboboxAddable = ({
 }: ComboboxAddableProps) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [outroMode, setOutroMode] = useState(false);
+  const [outroValue, setOutroValue] = useState("");
 
   const trimmed = search.trim();
   const exactExists =
     trimmed && options.some((o) => o.toLowerCase() === trimmed.toLowerCase());
+
+  function resetAndClose() {
+    setOpen(false);
+    setSearch("");
+    setOutroMode(false);
+    setOutroValue("");
+  }
+
+  function confirmOutro() {
+    const v = outroValue.trim();
+    if (!v) return;
+    onAdd(v);
+    resetAndClose();
+  }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
