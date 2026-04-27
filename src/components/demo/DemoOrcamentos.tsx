@@ -91,19 +91,22 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
   });
 
   const { data: orcamentos, isLoading } = useQuery({
-    queryKey: ["orcamentos", oficina_id, filterStatus],
+    queryKey: ["orcamentos", oficina_id],
     enabled: !!oficina_id,
     queryFn: async () => {
-      let q = supabase
+      const { data } = await supabase
         .from("orcamentos")
         .select("*")
         .eq("oficina_id", oficina_id!)
         .order("created_at", { ascending: false });
-      if (filterStatus !== "todos") q = q.eq("status", filterStatus);
-      const { data } = await q;
       return data || [];
     },
   });
+
+  const orcamentosFiltrados =
+    filterStatus === "todos"
+      ? orcamentos || []
+      : (orcamentos || []).filter((o: any) => o.status === filterStatus);
 
   function openNew() {
     setEditingId(null);
@@ -407,7 +410,13 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
             </tr>
           </thead>
           <tbody>
-            {orcamentos.map((o: any) => {
+            {orcamentosFiltrados.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-3 py-10 text-center text-sm text-muted-foreground">
+                  Nenhum orçamento neste filtro.
+                </td>
+              </tr>
+            ) : orcamentosFiltrados.map((o: any) => {
               const st = STATUS_LABELS[o.status] || STATUS_LABELS.rascunho;
               return (
                 <tr key={o.id} className="border-t border-border hover:bg-muted/20">
@@ -494,13 +503,6 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
                 </tr>
               );
             })}
-            {orcamentos.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-3 py-8 text-center text-sm text-muted-foreground">
-                  Nenhum orçamento neste filtro.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
