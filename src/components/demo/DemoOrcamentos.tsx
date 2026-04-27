@@ -506,6 +506,103 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
       </div>
 
       <OrcamentoFormModal open={showForm} onOpenChange={setShowForm} orcamentoId={editingId} />
+
+      <Dialog open={!!convertOrc} onOpenChange={(o) => !o && setConvertOrc(null)}>
+        <DialogContent className="max-w-md">
+          {convertOrc && (() => {
+            const servicosArr: any[] = Array.isArray(convertOrc.servicos) ? convertOrc.servicos : [];
+            const tituloVeic = [convertOrc.marca, convertOrc.modelo].filter(Boolean).join(" ") || "Veículo";
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle>
+                    Criar OS — {tituloVeic}
+                    {convertOrc.placa ? ` · ${convertOrc.placa}` : ""}
+                  </DialogTitle>
+                  <DialogDescription>
+                    Defina o técnico e prazo. Cliente, peças e serviços serão copiados automaticamente.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="space-y-4 py-2">
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Técnico responsável
+                    </label>
+                    <select
+                      value={convertColaboradorId}
+                      onChange={(e) => setConvertColaboradorId(e.target.value)}
+                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                    >
+                      <option value="">Definir depois</option>
+                      {(colaboradoresAtivos || []).map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.nome}{c.funcao ? ` — ${c.funcao}` : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="mb-1 block text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Prazo estimado
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={convertPrazo}
+                      onChange={(e) => setConvertPrazo(e.target.value)}
+                      className="w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
+                    />
+                  </div>
+
+                  <div className="rounded-md border border-border bg-muted/20 p-3 text-xs space-y-1">
+                    <div>
+                      <span className="font-semibold text-muted-foreground">Cliente: </span>
+                      {convertOrc.nome_cliente}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-muted-foreground">Serviços: </span>
+                      {servicosArr.length > 0
+                        ? servicosArr.map((s) => s.nome).filter(Boolean).join(", ")
+                        : "Nenhum"}
+                    </div>
+                    <div>
+                      <span className="font-semibold text-muted-foreground">Valor total: </span>
+                      <span className="font-semibold text-foreground">{brl(Number(convertOrc.total_geral))}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <DialogFooter>
+                  <button
+                    type="button"
+                    onClick={() => setConvertOrc(null)}
+                    className="rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-muted"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    disabled={creatingOsId === convertOrc.id}
+                    onClick={async () => {
+                      const orc = convertOrc;
+                      setConvertOrc(null);
+                      await handleCriarOS(orc, {
+                        colaboradorId: convertColaboradorId || null,
+                        prazoEstimado: convertPrazo || null,
+                      });
+                    }}
+                    className="inline-flex items-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:opacity-50"
+                  >
+                    {creatingOsId === convertOrc.id && <Loader2 className="h-4 w-4 animate-spin" />}
+                    Confirmar e criar OS
+                  </button>
+                </DialogFooter>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
