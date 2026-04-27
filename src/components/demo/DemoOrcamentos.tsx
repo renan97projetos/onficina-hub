@@ -185,7 +185,10 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
     toast.success("Link copiado!");
   }
 
-  async function handleCriarOS(orc: any) {
+  async function handleCriarOS(
+    orc: any,
+    opts?: { colaboradorId?: string | null; prazoEstimado?: string | null },
+  ) {
     if (!oficina_id) return;
     setCreatingOsId(orc.id);
     try {
