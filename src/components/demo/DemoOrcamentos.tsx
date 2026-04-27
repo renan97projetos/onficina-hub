@@ -91,19 +91,22 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
   });
 
   const { data: orcamentos, isLoading } = useQuery({
-    queryKey: ["orcamentos", oficina_id, filterStatus],
+    queryKey: ["orcamentos", oficina_id],
     enabled: !!oficina_id,
     queryFn: async () => {
-      let q = supabase
+      const { data } = await supabase
         .from("orcamentos")
         .select("*")
         .eq("oficina_id", oficina_id!)
         .order("created_at", { ascending: false });
-      if (filterStatus !== "todos") q = q.eq("status", filterStatus);
-      const { data } = await q;
       return data || [];
     },
   });
+
+  const orcamentosFiltrados =
+    filterStatus === "todos"
+      ? orcamentos || []
+      : (orcamentos || []).filter((o: any) => o.status === filterStatus);
 
   function openNew() {
     setEditingId(null);
