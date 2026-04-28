@@ -3,7 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe, Users, UserPlus, Trash2, MessageCircle, Info, Building2, User as UserIcon, CreditCard, Bell, ChevronRight, Settings as SettingsIcon } from "lucide-react";
+import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe, Users, UserPlus, Trash2, MessageCircle, Info, Building2, User as UserIcon, CreditCard, Bell, ChevronRight, Settings as SettingsIcon, Check, Lock, Sparkles, ArrowUpRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { publicUrl, getPublicBaseUrl } from "@/lib/publicUrl";
 import {
