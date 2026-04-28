@@ -12,17 +12,19 @@ import DemoOrcamentos from "./DemoOrcamentos";
 import OrcamentoFormModal from "./OrcamentoFormModal";
 import type { Tables } from "@/integrations/supabase/types";
 
-const STAGES = [
+const ALL_STAGES = [
   { key: "orcamento",        label: "Orçamento criado",   cor: "#D97706" },
   { key: "criado",           label: "OS criada",          cor: "#888780" },
-  { key: "alocado_patio",    label: "Alocado no pátio",   cor: "#7F77DD" },
-  { key: "aguardando_carro", label: "Aguardando entrada", cor: "#BA7517" },
+  { key: "alocado_patio",    label: "Alocado no pátio",   cor: "#7F77DD", proOnly: true },
+  { key: "aguardando_carro", label: "Aguardando entrada", cor: "#BA7517", proOnly: true },
   { key: "em_atendimento",   label: "Em atendimento",     cor: "#185FA5" },
   { key: "pagamento",        label: "Pagamento",          cor: "#534AB7" },
   { key: "entrega",          label: "Entrega do veículo", cor: "#1D9E75" },
   { key: "finalizado",       label: "Finalizado",         cor: "#0F6E56" },
   { key: "recusado",         label: "Recusado",           cor: "#A32D2D" },
 ];
+
+const PRO_PLANS = ["pro", "trial"];
 
 export type OSWithRelations = Tables<"ordens_servico"> & {
   clientes: Tables<"clientes"> | null;
@@ -52,7 +54,9 @@ interface DemoOSProps {
 }
 
 const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
-  const { oficina_id } = useAuth();
+  const { oficina_id, oficina } = useAuth();
+  const isPro = !!oficina?.plano && PRO_PLANS.includes(oficina.plano);
+  const STAGES = ALL_STAGES.filter((s) => isPro || !s.proOnly);
   const queryClient = useQueryClient();
   const [activeStage, setActiveStage] = useState("orcamento");
   const [selectedOS, setSelectedOS] = useState<string | null>(null);
@@ -128,7 +132,7 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
   return (
     <>
       {/* Stage tabs */}
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-9">
+      <div className={`mb-6 grid grid-cols-2 gap-3 sm:grid-cols-3 ${isPro ? "lg:grid-cols-9" : "lg:grid-cols-7"}`}>
         {counts.map((stage) => (
           <button
             key={stage.key}

@@ -44,8 +44,11 @@ function getEtapasSnapshot(etapasSnapshot: Tables<"os_servicos">["etapas_snapsho
   return etapasSnapshot.filter((etapa): etapa is string => typeof etapa === "string");
 }
 
+const PRO_PLANS = ["pro", "trial"];
+
 const OSSheetContent = ({ os, onClose }: Props) => {
   const { oficina } = useAuth();
+  const isPro = !!oficina?.plano && PRO_PLANS.includes(oficina.plano);
   const queryClient = useQueryClient();
   const [motivoRecusa, setMotivoRecusa] = useState("");
   const [pagamentoForma, setPagamentoForma] = useState(os.pagamento_forma || "");
@@ -549,10 +552,17 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             {/* CRIADO */}
             {os.stage === "criado" && (
               <div className="space-y-4">
-                <button onClick={() => avancarEtapa("alocado_patio", "OS confirmada → Alocado no pátio")}
-                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
-                  Confirmar OS → Alocar no pátio
-                </button>
+                {isPro ? (
+                  <button onClick={() => avancarEtapa("alocado_patio", "OS confirmada → Alocado no pátio")}
+                    className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
+                    Confirmar OS → Alocar no pátio
+                  </button>
+                ) : (
+                  <button onClick={() => avancarEtapa("em_atendimento", "OS confirmada → Em atendimento")}
+                    className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
+                    Confirmar OS → Em atendimento
+                  </button>
+                )}
                 <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
               </div>
             )}
