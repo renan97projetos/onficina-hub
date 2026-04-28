@@ -64,62 +64,6 @@ const AprovarOrcamento = () => {
       return;
     }
 
-    // 2) Cria OS automaticamente em 'criado'
-    try {
-      // garantir cliente
-      const { data: cli } = await supabase
-        .from("clientes")
-        .insert({
-          oficina_id: orc.oficina_id,
-          nome: orc.nome_cliente,
-          telefone: orc.telefone_cliente,
-        } as any)
-        .select("id")
-        .maybeSingle();
-
-      const cliente_id = cli?.id;
-      let veiculo_id: string | undefined;
-
-      if (cliente_id) {
-        const { data: veic } = await supabase
-          .from("veiculos")
-          .insert({
-            oficina_id: orc.oficina_id,
-            cliente_id,
-            marca: orc.marca,
-            modelo: orc.modelo,
-            placa: orc.placa || "S/PLACA",
-          } as any)
-          .select("id")
-          .maybeSingle();
-        veiculo_id = veic?.id;
-      }
-
-      if (cliente_id && veiculo_id) {
-        const { data: os } = await supabase
-          .from("ordens_servico")
-          .insert({
-            oficina_id: orc.oficina_id,
-            cliente_id,
-            veiculo_id,
-            stage: "criado",
-            valor_total: orc.total_geral,
-            observacoes: `Criada a partir do orçamento #${orc.numero}`,
-          } as any)
-          .select("id")
-          .maybeSingle();
-
-        if (os?.id) {
-          await supabase
-            .from("orcamentos")
-            .update({ os_id: os.id })
-            .eq("token_publico", token!);
-        }
-      }
-    } catch (err) {
-      console.error("Erro criando OS:", err);
-    }
-
     setActing(false);
     setOrc({ ...orc, status: "aprovado", aprovado_em: nowIso });
     toast.success("Orçamento aprovado!");
