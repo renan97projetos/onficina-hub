@@ -7,16 +7,46 @@ import { ptBR } from "date-fns/locale";
 import { toast } from "sonner";
 import { publicUrl } from "@/lib/publicUrl";
 import {
-  Phone, Copy, Clock, Circle, CheckCircle2, XCircle,
-  AlertTriangle, CreditCard, Truck, ChevronRight, Camera, X, Pencil, DollarSign,
-  Star, MessageCircle, ExternalLink, LayoutGrid, Car, Trash2,
+  Phone,
+  Copy,
+  Clock,
+  Circle,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  CreditCard,
+  Truck,
+  ChevronRight,
+  Camera,
+  X,
+  Pencil,
+  DollarSign,
+  Star,
+  MessageCircle,
+  ExternalLink,
+  LayoutGrid,
+  Car,
+  Trash2,
 } from "lucide-react";
 import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel,
-  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
-  AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { OSWithRelations } from "./DemoOS";
@@ -39,11 +69,6 @@ const STAGE_LABELS: Record<string, string> = {
   recusado: "Recusado",
 };
 
-function getEtapasSnapshot(etapasSnapshot: Tables<"os_servicos">["etapas_snapshot"]) {
-  if (!Array.isArray(etapasSnapshot)) return [];
-  return etapasSnapshot.filter((etapa): etapa is string => typeof etapa === "string");
-}
-
 const PRO_PLANS = ["pro", "trial"];
 
 const OSSheetContent = ({ os, onClose }: Props) => {
@@ -53,9 +78,7 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const [motivoRecusa, setMotivoRecusa] = useState("");
   const [pagamentoForma, setPagamentoForma] = useState(os.pagamento_forma || "");
   const [notificado, setNotificado] = useState(os.cliente_notificado_entrega || false);
-  const [kmFinal, setKmFinal] = useState<string>(
-    (os as any).km_final != null ? String((os as any).km_final) : "",
-  );
+  const [kmFinal, setKmFinal] = useState<string>((os as any).km_final != null ? String((os as any).km_final) : "");
   const [savingKmFinal, setSavingKmFinal] = useState(false);
 
   // Edit OS dialog
@@ -63,7 +86,9 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const [editValor, setEditValor] = useState(String(os.valor_total));
   const [editObs, setEditObs] = useState(os.observacoes || "");
   const [editColaborador, setEditColaborador] = useState(os.colaborador_id || "");
-  const [editPrazo, setEditPrazo] = useState(os.prazo_estimado ? new Date(os.prazo_estimado).toISOString().slice(0, 16) : "");
+  const [editPrazo, setEditPrazo] = useState(
+    os.prazo_estimado ? new Date(os.prazo_estimado).toISOString().slice(0, 16) : "",
+  );
   const [editSaving, setEditSaving] = useState(false);
 
   // Value change dialog (em_atendimento only)
@@ -167,10 +192,16 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   }
 
   async function recusarOS() {
-    if (!motivoRecusa.trim()) { toast.error("Informe o motivo da recusa"); return; }
+    if (!motivoRecusa.trim()) {
+      toast.error("Informe o motivo da recusa");
+      return;
+    }
     await supabase.from("ordens_servico").update({ stage: "recusado", motivo_recusa: motivoRecusa }).eq("id", os.id);
     await supabase.from("os_movimentacoes").insert({
-      os_id: os.id, stage_anterior: os.stage, stage_novo: "recusado", descricao: `OS recusada: ${motivoRecusa}`,
+      os_id: os.id,
+      stage_anterior: os.stage,
+      stage_novo: "recusado",
+      descricao: `OS recusada: ${motivoRecusa}`,
     });
     queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
     toast.success("OS recusada");
@@ -221,16 +252,19 @@ const OSSheetContent = ({ os, onClose }: Props) => {
 
   // Save value change with reason
   async function handleSaveValorChange() {
-    if (!motivoValor.trim()) { toast.error("Informe o motivo da alteração"); return; }
+    if (!motivoValor.trim()) {
+      toast.error("Informe o motivo da alteração");
+      return;
+    }
     const nv = parseFloat(novoValor);
-    if (isNaN(nv) || nv < 0) { toast.error("Informe um valor válido"); return; }
+    if (isNaN(nv) || nv < 0) {
+      toast.error("Informe um valor válido");
+      return;
+    }
     setValorSaving(true);
     try {
       const valorAnterior = Number(os.valor_total);
-      const { error: updErr } = await supabase
-        .from("ordens_servico")
-        .update({ valor_total: nv })
-        .eq("id", os.id);
+      const { error: updErr } = await supabase.from("ordens_servico").update({ valor_total: nv }).eq("id", os.id);
       if (updErr) throw updErr;
 
       const { error: movErr } = await supabase.from("os_movimentacoes").insert({
@@ -269,7 +303,10 @@ const OSSheetContent = ({ os, onClose }: Props) => {
       if (error) throw error;
       const { data: urlData } = supabase.storage.from("os-fotos").getPublicUrl(path);
       const url = urlData.publicUrl;
-      await supabase.from("ordens_servico").update({ comprovante_pagamento: url } as any).eq("id", os.id);
+      await supabase
+        .from("ordens_servico")
+        .update({ comprovante_pagamento: url } as any)
+        .eq("id", os.id);
       setComprovante(url);
       queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
       toast.success("Comprovante anexado");
@@ -307,7 +344,10 @@ const OSSheetContent = ({ os, onClose }: Props) => {
         const ext = file.name.split(".").pop() || "jpg";
         const path = `${os.id}/saida/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
         const { error } = await supabase.storage.from("os-fotos").upload(path, file);
-        if (error) { console.error(error); continue; }
+        if (error) {
+          console.error(error);
+          continue;
+        }
         const { data: urlData } = supabase.storage.from("os-fotos").getPublicUrl(path);
         urls.push(urlData.publicUrl);
       }
@@ -354,32 +394,22 @@ const OSSheetContent = ({ os, onClose }: Props) => {
     setSavingServicoId(srv.id);
 
     try {
-      const etapas = getEtapasSnapshot(srv.etapas_snapshot);
-      const novaEtapa = srv.etapa_atual + 1;
-      const finalizarServico = etapas.length === 0 || novaEtapa >= etapas.length;
-
       const { error } = await supabase
         .from("os_servicos")
-        .update(
-          finalizarServico
-            ? {
-                etapa_atual: etapas.length === 0 ? 1 : novaEtapa,
-                status: "concluido",
-                concluido_em: new Date().toISOString(),
-              }
-            : {
-                etapa_atual: novaEtapa,
-              }
-        )
+        .update({
+          status: "concluido",
+          etapa_atual: 999,
+          concluido_em: new Date().toISOString(),
+        })
         .eq("id", srv.id);
 
       if (error) throw error;
 
       await queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
       await queryClient.invalidateQueries({ queryKey: ["tecnico-os", os.id] });
-      toast.success(finalizarServico ? "Serviço concluído!" : `Etapa ${novaEtapa} concluída`);
+      toast.success("Serviço concluído!");
     } catch (err: any) {
-      toast.error(err.message || "Erro ao atualizar etapa");
+      toast.error(err.message || "Erro ao concluir serviço");
     } finally {
       setSavingServicoId(null);
     }
@@ -410,8 +440,7 @@ const OSSheetContent = ({ os, onClose }: Props) => {
       ? os.os_servicos.map((s) => `• ${s.nome_servico}`).join("\n")
       : "• Serviço contratado";
 
-    const msg =
-`Olá, ${nome}! 👋
+    const msg = `Olá, ${nome}! 👋
 
 Seu veículo *${marca} ${modelo} - ${placa}* já está em atendimento aqui na *${oficinaNome}*.
 
@@ -435,8 +464,7 @@ Qualquer dúvida estamos à disposição. Obrigado pela confiança! 🚗`;
     const placa = os.veiculos?.placa || "";
     const tel = os.clientes?.telefone?.replace(/\D/g, "") || "";
 
-    const msg =
-`Olá, ${nome}! 🚗✨
+    const msg = `Olá, ${nome}! 🚗✨
 
 Boa notícia! Seu veículo *${marca} ${modelo} - ${placa}* está *pronto para retirada* aqui na *${oficinaNome}*.
 
@@ -455,8 +483,7 @@ Qualquer dúvida, é só chamar.`;
     const placa = os.veiculos?.placa || "";
     const tel = os.clientes?.telefone?.replace(/\D/g, "") || "";
 
-    const msg =
-`Olá, ${nome}! ✅
+    const msg = `Olá, ${nome}! ✅
 
 O serviço do seu *${marca} ${modelo} - ${placa}* foi concluído com sucesso!
 
@@ -509,14 +536,17 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             <AlertDialogTitle>Excluir esta OS?</AlertDialogTitle>
             <AlertDialogDescription>
               Esta ação não pode ser desfeita. A OS de <b>{os.clientes?.nome || "—"}</b>
-              {os.veiculos?.placa ? <> ({os.veiculos.placa})</> : null} e seu histórico
-              (serviços e movimentações) serão removidos permanentemente.
+              {os.veiculos?.placa ? <> ({os.veiculos.placa})</> : null} e seu histórico (serviços e movimentações) serão
+              removidos permanentemente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
             <AlertDialogAction
-              onClick={(e) => { e.preventDefault(); handleDeleteOS(); }}
+              onClick={(e) => {
+                e.preventDefault();
+                handleDeleteOS();
+              }}
               disabled={deleting}
               className="bg-red-600 text-white hover:bg-red-700"
             >
@@ -535,14 +565,28 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             {/* Edit & value change buttons */}
             {(isFullEdit || isLimitedEdit) && (
               <div className="space-y-3">
-                <button onClick={() => { setEditValor(String(os.valor_total)); setEditObs(os.observacoes || ""); setEditColaborador(os.colaborador_id || ""); setEditPrazo(os.prazo_estimado ? new Date(os.prazo_estimado).toISOString().slice(0, 16) : ""); setEditOpen(true); }}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors">
+                <button
+                  onClick={() => {
+                    setEditValor(String(os.valor_total));
+                    setEditObs(os.observacoes || "");
+                    setEditColaborador(os.colaborador_id || "");
+                    setEditPrazo(os.prazo_estimado ? new Date(os.prazo_estimado).toISOString().slice(0, 16) : "");
+                    setEditOpen(true);
+                  }}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                >
                   <Pencil className="h-4 w-4" /> Alterar OS
                 </button>
 
                 {os.stage === "em_atendimento" && (
-                  <button onClick={() => { setNovoValor(String(os.valor_total)); setMotivoValor(""); setValorChangeOpen(true); }}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-700/40 bg-amber-900/10 px-4 py-3 text-sm font-medium text-amber-400 hover:bg-amber-900/20 transition-colors">
+                  <button
+                    onClick={() => {
+                      setNovoValor(String(os.valor_total));
+                      setMotivoValor("");
+                      setValorChangeOpen(true);
+                    }}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-amber-700/40 bg-amber-900/10 px-4 py-3 text-sm font-medium text-amber-400 hover:bg-amber-900/20 transition-colors"
+                  >
                     <DollarSign className="h-4 w-4" /> Registrar alteração de valor
                   </button>
                 )}
@@ -553,13 +597,17 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             {os.stage === "criado" && (
               <div className="space-y-4">
                 {isPro ? (
-                  <button onClick={() => avancarEtapa("alocado_patio", "OS confirmada → Alocado no pátio")}
-                    className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
+                  <button
+                    onClick={() => avancarEtapa("alocado_patio", "OS confirmada → Alocado no pátio")}
+                    className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all"
+                  >
                     Confirmar OS → Alocar no pátio
                   </button>
                 ) : (
-                  <button onClick={() => avancarEtapa("em_atendimento", "OS confirmada → Em atendimento")}
-                    className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
+                  <button
+                    onClick={() => avancarEtapa("em_atendimento", "OS confirmada → Em atendimento")}
+                    className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all"
+                  >
                     Confirmar OS → Em atendimento
                   </button>
                 )}
@@ -580,14 +628,14 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                       <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
                         Aloque este veículo a um técnico no módulo Gestão de Pátio para controle visual da equipe.
                       </p>
-                      <p className="mt-2 text-[11px] font-medium text-[#a39bff]">
-                        Feature disponível no plano Pro
-                      </p>
+                      <p className="mt-2 text-[11px] font-medium text-[#a39bff]">Feature disponível no plano Pro</p>
                     </div>
                   </div>
                 </div>
-                <button onClick={() => avancarEtapa("aguardando_carro", "Veículo alocado no pátio")}
-                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
+                <button
+                  onClick={() => avancarEtapa("aguardando_carro", "Veículo alocado no pátio")}
+                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all"
+                >
                   Confirmar alocação → Aguardando carro
                 </button>
                 <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
@@ -607,8 +655,10 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                     </p>
                   </div>
                 </div>
-                <button onClick={() => avancarEtapa("em_atendimento", "Carro chegou → Em atendimento")}
-                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
+                <button
+                  onClick={() => avancarEtapa("em_atendimento", "Carro chegou → Em atendimento")}
+                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all"
+                >
                   Confirmar chegada → Em atendimento
                 </button>
                 <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
@@ -628,7 +678,10 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                         <span className="text-right">Valor</span>
                       </div>
                       {((os as any).pecas as any[]).map((p, i) => (
-                        <div key={i} className="grid grid-cols-[60px_1fr_120px] gap-2 border-t border-border px-3 py-2 text-xs">
+                        <div
+                          key={i}
+                          className="grid grid-cols-[60px_1fr_120px] gap-2 border-t border-border px-3 py-2 text-xs"
+                        >
                           <span className="text-center">{Number(p.qtd) || 0}</span>
                           <span>{p.descricao || "—"}</span>
                           <span className="text-right">
@@ -643,97 +696,54 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                 )}
                 <h4 className="text-sm font-semibold text-foreground">Serviços</h4>
                 {os.os_servicos?.map((srv) => {
-                  const etapas = getEtapasSnapshot(srv.etapas_snapshot);
                   const isSavingServico = savingServicoId === srv.id;
-
                   return (
-                    <div key={srv.id} className="rounded-xl border border-border bg-background p-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <span className="text-sm font-medium text-foreground">{srv.nome_servico || "Serviço"}</span>
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                            srv.status === "concluido"
-                              ? "border border-primary/30 bg-primary/10 text-primary"
+                    <div
+                      key={srv.id}
+                      className="rounded-xl border border-border bg-background p-4 flex items-center justify-between gap-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        {srv.status === "concluido" ? (
+                          <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0" />
+                        ) : srv.status === "em_andamento" ? (
+                          <div className="h-5 w-5 rounded-full border-2 border-primary border-t-transparent animate-spin flex-shrink-0" />
+                        ) : (
+                          <Circle className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                        )}
+                        <div>
+                          <p className="text-sm font-medium text-foreground">{srv.nome_servico || "Serviço"}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {srv.status === "concluido"
+                              ? "Concluído"
                               : srv.status === "em_andamento"
-                                ? "border border-primary/20 bg-primary/10 text-primary"
-                                : "bg-muted text-muted-foreground"
-                          }`}
-                        >
-                          {srv.status === "concluido" ? "Concluído" : srv.status === "em_andamento" ? "Em andamento" : "Pendente"}
-                        </span>
-                      </div>
-
-                      {etapas.length > 0 && (
-                        <div className="mt-3 space-y-2">
-                          {etapas.map((etapa, i) => {
-                            const concluida = srv.status === "concluido" || i < srv.etapa_atual;
-                            const atual = srv.status === "em_andamento" && i === srv.etapa_atual;
-
-                            return (
-                              <div key={i} className="flex items-center gap-2 text-xs">
-                                {concluida ? (
-                                  <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
-                                ) : (
-                                  <Circle className={`h-3.5 w-3.5 ${atual ? "text-primary" : "text-muted-foreground"}`} />
-                                )}
-
-                                <span
-                                  className={`flex-1 ${
-                                    concluida
-                                      ? "text-primary line-through"
-                                      : atual
-                                        ? "text-foreground"
-                                        : "text-muted-foreground"
-                                  }`}
-                                >
-                                  {etapa}
-                                </span>
-
-                                {atual && (
-                                  <button
-                                    onClick={() => concluirEtapaPainel(srv)}
-                                    disabled={isSavingServico}
-                                    className="rounded-lg bg-primary px-2.5 py-1 text-[11px] font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-                                  >
-                                    {isSavingServico ? "Salvando..." : "Concluir"}
-                                  </button>
-                                )}
-                              </div>
-                            );
-                          })}
+                                ? "Em andamento"
+                                : "Pendente"}
+                          </p>
                         </div>
-                      )}
+                      </div>
 
                       {srv.status === "pendente" && (
                         <button
                           onClick={() => iniciarServicoPainel(srv.id)}
                           disabled={isSavingServico}
-                          className="mt-3 w-full rounded-lg bg-primary px-3 py-2.5 text-xs font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50"
                         >
-                          {isSavingServico ? "Iniciando..." : "Iniciar serviço"}
+                          {isSavingServico ? "..." : "Iniciar"}
                         </button>
                       )}
-
-                      {srv.status === "em_andamento" && etapas.length === 0 && (
+                      {srv.status === "em_andamento" && (
                         <button
                           onClick={() => concluirEtapaPainel(srv)}
                           disabled={isSavingServico}
-                          className="mt-3 w-full rounded-lg bg-primary px-3 py-2.5 text-xs font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+                          className="rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50"
                         >
-                          {isSavingServico ? "Salvando..." : "Concluir serviço"}
+                          {isSavingServico ? "..." : "Concluir"}
                         </button>
                       )}
-
-                      {srv.status === "concluido" && (
-                        <div className="mt-3 flex items-center gap-2 text-xs font-medium text-primary">
-                          <CheckCircle2 className="h-4 w-4" />
-                          Serviço concluído
-                        </div>
-                      )}
+                      {srv.status === "concluido" && <span className="text-xs font-medium text-primary">✓</span>}
                     </div>
                   );
                 })}
-
                 <div className="flex gap-3 pt-1">
                   <a
                     href={buildWhatsappAcompanhamento() || "#"}
@@ -755,22 +765,29 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                       <CheckCircle2 className="h-3.5 w-3.5" />
                     ) : (
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.555 4.122 1.523 5.855L0 24l6.337-1.501A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.652-.52-5.166-1.427l-.371-.22-3.762.891.948-3.658-.242-.38A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.555 4.122 1.523 5.855L0 24l6.337-1.501A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.652-.52-5.166-1.427l-.371-.22-3.762.891.948-3.658-.242-.38A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
                       </svg>
                     )}
                     {acompanhamentoEnviado ? "Enviado" : "Enviar ao cliente"}
                   </a>
-                  <button onClick={() => { navigator.clipboard.writeText(tecnicoUrl); toast.success("Link do técnico copiado"); }}
-                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-3 text-xs font-medium text-foreground hover:bg-muted transition-colors">
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(tecnicoUrl);
+                      toast.success("Link do técnico copiado");
+                    }}
+                    className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border bg-background px-3 py-3 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+                  >
                     <Copy className="h-3.5 w-3.5" /> Link do técnico
                   </button>
                 </div>
 
                 <div className="pt-2">
-                  <button onClick={() => avancarEtapa("pagamento", "Atendimento finalizado → Pagamento")}
+                  <button
+                    onClick={() => avancarEtapa("pagamento", "Atendimento finalizado → Pagamento")}
                     disabled={!allServicosCompleted}
-                    className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                    className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  >
                     Finalizar atendimento → Pagamento
                   </button>
                   {!allServicosCompleted && (
@@ -790,8 +807,11 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                 </div>
                 <div>
                   <label className="mb-2 block text-xs font-medium text-muted-foreground">Forma de pagamento</label>
-                  <select value={pagamentoForma} onChange={(e) => setPagamentoForma(e.target.value)}
-                    className="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus:border-primary">
+                  <select
+                    value={pagamentoForma}
+                    onChange={(e) => setPagamentoForma(e.target.value)}
+                    className="h-11 w-full rounded-xl border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+                  >
                     <option value="">Selecione...</option>
                     <option value="dinheiro">Dinheiro</option>
                     <option value="pix">PIX</option>
@@ -802,15 +822,23 @@ Obrigado pela preferência! Até a próxima. 🙏`;
 
                 {/* Comprovante de pagamento */}
                 <div>
-                  <label className="mb-2 block text-xs font-medium text-muted-foreground">Comprovante de pagamento</label>
+                  <label className="mb-2 block text-xs font-medium text-muted-foreground">
+                    Comprovante de pagamento
+                  </label>
                   {comprovante ? (
                     <div className="space-y-2">
-                      <a href={comprovante} target="_blank" rel="noopener noreferrer"
-                        className="block rounded-xl border border-green-800/40 bg-green-900/10 p-3 text-center text-sm font-medium text-green-400 hover:bg-green-900/20 transition-colors">
+                      <a
+                        href={comprovante}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block rounded-xl border border-green-800/40 bg-green-900/10 p-3 text-center text-sm font-medium text-green-400 hover:bg-green-900/20 transition-colors"
+                      >
                         <CheckCircle2 className="mr-2 inline h-4 w-4" /> Comprovante anexado — ver
                       </a>
-                      <button onClick={() => setComprovante(null)}
-                        className="text-xs text-muted-foreground hover:text-destructive transition-colors">
+                      <button
+                        onClick={() => setComprovante(null)}
+                        className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                      >
                         Remover comprovante
                       </button>
                     </div>
@@ -823,7 +851,9 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                         disabled={uploadingComprovante}
                         className="absolute inset-0 cursor-pointer opacity-0"
                       />
-                      <div className={`flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-background px-4 py-4 text-sm text-muted-foreground hover:border-primary/50 transition-colors ${uploadingComprovante ? "opacity-50" : ""}`}>
+                      <div
+                        className={`flex items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-background px-4 py-4 text-sm text-muted-foreground hover:border-primary/50 transition-colors ${uploadingComprovante ? "opacity-50" : ""}`}
+                      >
                         <Camera className="h-4 w-4" />
                         {uploadingComprovante ? "Enviando..." : "Anexar comprovante (foto ou PDF)"}
                       </div>
@@ -833,12 +863,15 @@ Obrigado pela preferência! Até a próxima. 🙏`;
 
                 <button
                   disabled={!pagamentoForma}
-                  onClick={() => avancarEtapa("entrega", `Pagamento confirmado (${pagamentoForma})`, {
-                    pagamento_forma: pagamentoForma,
-                    pagamento_confirmado: true,
-                    pagamento_confirmado_em: new Date().toISOString(),
-                  })}
-                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                  onClick={() =>
+                    avancarEtapa("entrega", `Pagamento confirmado (${pagamentoForma})`, {
+                      pagamento_forma: pagamentoForma,
+                      pagamento_confirmado: true,
+                      pagamento_confirmado_em: new Date().toISOString(),
+                    })
+                  }
+                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
                   <CreditCard className="mr-2 inline h-4 w-4" /> Confirmar pagamento → Entrega
                 </button>
                 <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
@@ -851,7 +884,8 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                 <div className="rounded-xl border border-border bg-background p-5 space-y-2">
                   <p className="text-xs text-muted-foreground">Resumo</p>
                   <p className="text-sm text-foreground">
-                    <strong>Valor:</strong> R$ {Number(os.valor_total).toFixed(2)} • <strong>Forma:</strong> {os.pagamento_forma || "—"}
+                    <strong>Valor:</strong> R$ {Number(os.valor_total).toFixed(2)} • <strong>Forma:</strong>{" "}
+                    {os.pagamento_forma || "—"}
                   </p>
                   <p className="text-sm text-foreground">
                     <strong>Serviços:</strong> {os.os_servicos?.length || 0} realizados
@@ -860,17 +894,13 @@ Obrigado pela preferência! Até a próxima. 🙏`;
 
                 {/* KM final */}
                 <div className="rounded-xl border border-border bg-background p-5 space-y-2">
-                  <label className="text-xs font-semibold text-muted-foreground">
-                    KM final do veículo (opcional)
-                  </label>
+                  <label className="text-xs font-semibold text-muted-foreground">KM final do veículo (opcional)</label>
                   <div className="flex gap-2">
                     <Input
                       type="number"
                       min="0"
                       placeholder={
-                        (os as any).km_inicial != null
-                          ? `Ex: ${Number((os as any).km_inicial) + 100}`
-                          : "Ex: 85100"
+                        (os as any).km_inicial != null ? `Ex: ${Number((os as any).km_inicial) + 100}` : "Ex: 85100"
                       }
                       value={kmFinal}
                       onChange={(e) => setKmFinal(e.target.value)}
@@ -899,9 +929,7 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                     </button>
                   </div>
                   {(os as any).km_inicial != null && (
-                    <p className="text-xs text-muted-foreground">
-                      KM inicial: {(os as any).km_inicial}
-                    </p>
+                    <p className="text-xs text-muted-foreground">KM inicial: {(os as any).km_inicial}</p>
                   )}
                 </div>
 
@@ -919,17 +947,25 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                     <>
                       <div className="mt-3 grid grid-cols-4 gap-2">
                         {fotoSaidaPreviews.map((src, i) => (
-                          <div key={i} className="group relative aspect-square overflow-hidden rounded-lg border border-border">
+                          <div
+                            key={i}
+                            className="group relative aspect-square overflow-hidden rounded-lg border border-border"
+                          >
                             <img src={src} alt={`Saída ${i + 1}`} className="h-full w-full object-cover" />
-                            <button onClick={() => removeFotoSaida(i)}
-                              className="absolute right-1 top-1 rounded-full bg-black/60 p-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <button
+                              onClick={() => removeFotoSaida(i)}
+                              className="absolute right-1 top-1 rounded-full bg-black/60 p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
                               <X className="h-3.5 w-3.5 text-white" />
                             </button>
                           </div>
                         ))}
                       </div>
-                      <button onClick={uploadFotosSaida} disabled={uploadingSaida}
-                        className="mt-3 w-full rounded-xl border border-primary bg-primary/10 px-3 py-2.5 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50">
+                      <button
+                        onClick={uploadFotosSaida}
+                        disabled={uploadingSaida}
+                        className="mt-3 w-full rounded-xl border border-primary bg-primary/10 px-3 py-2.5 text-sm font-medium text-primary hover:bg-primary/20 disabled:opacity-50"
+                      >
                         {uploadingSaida ? "Enviando..." : "Salvar fotos de saída"}
                       </button>
                     </>
@@ -956,8 +992,8 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                     !buildWhatsappPronto()
                       ? "border border-border bg-background text-muted-foreground opacity-50 cursor-not-allowed pointer-events-none"
                       : prontoEnviado
-                      ? "border border-green-700/40 bg-green-900/20 text-green-400 hover:bg-green-900/30"
-                      : "bg-[#25D366] text-white hover:bg-[#1ebe5d]"
+                        ? "border border-green-700/40 bg-green-900/20 text-green-400 hover:bg-green-900/30"
+                        : "bg-[#25D366] text-white hover:bg-[#1ebe5d]"
                   }`}
                   title={!os.clientes?.telefone ? "Telefone do cliente não cadastrado" : ""}
                 >
@@ -965,8 +1001,8 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                     <CheckCircle2 className="h-4 w-4" />
                   ) : (
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.555 4.122 1.523 5.855L0 24l6.337-1.501A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.652-.52-5.166-1.427l-.371-.22-3.762.891.948-3.658-.242-.38A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.555 4.122 1.523 5.855L0 24l6.337-1.501A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.652-.52-5.166-1.427l-.371-.22-3.762.891.948-3.658-.242-.38A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
                     </svg>
                   )}
                   {prontoEnviado ? "Aviso enviado" : "Avisar cliente: veículo pronto"}
@@ -978,7 +1014,8 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                     await avancarEtapa("finalizado", "Veículo entregue ao cliente");
                     setAvaliacaoDialogOpen(true);
                   }}
-                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
+                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all"
+                >
                   <Truck className="mr-2 inline h-4 w-4" /> Confirmar entrega → Finalizado
                 </button>
               </div>
@@ -997,9 +1034,7 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                   <div className="rounded-xl border border-green-800/40 bg-green-900/10 p-5">
                     <div className="mb-2 flex items-center gap-2">
                       <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
-                      <p className="text-xs font-bold uppercase tracking-wide text-green-400">
-                        Avaliação do cliente
-                      </p>
+                      <p className="text-xs font-bold uppercase tracking-wide text-green-400">Avaliação do cliente</p>
                     </div>
                     <div className="flex items-center gap-1">
                       {[1, 2, 3, 4, 5].map((i) => (
@@ -1040,11 +1075,13 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                       <CheckCircle2 className="h-4 w-4" />
                     ) : (
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
-                        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.555 4.122 1.523 5.855L0 24l6.337-1.501A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.652-.52-5.166-1.427l-.371-.22-3.762.891.948-3.658-.242-.38A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.555 4.122 1.523 5.855L0 24l6.337-1.501A11.946 11.946 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.652-.52-5.166-1.427l-.371-.22-3.762.891.948-3.658-.242-.38A9.944 9.944 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
                       </svg>
                     )}
-                    {finalizacaoEnviada ? "Enviado — clique para reenviar" : "Enviar conclusão + avaliação via WhatsApp"}
+                    {finalizacaoEnviada
+                      ? "Enviado — clique para reenviar"
+                      : "Enviar conclusão + avaliação via WhatsApp"}
                   </a>
                 )}
               </div>
@@ -1058,8 +1095,10 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                   <p className="text-sm font-semibold text-red-400">OS recusada</p>
                   <p className="mt-2 text-xs text-muted-foreground">{os.motivo_recusa || "Motivo não informado"}</p>
                 </div>
-                <button onClick={reabrirOS}
-                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors">
+                <button
+                  onClick={reabrirOS}
+                  className="w-full rounded-xl border border-border bg-background px-4 py-3 text-sm font-medium text-foreground hover:bg-muted transition-colors"
+                >
                   Reabrir OS
                 </button>
               </div>
@@ -1074,8 +1113,12 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             <div className="rounded-lg border border-border bg-background p-4 space-y-2">
               <p className="text-sm font-semibold text-foreground">{os.clientes?.nome}</p>
               {os.clientes?.telefone && (
-                <a href={whatsappUrl || "#"} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-xs text-primary hover:underline">
+                <a
+                  href={whatsappUrl || "#"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-xs text-primary hover:underline"
+                >
                   <Phone className="h-3.5 w-3.5" /> {os.clientes.telefone}
                 </a>
               )}
@@ -1120,16 +1163,22 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             {/* Photos comparison */}
             {(fotosEntradaUrls.length > 0 || fotosSaidaUrls.length > 0) && (
               <div>
-                <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">Fotos do veículo</h4>
+                <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                  Fotos do veículo
+                </h4>
                 <div className="grid grid-cols-2 gap-4">
                   {fotosEntradaUrls.length > 0 && (
                     <div>
                       <p className="mb-1 text-xs font-medium text-muted-foreground">Entrada</p>
                       <div className="grid grid-cols-2 gap-1">
                         {fotosEntradaUrls.map((url, i) => (
-                          <img key={i} src={url} alt={`Entrada ${i + 1}`}
+                          <img
+                            key={i}
+                            src={url}
+                            alt={`Entrada ${i + 1}`}
                             className="aspect-square rounded-md border border-border object-cover cursor-pointer hover:opacity-80"
-                            onClick={() => window.open(url, "_blank")} />
+                            onClick={() => window.open(url, "_blank")}
+                          />
                         ))}
                       </div>
                     </div>
@@ -1139,9 +1188,13 @@ Obrigado pela preferência! Até a próxima. 🙏`;
                       <p className="mb-1 text-xs font-medium text-muted-foreground">Saída</p>
                       <div className="grid grid-cols-2 gap-1">
                         {fotosSaidaUrls.map((url, i) => (
-                          <img key={i} src={url} alt={`Saída ${i + 1}`}
+                          <img
+                            key={i}
+                            src={url}
+                            alt={`Saída ${i + 1}`}
                             className="aspect-square rounded-md border border-border object-cover cursor-pointer hover:opacity-80"
-                            onClick={() => window.open(url, "_blank")} />
+                            onClick={() => window.open(url, "_blank")}
+                          />
                         ))}
                       </div>
                     </div>
@@ -1188,17 +1241,28 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">Observações</label>
-              <textarea value={editObs} onChange={(e) => setEditObs(e.target.value)} rows={3}
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+              <textarea
+                value={editObs}
+                onChange={(e) => setEditObs(e.target.value)}
+                rows={3}
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              />
             </div>
             {isFullEdit && (
               <>
                 <div>
                   <label className="mb-1 block text-xs font-medium text-muted-foreground">Responsável</label>
-                  <select value={editColaborador} onChange={(e) => setEditColaborador(e.target.value)}
-                    className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary">
+                  <select
+                    value={editColaborador}
+                    onChange={(e) => setEditColaborador(e.target.value)}
+                    className="h-10 w-full rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+                  >
                     <option value="">Nenhum</option>
-                    {colaboradores.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+                    {colaboradores.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.nome}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -1209,11 +1273,17 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             )}
           </div>
           <DialogFooter>
-            <button onClick={() => setEditOpen(false)} className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted">
+            <button
+              onClick={() => setEditOpen(false)}
+              className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted"
+            >
               Cancelar
             </button>
-            <button onClick={handleSaveEdit} disabled={editSaving}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50">
+            <button
+              onClick={handleSaveEdit}
+              disabled={editSaving}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50"
+            >
               {editSaving ? "Salvando..." : "Salvar"}
             </button>
           </DialogFooter>
@@ -1236,16 +1306,27 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             </div>
             <div>
               <label className="mb-1 block text-xs font-medium text-muted-foreground">Motivo da alteração *</label>
-              <textarea value={motivoValor} onChange={(e) => setMotivoValor(e.target.value)} rows={3} placeholder="Descreva o motivo..."
-                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+              <textarea
+                value={motivoValor}
+                onChange={(e) => setMotivoValor(e.target.value)}
+                rows={3}
+                placeholder="Descreva o motivo..."
+                className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+              />
             </div>
           </div>
           <DialogFooter>
-            <button onClick={() => setValorChangeOpen(false)} className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted">
+            <button
+              onClick={() => setValorChangeOpen(false)}
+              className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted"
+            >
               Cancelar
             </button>
-            <button onClick={handleSaveValorChange} disabled={valorSaving || !motivoValor.trim()}
-              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50">
+            <button
+              onClick={handleSaveValorChange}
+              disabled={valorSaving || !motivoValor.trim()}
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50"
+            >
               {valorSaving ? "Salvando..." : "Confirmar alteração"}
             </button>
           </DialogFooter>
@@ -1266,7 +1347,8 @@ Obrigado pela preferência! Até a próxima. 🙏`;
 
           <div className="space-y-4">
             <div className="rounded-xl border border-border bg-muted/30 p-4 text-sm text-foreground leading-relaxed">
-              Olá {os.clientes?.nome || ""}! Obrigado por confiar na {oficinaNome}. Ficamos felizes em atender você. Deixe sua avaliação aqui: {avaliacaoUrl}
+              Olá {os.clientes?.nome || ""}! Obrigado por confiar na {oficinaNome}. Ficamos felizes em atender você.
+              Deixe sua avaliação aqui: {avaliacaoUrl}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -1307,7 +1389,15 @@ Obrigado pela preferência! Até a próxima. 🙏`;
   );
 };
 
-function RecusarButton({ motivoRecusa, setMotivoRecusa, onRecusar }: { motivoRecusa: string; setMotivoRecusa: (v: string) => void; onRecusar: () => void; }) {
+function RecusarButton({
+  motivoRecusa,
+  setMotivoRecusa,
+  onRecusar,
+}: {
+  motivoRecusa: string;
+  setMotivoRecusa: (v: string) => void;
+  onRecusar: () => void;
+}) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -1318,13 +1408,21 @@ function RecusarButton({ motivoRecusa, setMotivoRecusa, onRecusar }: { motivoRec
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Recusar OS</AlertDialogTitle>
-          <AlertDialogDescription>Informe o motivo da recusa. Esta ação pode ser revertida depois.</AlertDialogDescription>
+          <AlertDialogDescription>
+            Informe o motivo da recusa. Esta ação pode ser revertida depois.
+          </AlertDialogDescription>
         </AlertDialogHeader>
-        <textarea value={motivoRecusa} onChange={(e) => setMotivoRecusa(e.target.value)} placeholder="Motivo da recusa..."
-          className="h-20 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary" />
+        <textarea
+          value={motivoRecusa}
+          onChange={(e) => setMotivoRecusa(e.target.value)}
+          placeholder="Motivo da recusa..."
+          className="h-20 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+        />
         <AlertDialogFooter>
           <AlertDialogCancel>Cancelar</AlertDialogCancel>
-          <AlertDialogAction onClick={onRecusar} className="bg-red-600 hover:bg-red-700">Confirmar recusa</AlertDialogAction>
+          <AlertDialogAction onClick={onRecusar} className="bg-red-600 hover:bg-red-700">
+            Confirmar recusa
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
