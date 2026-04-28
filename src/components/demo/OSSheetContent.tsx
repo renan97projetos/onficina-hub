@@ -1278,6 +1278,30 @@ Obrigado pela preferência! Até a próxima. 🙏`;
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir OS?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. A ordem de serviço de{" "}
+              <strong>{os.clientes?.nome || "—"}</strong>
+              {os.veiculos?.placa ? ` (${os.veiculos.placa})` : ""} será removida permanentemente,
+              junto com seus serviços e movimentações.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingOS}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleDeleteOS(); }}
+              disabled={deletingOS}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingOS ? "Excluindo..." : "Excluir OS"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
