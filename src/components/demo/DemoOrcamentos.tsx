@@ -109,6 +109,7 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
         .from("orcamentos")
         .select("*")
         .eq("oficina_id", oficina_id!)
+        .is("os_id", null)
         .order("created_at", { ascending: false });
       return data || [];
     },
