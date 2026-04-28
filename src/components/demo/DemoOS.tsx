@@ -8,8 +8,6 @@ import { Sheet, SheetContent } from "@/components/ui/sheet";
 import OSFormModal from "./OSFormModal";
 import OSSheetContent from "./OSSheetContent";
 import EmptyModuleState from "./EmptyModuleState";
-import DemoOrcamentos from "./DemoOrcamentos";
-import OrcamentoFormModal from "./OrcamentoFormModal";
 import type { Tables } from "@/integrations/supabase/types";
 
 const STAGES = [
@@ -56,7 +54,6 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
   const [activeStage, setActiveStage] = useState("criado");
   const [selectedOS, setSelectedOS] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
-  const [showOrcamentoForm, setShowOrcamentoForm] = useState(false);
 
   const { data: ordens = [] } = useQuery({
     queryKey: ["ordens_servico", oficina_id],
@@ -200,7 +197,6 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
       </Sheet>
 
       {/* Modais */}
-      <OrcamentoFormModal open={showOrcamentoForm} onOpenChange={setShowOrcamentoForm} orcamentoId={null} />
       <OSFormModal open={showForm} onOpenChange={setShowForm} />
     </>
   );
