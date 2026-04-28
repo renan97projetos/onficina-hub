@@ -9,7 +9,7 @@ import { publicUrl } from "@/lib/publicUrl";
 import {
   Phone, Copy, Clock, Circle, CheckCircle2, XCircle,
   AlertTriangle, CreditCard, Truck, ChevronRight, Camera, X, Pencil, DollarSign,
-  Star, MessageCircle, ExternalLink, LayoutGrid, Car,
+  Star, MessageCircle, ExternalLink, LayoutGrid, Car, Trash2,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
