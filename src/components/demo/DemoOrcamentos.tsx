@@ -508,11 +508,9 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
                           <Pencil className="h-3.5 w-3.5" />
                         </IconBtn>
                       )}
-                      {o.status !== "aprovado" && (
-                        <IconBtn title="Excluir" onClick={() => handleDelete(o.id)} danger>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </IconBtn>
-                      )}
+                      <IconBtn title="Excluir" onClick={() => setDeleteOrc(o)} danger>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </IconBtn>
                     </div>
                   </td>
                 </tr>
