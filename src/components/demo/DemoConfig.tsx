@@ -722,6 +722,7 @@ const DemoConfig = () => {
             </div>
           );
         })()}
+        </div>
         {/* Notificações por e-mail */}
         <div hidden={section !== "notificacoes"}>
         <div className="rounded-lg border border-border p-5">
