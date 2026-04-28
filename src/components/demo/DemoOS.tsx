@@ -53,7 +53,7 @@ interface DemoOSProps {
 const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
   const { oficina_id } = useAuth();
   const queryClient = useQueryClient();
-  const [activeStage, setActiveStage] = useState("orcamento");
+  const [activeStage, setActiveStage] = useState("criado");
   const [selectedOS, setSelectedOS] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [showOrcamentoForm, setShowOrcamentoForm] = useState(false);
@@ -132,18 +132,9 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
       {/* Header */}
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-sm font-bold uppercase tracking-wide">
-          {activeLabel}
-          {activeStage !== "orcamento" && ` (${filtered.length})`}
+          {activeLabel} ({filtered.length})
         </h2>
-        {activeStage === "orcamento" ? (
-          <button
-            type="button"
-            onClick={() => setShowOrcamentoForm(true)}
-            className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
-          >
-            <Plus className="h-4 w-4" /> Novo Orçamento
-          </button>
-        ) : activeStage === "criado" ? (
+        {activeStage === "criado" ? (
           <button
             type="button"
             onClick={() => setShowForm(true)}
@@ -154,20 +145,8 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
         ) : null}
       </div>
 
-      {/* Conteúdo: orçamentos na etapa "orcamento", OS nas demais */}
-      {activeStage === "orcamento" ? (
-        <DemoOrcamentos
-          embedded
-          onNavigate={(_key, osId) => {
-            if (osId) {
-              // Já estamos no DemoOS — apenas troca de stage e abre o sheet.
-              const found = ordens.find((o) => o.id === osId);
-              setActiveStage(found?.stage || "criado");
-              setSelectedOS(osId);
-            }
-          }}
-        />
-      ) : filtered.length === 0 ? (
+      {/* OS por etapa */}
+      {filtered.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border bg-card/50 px-6 py-12 text-center">
           <p className="text-sm text-muted-foreground">Nenhuma OS nesta etapa.</p>
         </div>
