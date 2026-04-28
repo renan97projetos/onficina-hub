@@ -3,7 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
-import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe, Users, UserPlus, Trash2, MessageCircle, Info, Building2, User as UserIcon, CreditCard, Bell, ChevronRight, Settings as SettingsIcon } from "lucide-react";
+import { Star, ExternalLink, Loader2, Upload, X, CalendarDays, Copy, Globe, Users, UserPlus, Trash2, MessageCircle, Info, Building2, User as UserIcon, CreditCard, Bell, ChevronRight, Settings as SettingsIcon, Check, Lock, Sparkles, ArrowUpRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { publicUrl, getPublicBaseUrl } from "@/lib/publicUrl";
 import {
@@ -20,6 +21,7 @@ import {
 
 const DemoConfig = () => {
   const { oficina_id, user, isDono } = useAuth();
+  const navigate = useNavigate();
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -563,23 +565,163 @@ const DemoConfig = () => {
         </div>
         {/* Subscription */}
         <div hidden={section !== "assinatura"}>
-        <div className="rounded-lg border border-border p-5">
-          <h3 className="mb-4 text-sm font-medium text-foreground">Assinatura</h3>
-          <div className="mb-3 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-primary capitalize">Plano {oficina?.plano || "trial"}</p>
-              {oficina?.plano === "trial" && trialDias !== null && (
-                <p className="text-xs text-muted-foreground">
-                  Trial — {trialDias} {trialDias === 1 ? "dia restante" : "dias restantes"}
-                </p>
+        {(() => {
+          const planoAtual = (oficina?.plano || "trial").toLowerCase();
+          const isPro = planoAtual === "pro";
+          const isTrial = planoAtual === "trial";
+          const isStarter = planoAtual === "starter" || planoAtual === "basico" || planoAtual === "básico";
+
+          const PRECOS: Record<string, number> = { starter: 97, pro: 197, trial: 0 };
+          const precoAtual = PRECOS[planoAtual] ?? 0;
+
+          const featuresStarter = [
+            "Orçamentos profissionais em PDF + WhatsApp",
+            "Gestão completa de OS pela Pipeline",
+            "Mensagens prontas no WhatsApp em cada etapa",
+            "Serviço Ao Vivo — cliente acompanha em tempo real",
+            "Painel do técnico no celular (sem app)",
+            "Fotos de entrada e saída do veículo",
+            "CRM — controle e gestão de clientes",
+            "Avaliação no sistema e no Google",
+            "Controle financeiro completo",
+            "Indicadores da sua oficina",
+            "Notificações por e-mail",
+            "Onboarding guiado + treinamentos",
+          ];
+          const featuresPro = [
+            "Gestão de Pátio — onde está cada carro por técnico",
+            "Controle de Agendamento online com seus clientes",
+            "Site próprio da oficina (3 modelos prontos)",
+            "Gestão de performance da equipe",
+            "Analytics avançado do negócio",
+            "Gestão de acessos e permissões da equipe",
+            "Suporte prioritário",
+          ];
+
+          return (
+            <div className="space-y-5">
+              {/* Card Plano Atual */}
+              <div className={`rounded-xl border p-5 ${isPro ? "border-primary/40 bg-primary/5" : "border-border"}`}>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-semibold text-foreground">
+                        Plano {isTrial ? "Trial" : isPro ? "Pro" : "Starter"}
+                      </h3>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                        isPro ? "bg-primary/20 text-primary" : isTrial ? "bg-amber-500/20 text-amber-400" : "bg-muted text-muted-foreground"
+                      }`}>
+                        {isPro ? "Pro" : isTrial ? "Trial" : "Atual"}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {isTrial
+                        ? "Você está testando todos os recursos Pro gratuitamente."
+                        : isPro
+                        ? "Você tem acesso a todas as funcionalidades."
+                        : "Você está no plano Starter."}
+                    </p>
+                    {isTrial && trialDias !== null && (
+                      <p className="mt-2 text-xs font-medium text-amber-400">
+                        ⏱ {trialDias} {trialDias === 1 ? "dia restante" : "dias restantes"} de trial
+                      </p>
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-bold text-foreground">
+                      {isTrial ? "Grátis" : `R$ ${precoAtual}`}
+                    </p>
+                    {!isTrial && <p className="text-[11px] text-muted-foreground">/mês</p>}
+                  </div>
+                </div>
+
+                {/* Features incluídas no plano atual */}
+                <div className="mt-4 border-t border-border pt-4">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    Incluído no seu plano
+                  </p>
+                  <ul className="space-y-1.5">
+                    {featuresStarter.map((f) => (
+                      <li key={f} className="flex items-start gap-2 text-xs text-foreground">
+                        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-500" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                    {(isPro || isTrial) && featuresPro.map((f) => (
+                      <li key={f} className="flex items-start gap-2 text-xs text-foreground">
+                        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-500" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {(isTrial || isStarter) && (
+                  <button
+                    onClick={() => navigate("/assinar")}
+                    className="mt-4 w-full rounded-lg border border-border bg-background py-2 text-sm font-medium text-foreground transition-all hover:bg-muted"
+                  >
+                    {isTrial ? "Contratar plano agora" : "Gerenciar assinatura"}
+                  </button>
+                )}
+                {isPro && (
+                  <button
+                    onClick={() => navigate("/painel-assinatura")}
+                    className="mt-4 w-full rounded-lg border border-border bg-background py-2 text-sm font-medium text-foreground transition-all hover:bg-muted"
+                  >
+                    Gerenciar assinatura
+                  </button>
+                )}
+              </div>
+
+              {/* Card Upgrade Pro — apenas para Starter */}
+              {isStarter && (
+                <div className="relative overflow-hidden rounded-xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-5 shadow-[0_0_30px_rgba(249,115,22,0.15)]">
+                  <div className="absolute right-3 top-3">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-foreground">Upgrade para o Pro</h3>
+                    <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary-foreground">
+                      Recomendado
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Para oficinas que querem crescer com controle.
+                  </p>
+
+                  <div className="mt-3 flex items-baseline gap-2">
+                    <span className="text-3xl font-bold text-foreground">R$ 197</span>
+                    <span className="text-xs text-muted-foreground">/mês</span>
+                    <span className="ml-2 text-[11px] text-muted-foreground line-through">
+                      R$ {precoAtual} atual
+                    </span>
+                  </div>
+
+                  <p className="mt-4 mb-2 text-xs font-semibold uppercase tracking-wide text-primary">
+                    Você desbloqueia
+                  </p>
+                  <ul className="space-y-1.5">
+                    {featuresPro.map((f) => (
+                      <li key={f} className="flex items-start gap-2 text-xs">
+                        <Lock className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                        <span className="text-foreground">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button
+                    onClick={() => navigate("/assinar")}
+                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
+                  >
+                    Fazer upgrade para Pro
+                    <ArrowUpRight className="h-4 w-4" />
+                  </button>
+                </div>
               )}
             </div>
-          </div>
-          <button className="w-full rounded-lg bg-primary py-2 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110">
-            Escolher plano
-          </button>
-        </div>
-
+          );
+        })()}
         </div>
         {/* Notificações por e-mail */}
         <div hidden={section !== "notificacoes"}>
