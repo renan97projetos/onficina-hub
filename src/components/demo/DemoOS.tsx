@@ -115,7 +115,9 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
 
   const counts = STAGES.map((stage) => ({
     ...stage,
-    count: ordens.filter((os) => os.stage === stage.key).length,
+    count: stage.key === "orcamento"
+      ? orcamentosCount
+      : ordens.filter((os) => os.stage === stage.key).length,
   }));
 
   const filtered = ordens.filter((os) => os.stage === activeStage);
