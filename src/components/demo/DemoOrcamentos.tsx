@@ -28,6 +28,16 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
   rascunho: { label: "Rascunho", cls: "bg-muted text-muted-foreground" },
@@ -62,6 +72,7 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
   const [convertOrc, setConvertOrc] = useState<any | null>(null);
   const [convertColaboradorId, setConvertColaboradorId] = useState<string>("");
   const [convertPrazo, setConvertPrazo] = useState<string>(defaultPrazo());
+  const [deleteOrc, setDeleteOrc] = useState<any | null>(null);
 
   const { data: colaboradoresAtivos } = useQuery({
     queryKey: ["colaboradores-ativos", oficina_id],
@@ -117,15 +128,16 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
     setShowForm(true);
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Excluir este orçamento?")) return;
-    const { error } = await supabase.from("orcamentos").delete().eq("id", id);
+  async function confirmDelete() {
+    if (!deleteOrc) return;
+    const { error } = await supabase.from("orcamentos").delete().eq("id", deleteOrc.id);
     if (error) {
       toast.error("Erro ao excluir.");
       return;
     }
     toast.success("Orçamento excluído.");
     qc.invalidateQueries({ queryKey: ["orcamentos"] });
+    setDeleteOrc(null);
   }
 
   async function handleDownloadPdf(orc: any) {
