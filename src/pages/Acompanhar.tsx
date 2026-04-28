@@ -4,22 +4,26 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  FileText, Car, Wrench, CreditCard, Truck, CheckCircle2, Circle, Check, Clock,
+  FileText, Car, Wrench, CreditCard, Truck, CheckCircle2, Circle, Check, LayoutGrid,
 } from "lucide-react";
 import Logo from "@/components/Logo";
 
 const STAGES_ORDER = [
-  { key: "criado",           label: "Serviço aberto",     icon: FileText },
-  { key: "aguardando_carro", label: "Aguardando entrada", icon: Clock },
-  { key: "em_atendimento",   label: "Em serviço",         icon: Wrench },
-  { key: "pagamento",        label: "Pronto para retirada", icon: CreditCard },
-  { key: "entrega",          label: "Entrega",            icon: Truck },
-  { key: "finalizado",       label: "Finalizado",         icon: CheckCircle2 },
+  { key: "orcamento",        label: "Orçamento",  icon: FileText },
+  { key: "criado",           label: "OS aberta",  icon: FileText },
+  { key: "alocado_patio",    label: "Na fila",    icon: LayoutGrid },
+  { key: "aguardando_carro", label: "Aguardando", icon: Car },
+  { key: "em_atendimento",   label: "Em serviço", icon: Wrench },
+  { key: "pagamento",        label: "Pagamento",  icon: CreditCard },
+  { key: "entrega",          label: "Entrega",    icon: Truck },
+  { key: "finalizado",       label: "Finalizado", icon: CheckCircle2 },
 ];
 
 const MESSAGES: Record<string, string> = {
-  criado: "Seu serviço foi aberto. Em breve entraremos em contato.",
-  aguardando_carro: "Estamos aguardando a chegada do seu veículo.",
+  orcamento: "Orçamento em análise. Aguardando aprovação para iniciar o serviço.",
+  criado: "Sua OS foi aberta e está sendo preparada.",
+  alocado_patio: "Seu veículo está na fila de atendimento. Em breve um técnico iniciará o serviço.",
+  aguardando_carro: "Aguardando a chegada do veículo na oficina.",
   em_atendimento: "Seu veículo está sendo atendido. Acompanhe o progresso abaixo.",
   pagamento: "Serviço concluído! Dirija-se à oficina para pagamento e retirada.",
   entrega: "Pagamento confirmado. Seu veículo está pronto para retirada!",
