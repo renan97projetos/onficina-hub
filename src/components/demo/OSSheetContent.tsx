@@ -44,8 +44,11 @@ function getEtapasSnapshot(etapasSnapshot: Tables<"os_servicos">["etapas_snapsho
   return etapasSnapshot.filter((etapa): etapa is string => typeof etapa === "string");
 }
 
+const PRO_PLANS = ["pro", "trial"];
+
 const OSSheetContent = ({ os, onClose }: Props) => {
   const { oficina } = useAuth();
+  const isPro = !!oficina?.plano && PRO_PLANS.includes(oficina.plano);
   const queryClient = useQueryClient();
   const [motivoRecusa, setMotivoRecusa] = useState("");
   const [pagamentoForma, setPagamentoForma] = useState(os.pagamento_forma || "");
