@@ -13,10 +13,9 @@ import OrcamentoFormModal from "./OrcamentoFormModal";
 import type { Tables } from "@/integrations/supabase/types";
 
 const STAGES = [
-  { key: "orcamento",        label: "Orçamento criado",   cor: "#D97706" },
   { key: "criado",           label: "OS criada",          cor: "#888780" },
   { key: "alocado_patio",    label: "Alocado no pátio",   cor: "#7F77DD" },
-  { key: "aguardando_carro", label: "Aguardando carro",   cor: "#BA7517" },
+  { key: "aguardando_carro", label: "Aguardando entrada", cor: "#BA7517" },
   { key: "em_atendimento",   label: "Em atendimento",     cor: "#185FA5" },
   { key: "pagamento",        label: "Pagamento",          cor: "#534AB7" },
   { key: "entrega",          label: "Entrega do veículo", cor: "#1D9E75" },
