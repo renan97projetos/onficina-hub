@@ -21,6 +21,7 @@ import {
 
 const DemoConfig = () => {
   const { oficina_id, user, isDono } = useAuth();
+  const navigate = useNavigate();
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
 
