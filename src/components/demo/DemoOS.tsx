@@ -85,7 +85,8 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
       const { count } = await supabase
         .from("orcamentos")
         .select("id", { count: "exact", head: true })
-        .eq("oficina_id", oficina_id);
+        .eq("oficina_id", oficina_id)
+        .is("os_id", null);
       return count || 0;
     },
     enabled: !!oficina_id,
