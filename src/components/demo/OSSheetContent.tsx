@@ -68,6 +68,29 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const [motivoValor, setMotivoValor] = useState("");
   const [valorSaving, setValorSaving] = useState(false);
 
+  // Delete OS
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletingOS, setDeletingOS] = useState(false);
+
+  async function handleDeleteOS() {
+    setDeletingOS(true);
+    try {
+      // Limpa filhos primeiro (caso não exista FK ON DELETE CASCADE)
+      await supabase.from("os_movimentacoes").delete().eq("os_id", os.id);
+      await supabase.from("os_servicos").delete().eq("os_id", os.id);
+      const { error } = await supabase.from("ordens_servico").delete().eq("id", os.id);
+      if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+      toast.success("OS excluída");
+      setDeleteOpen(false);
+      onClose();
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao excluir OS");
+    } finally {
+      setDeletingOS(false);
+    }
+  }
+
   // Comprovante pagamento
   const [comprovante, setComprovante] = useState<string | null>((os as any).comprovante_pagamento || null);
   const [uploadingComprovante, setUploadingComprovante] = useState(false);
