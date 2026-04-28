@@ -73,6 +73,20 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
     enabled: !!oficina_id,
   });
 
+  // Contagem de orçamentos pendentes (não viraram OS ainda) para o card "Orçamento criado"
+  const { data: orcamentosCount = 0 } = useQuery({
+    queryKey: ["orcamentos-count", oficina_id],
+    queryFn: async () => {
+      if (!oficina_id) return 0;
+      const { count } = await supabase
+        .from("orcamentos")
+        .select("id", { count: "exact", head: true })
+        .eq("oficina_id", oficina_id);
+      return count || 0;
+    },
+    enabled: !!oficina_id,
+  });
+
   // Realtime
   useEffect(() => {
     if (!oficina_id) return;
@@ -101,7 +115,9 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
 
   const counts = STAGES.map((stage) => ({
     ...stage,
-    count: ordens.filter((os) => os.stage === stage.key).length,
+    count: stage.key === "orcamento"
+      ? orcamentosCount
+      : ordens.filter((os) => os.stage === stage.key).length,
   }));
 
   const filtered = ordens.filter((os) => os.stage === activeStage);
