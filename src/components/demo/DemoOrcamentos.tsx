@@ -618,6 +618,33 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
           })()}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!deleteOrc} onOpenChange={(o) => !o && setDeleteOrc(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir orçamento?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteOrc && (
+                <>
+                  Esta ação não pode ser desfeita. O orçamento{" "}
+                  <strong>#{String(deleteOrc.id).slice(0, 8)}</strong>
+                  {deleteOrc.cliente_nome ? ` de ${deleteOrc.cliente_nome}` : ""} será removido permanentemente.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingOrc}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); confirmDelete(); }}
+              disabled={deletingOrc}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingOrc ? "Excluindo..." : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
