@@ -12,17 +12,19 @@ import DemoOrcamentos from "./DemoOrcamentos";
 import OrcamentoFormModal from "./OrcamentoFormModal";
 import type { Tables } from "@/integrations/supabase/types";
 
-const STAGES = [
+const ALL_STAGES = [
   { key: "orcamento",        label: "Orçamento criado",   cor: "#D97706" },
   { key: "criado",           label: "OS criada",          cor: "#888780" },
-  { key: "alocado_patio",    label: "Alocado no pátio",   cor: "#7F77DD" },
-  { key: "aguardando_carro", label: "Aguardando entrada", cor: "#BA7517" },
+  { key: "alocado_patio",    label: "Alocado no pátio",   cor: "#7F77DD", proOnly: true },
+  { key: "aguardando_carro", label: "Aguardando entrada", cor: "#BA7517", proOnly: true },
   { key: "em_atendimento",   label: "Em atendimento",     cor: "#185FA5" },
   { key: "pagamento",        label: "Pagamento",          cor: "#534AB7" },
   { key: "entrega",          label: "Entrega do veículo", cor: "#1D9E75" },
   { key: "finalizado",       label: "Finalizado",         cor: "#0F6E56" },
   { key: "recusado",         label: "Recusado",           cor: "#A32D2D" },
 ];
+
+const PRO_PLANS = ["pro", "trial"];
 
 export type OSWithRelations = Tables<"ordens_servico"> & {
   clientes: Tables<"clientes"> | null;
