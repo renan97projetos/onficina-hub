@@ -28,10 +28,9 @@ interface Props {
 }
 
 const STAGE_LABELS: Record<string, string> = {
-  orcamento: "Orçamento criado",
   criado: "OS criada",
   alocado_patio: "Alocado no pátio",
-  aguardando_carro: "Aguardando carro",
+  aguardando_carro: "Aguardando entrada",
   em_atendimento: "Em atendimento",
   pagamento: "Pagamento",
   entrega: "Entrega do veículo",
@@ -495,10 +494,17 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             {/* CRIADO */}
             {os.stage === "criado" && (
               <div className="space-y-4">
-                <button onClick={() => avancarEtapa("alocado_patio", "OS confirmada → Alocado no pátio")}
-                  className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
-                  Confirmar OS → Alocar no pátio
-                </button>
+                {oficina?.plano === "pro" ? (
+                  <button onClick={() => avancarEtapa("alocado_patio", "OS confirmada → Alocado no pátio")}
+                    className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
+                    Confirmar OS → Alocar no pátio
+                  </button>
+                ) : (
+                  <button onClick={() => avancarEtapa("aguardando_carro", "OS confirmada")}
+                    className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all">
+                    Confirmar e aguardar carro →
+                  </button>
+                )}
                 <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
               </div>
             )}
