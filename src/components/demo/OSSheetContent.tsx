@@ -9,7 +9,7 @@ import { publicUrl } from "@/lib/publicUrl";
 import {
   Phone, Copy, Clock, Circle, CheckCircle2, XCircle,
   AlertTriangle, CreditCard, Truck, ChevronRight, Camera, X, Pencil, DollarSign,
-  Star, MessageCircle, ExternalLink, LayoutGrid, Car,
+  Star, MessageCircle, ExternalLink, LayoutGrid, Car, Trash2,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -79,6 +79,26 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const [uploadingSaida, setUploadingSaida] = useState(false);
   const [savingServicoId, setSavingServicoId] = useState<string | null>(null);
   const [avaliacaoDialogOpen, setAvaliacaoDialogOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  async function handleDeleteOS() {
+    setDeleting(true);
+    try {
+      await supabase.from("os_servicos").delete().eq("os_id", os.id);
+      await supabase.from("os_movimentacoes").delete().eq("os_id", os.id);
+      const { error } = await supabase.from("ordens_servico").delete().eq("id", os.id);
+      if (error) throw error;
+      toast.success("OS excluída");
+      queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+      setDeleteOpen(false);
+      onClose();
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao excluir OS");
+    } finally {
+      setDeleting(false);
+    }
+  }
 
   const { data: movimentacoes = [] } = useQuery({
     queryKey: ["os_movimentacoes", os.id],
@@ -466,8 +486,39 @@ Obrigado pela preferência! Até a próxima. 🙏`;
           <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
             {STAGE_LABELS[os.stage] || os.stage}
           </span>
+          <button
+            type="button"
+            onClick={() => setDeleteOpen(true)}
+            title="Excluir OS"
+            className="ml-2 rounded-md border border-border p-2 text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-400"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
         </div>
       </div>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir esta OS?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. A OS de <b>{os.clientes?.nome || "—"}</b>
+              {os.veiculos?.placa ? <> ({os.veiculos.placa})</> : null} e seu histórico
+              (serviços e movimentações) serão removidos permanentemente.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleDeleteOS(); }}
+              disabled={deleting}
+              className="bg-red-600 text-white hover:bg-red-700"
+            >
+              {deleting ? "Excluindo..." : "Excluir OS"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="flex-1 overflow-y-auto">
         <div className="grid gap-6 p-6 lg:grid-cols-2">
