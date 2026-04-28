@@ -478,16 +478,26 @@ Obrigado pela preferência! Até a próxima. 🙏`;
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="border-b border-border bg-card px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-bold text-foreground">{os.clientes?.nome || "—"}</h2>
-            <p className="text-sm text-muted-foreground">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-lg font-bold text-foreground truncate">{os.clientes?.nome || "—"}</h2>
+            <p className="text-sm text-muted-foreground truncate">
               {os.veiculos?.placa} • {os.veiculos?.marca} {os.veiculos?.modelo}
             </p>
           </div>
-          <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            {STAGE_LABELS[os.stage] || os.stage}
-          </span>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+              {STAGE_LABELS[os.stage] || os.stage}
+            </span>
+            <button
+              type="button"
+              onClick={() => setDeleteOpen(true)}
+              title="Excluir OS"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/5 text-destructive hover:bg-destructive/10 transition-colors"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
 
