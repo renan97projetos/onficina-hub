@@ -72,6 +72,8 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
   const [convertOrc, setConvertOrc] = useState<any | null>(null);
   const [convertColaboradorId, setConvertColaboradorId] = useState<string>("");
   const [convertPrazo, setConvertPrazo] = useState<string>(defaultPrazo());
+  const [deleteOrc, setDeleteOrc] = useState<any | null>(null);
+  const [deletingOrc, setDeletingOrc] = useState(false);
 
   const { data: colaboradoresAtivos } = useQuery({
     queryKey: ["colaboradores-ativos", oficina_id],
@@ -127,15 +129,18 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
     setShowForm(true);
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Excluir este orçamento?")) return;
-    const { error } = await supabase.from("orcamentos").delete().eq("id", id);
+  async function confirmDelete() {
+    if (!deleteOrc) return;
+    setDeletingOrc(true);
+    const { error } = await supabase.from("orcamentos").delete().eq("id", deleteOrc.id);
+    setDeletingOrc(false);
     if (error) {
       toast.error("Erro ao excluir.");
       return;
     }
     toast.success("Orçamento excluído.");
     qc.invalidateQueries({ queryKey: ["orcamentos"] });
+    setDeleteOrc(null);
   }
 
   async function handleDownloadPdf(orc: any) {
