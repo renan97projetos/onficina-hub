@@ -18,8 +18,8 @@ project_id = "yzjliinoeliqlxduhrds"
   [functions.stripe-webhook]
     verify_jwt = false
   [functions.create-checkout-session]
-    verify_jwt = true
+    verify_jwt = false
   [functions.create-portal-session]
-    verify_jwt = true
+    verify_jwt = false
   [functions.check-os-limit]
-    verify_jwt = true
+    verify_jwt = false
