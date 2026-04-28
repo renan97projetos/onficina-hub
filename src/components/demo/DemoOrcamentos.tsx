@@ -28,6 +28,16 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const STATUS_LABELS: Record<string, { label: string; cls: string }> = {
   rascunho: { label: "Rascunho", cls: "bg-muted text-muted-foreground" },
@@ -62,6 +72,8 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
   const [convertOrc, setConvertOrc] = useState<any | null>(null);
   const [convertColaboradorId, setConvertColaboradorId] = useState<string>("");
   const [convertPrazo, setConvertPrazo] = useState<string>(defaultPrazo());
+  const [deleteOrc, setDeleteOrc] = useState<any | null>(null);
+  const [deletingOrc, setDeletingOrc] = useState(false);
 
   const { data: colaboradoresAtivos } = useQuery({
     queryKey: ["colaboradores-ativos", oficina_id],
@@ -117,15 +129,18 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
     setShowForm(true);
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm("Excluir este orçamento?")) return;
-    const { error } = await supabase.from("orcamentos").delete().eq("id", id);
+  async function confirmDelete() {
+    if (!deleteOrc) return;
+    setDeletingOrc(true);
+    const { error } = await supabase.from("orcamentos").delete().eq("id", deleteOrc.id);
+    setDeletingOrc(false);
     if (error) {
       toast.error("Erro ao excluir.");
       return;
     }
     toast.success("Orçamento excluído.");
     qc.invalidateQueries({ queryKey: ["orcamentos"] });
+    setDeleteOrc(null);
   }
 
   async function handleDownloadPdf(orc: any) {
@@ -493,11 +508,9 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
                           <Pencil className="h-3.5 w-3.5" />
                         </IconBtn>
                       )}
-                      {o.status !== "aprovado" && (
-                        <IconBtn title="Excluir" onClick={() => handleDelete(o.id)} danger>
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </IconBtn>
-                      )}
+                      <IconBtn title="Excluir" onClick={() => setDeleteOrc(o)} danger>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </IconBtn>
                     </div>
                   </td>
                 </tr>
@@ -605,6 +618,33 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
           })()}
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={!!deleteOrc} onOpenChange={(o) => !o && setDeleteOrc(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir orçamento?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {deleteOrc && (
+                <>
+                  Esta ação não pode ser desfeita. O orçamento{" "}
+                  <strong>#{String(deleteOrc.id).slice(0, 8)}</strong>
+                  {deleteOrc.cliente_nome ? ` de ${deleteOrc.cliente_nome}` : ""} será removido permanentemente.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingOrc}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); confirmDelete(); }}
+              disabled={deletingOrc}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingOrc ? "Excluindo..." : "Excluir"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

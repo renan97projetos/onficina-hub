@@ -9,7 +9,7 @@ import { publicUrl } from "@/lib/publicUrl";
 import {
   Phone, Copy, Clock, Circle, CheckCircle2, XCircle,
   AlertTriangle, CreditCard, Truck, ChevronRight, Camera, X, Pencil, DollarSign,
-  Star, MessageCircle, ExternalLink, LayoutGrid, Car,
+  Star, MessageCircle, ExternalLink, LayoutGrid, Car, Trash2,
 } from "lucide-react";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel,
@@ -67,6 +67,29 @@ const OSSheetContent = ({ os, onClose }: Props) => {
   const [novoValor, setNovoValor] = useState("");
   const [motivoValor, setMotivoValor] = useState("");
   const [valorSaving, setValorSaving] = useState(false);
+
+  // Delete OS
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletingOS, setDeletingOS] = useState(false);
+
+  async function handleDeleteOS() {
+    setDeletingOS(true);
+    try {
+      // Limpa filhos primeiro (caso não exista FK ON DELETE CASCADE)
+      await supabase.from("os_movimentacoes").delete().eq("os_id", os.id);
+      await supabase.from("os_servicos").delete().eq("os_id", os.id);
+      const { error } = await supabase.from("ordens_servico").delete().eq("id", os.id);
+      if (error) throw error;
+      await queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+      toast.success("OS excluída");
+      setDeleteOpen(false);
+      onClose();
+    } catch (err: any) {
+      toast.error(err.message || "Erro ao excluir OS");
+    } finally {
+      setDeletingOS(false);
+    }
+  }
 
   // Comprovante pagamento
   const [comprovante, setComprovante] = useState<string | null>((os as any).comprovante_pagamento || null);
@@ -455,16 +478,26 @@ Obrigado pela preferência! Até a próxima. 🙏`;
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="border-b border-border bg-card px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-bold text-foreground">{os.clientes?.nome || "—"}</h2>
-            <p className="text-sm text-muted-foreground">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <h2 className="text-lg font-bold text-foreground truncate">{os.clientes?.nome || "—"}</h2>
+            <p className="text-sm text-muted-foreground truncate">
               {os.veiculos?.placa} • {os.veiculos?.marca} {os.veiculos?.modelo}
             </p>
           </div>
-          <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            {STAGE_LABELS[os.stage] || os.stage}
-          </span>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+              {STAGE_LABELS[os.stage] || os.stage}
+            </span>
+            <button
+              type="button"
+              onClick={() => setDeleteOpen(true)}
+              title="Excluir OS"
+              className="flex h-8 w-8 items-center justify-center rounded-lg border border-destructive/30 bg-destructive/5 text-destructive hover:bg-destructive/10 transition-colors"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1245,6 +1278,30 @@ Obrigado pela preferência! Até a próxima. 🙏`;
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir OS?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. A ordem de serviço de{" "}
+              <strong>{os.clientes?.nome || "—"}</strong>
+              {os.veiculos?.placa ? ` (${os.veiculos.placa})` : ""} será removida permanentemente,
+              junto com seus serviços e movimentações.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deletingOS}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); handleDeleteOS(); }}
+              disabled={deletingOS}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingOS ? "Excluindo..." : "Excluir OS"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
