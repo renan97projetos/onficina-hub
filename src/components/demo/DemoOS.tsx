@@ -53,9 +53,8 @@ interface DemoOSProps {
 }
 
 const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
-  const { oficina_id, oficina } = useAuth();
-  const isPro = !!oficina?.plano && PRO_PLANS.includes(oficina.plano);
-  const STAGES = ALL_STAGES.filter((s) => isPro || !s.proOnly);
+  const { oficina_id } = useAuth();
+  const STAGES = ALL_STAGES;
   const queryClient = useQueryClient();
   const [activeStage, setActiveStage] = useState("orcamento");
   const [selectedOS, setSelectedOS] = useState<string | null>(null);
