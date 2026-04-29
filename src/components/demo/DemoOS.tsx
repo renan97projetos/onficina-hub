@@ -101,6 +101,10 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
       .on("postgres_changes", { event: "*", schema: "public", table: "os_servicos" }, () => {
         queryClient.invalidateQueries({ queryKey: ["ordens_servico", oficina_id] });
       })
+      .on("postgres_changes", { event: "*", schema: "public", table: "orcamentos", filter: `oficina_id=eq.${oficina_id}` }, () => {
+        queryClient.invalidateQueries({ queryKey: ["orcamentos-count", oficina_id] });
+        queryClient.invalidateQueries({ queryKey: ["orcamentos", oficina_id] });
+      })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [oficina_id, queryClient]);
