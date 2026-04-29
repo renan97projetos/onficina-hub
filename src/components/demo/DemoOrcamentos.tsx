@@ -468,13 +468,15 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
                       <IconBtn title="Baixar PDF" onClick={() => handleDownloadPdf(o)}>
                         <Download className="h-3.5 w-3.5" />
                       </IconBtn>
-                      <IconBtn
-                        title="Enviar WhatsApp"
+                      <button
+                        type="button"
                         onClick={() => handleEnviarWhatsApp(o)}
-                        accent
+                        title="Enviar orçamento ao cliente pelo WhatsApp"
+                        className="inline-flex items-center gap-1 rounded-md border border-[#25D366]/40 bg-[#25D366]/10 px-2 py-1 text-xs font-semibold text-[#25D366] transition-colors hover:bg-[#25D366]/20"
                       >
                         <Send className="h-3.5 w-3.5" />
-                      </IconBtn>
+                        Enviar WhatsApp →
+                      </button>
                       {o.status === "aprovado" && (
                         <button
                           type="button"
