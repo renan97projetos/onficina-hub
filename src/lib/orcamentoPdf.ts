@@ -115,9 +115,10 @@ export async function generateOrcamentoPdf(data: OrcamentoPdfData): Promise<jsPD
   const logoY = (headerH - logoSize) / 2;
   if (logoDataUrl) {
     try {
-      doc.addImage(logoDataUrl, "PNG", logoX, logoY, logoSize, logoSize, undefined, "FAST");
-    } catch {
-      // ignore image errors
+      const fmt = detectImageFormat(logoDataUrl);
+      doc.addImage(logoDataUrl, fmt, logoX, logoY, logoSize, logoSize, undefined, "FAST");
+    } catch (err) {
+      console.warn("Falha ao inserir logo no PDF:", err);
     }
   }
 
