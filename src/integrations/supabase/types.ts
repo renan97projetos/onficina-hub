@@ -564,7 +564,15 @@ export type Database = {
           updated_at?: string
           versao?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orcamentos_os_id_fkey"
+            columns: ["os_id"]
+            isOneToOne: false
+            referencedRelation: "ordens_servico"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ordens_servico: {
         Row: {

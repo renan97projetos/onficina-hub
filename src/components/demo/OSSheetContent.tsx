@@ -60,8 +60,7 @@ interface Props {
 const STAGE_LABELS: Record<string, string> = {
   orcamento: "Orçamento criado",
   criado: "OS criada",
-  alocado_patio: "Alocado no pátio",
-  aguardando_carro: "Aguardando carro",
+  aguardando_carro: "Aguardando entrada",
   em_atendimento: "Em atendimento",
   pagamento: "Pagamento",
   entrega: "Entrega do veículo",
@@ -161,7 +160,7 @@ const OSSheetContent = ({ os, onClose }: Props) => {
     enabled: os.stage === "finalizado",
   });
 
-  const isFullEdit = os.stage === "criado" || os.stage === "alocado_patio" || os.stage === "aguardando_carro";
+  const isFullEdit = os.stage === "criado" || os.stage === "aguardando_carro";
   const isLimitedEdit = os.stage === "em_atendimento" || os.stage === "pagamento" || os.stage === "entrega";
 
   // Tracking de envios via os_movimentacoes (descrição padronizada)
@@ -596,47 +595,11 @@ Obrigado pela preferência! Até a próxima. 🙏`;
             {/* CRIADO */}
             {os.stage === "criado" && (
               <div className="space-y-4">
-                {isPro ? (
-                  <button
-                    onClick={() => avancarEtapa("alocado_patio", "OS confirmada → Alocado no pátio")}
-                    className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all"
-                  >
-                    Confirmar OS → Alocar no pátio
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => avancarEtapa("em_atendimento", "OS confirmada → Em atendimento")}
-                    className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all"
-                  >
-                    Confirmar OS → Em atendimento
-                  </button>
-                )}
-                <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
-              </div>
-            )}
-
-            {/* ALOCADO NO PÁTIO */}
-            {os.stage === "alocado_patio" && (
-              <div className="space-y-4">
-                <div className="rounded-xl border border-[#7F77DD]/30 bg-[#7F77DD]/10 p-4">
-                  <div className="flex items-start gap-3">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#7F77DD]/20">
-                      <LayoutGrid className="h-4 w-4 text-[#a39bff]" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-foreground">Pátio</p>
-                      <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
-                        Aloque este veículo a um técnico no módulo Gestão de Pátio para controle visual da equipe.
-                      </p>
-                      <p className="mt-2 text-[11px] font-medium text-[#a39bff]">Feature disponível no plano Pro</p>
-                    </div>
-                  </div>
-                </div>
                 <button
-                  onClick={() => avancarEtapa("aguardando_carro", "Veículo alocado no pátio")}
+                  onClick={() => avancarEtapa("aguardando_carro", "OS confirmada → Aguardando entrada")}
                   className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground hover:brightness-110 transition-all"
                 >
-                  Confirmar alocação → Aguardando carro
+                  Confirmar OS → Aguardando entrada
                 </button>
                 <RecusarButton motivoRecusa={motivoRecusa} setMotivoRecusa={setMotivoRecusa} onRecusar={recusarOS} />
               </div>
