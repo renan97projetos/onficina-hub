@@ -29,19 +29,28 @@ const AprovarOrcamento = () => {
     if (!token) return;
     (async () => {
       setLoading(true);
-      const { data: o } = await supabase
+      const { data: o, error: orcError } = await supabase
         .from("orcamentos")
         .select("*")
         .eq("token_publico", token)
         .maybeSingle();
+      if (orcError) {
+        setLoading(false);
+        return;
+      }
       if (o) {
-        const { data: of } = await supabase
+        const { data: of, error: oficinaError } = await supabase
           .from("oficinas")
           .select("nome, telefone, cnpj, endereco, logo_url")
           .eq("id", o.oficina_id)
           .maybeSingle();
+
+        if (oficinaError) {
+          console.warn("Falha ao carregar dados públicos da oficina:", oficinaError);
+        }
+
         setOrc(o);
-        setOficina(of);
+        setOficina(of ?? null);
       }
       setLoading(false);
     })();
