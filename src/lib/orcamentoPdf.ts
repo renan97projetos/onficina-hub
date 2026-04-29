@@ -42,19 +42,57 @@ const formatDate = (iso: string) => {
 };
 
 async function loadImageAsDataUrl(url: string): Promise<string | null> {
+  // Try fetch first (works when CORS headers are present)
   try {
-    const res = await fetch(url, { mode: "cors" });
-    if (!res.ok) return null;
-    const blob = await res.blob();
-    return await new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = () => resolve(null);
-      reader.readAsDataURL(blob);
-    });
+    const res = await fetch(url, { mode: "cors", cache: "no-cache" });
+    if (res.ok) {
+      const blob = await res.blob();
+      const dataUrl = await new Promise<string | null>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+      if (dataUrl) return dataUrl;
+    }
   } catch {
-    return null;
+    // fall through to Image fallback
   }
+
+  // Fallback: load via <img crossOrigin> + canvas
+  return await new Promise<string | null>((resolve) => {
+    try {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.naturalWidth || 256;
+          canvas.height = img.naturalHeight || 256;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return resolve(null);
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL("image/png"));
+        } catch {
+          resolve(null);
+        }
+      };
+      img.onerror = () => resolve(null);
+      // cache-buster to avoid cached response without CORS headers
+      const sep = url.includes("?") ? "&" : "?";
+      img.src = `${url}${sep}_cb=${Date.now()}`;
+    } catch {
+      resolve(null);
+    }
+  });
+}
+
+function detectImageFormat(dataUrl: string): "PNG" | "JPEG" | "WEBP" {
+  const m = /^data:image\/([a-zA-Z0-9+.-]+);/.exec(dataUrl);
+  const t = (m?.[1] || "png").toLowerCase();
+  if (t.includes("jpeg") || t.includes("jpg")) return "JPEG";
+  if (t.includes("webp")) return "WEBP";
+  return "PNG";
 }
 
 export async function generateOrcamentoPdf(data: OrcamentoPdfData): Promise<jsPDF> {
@@ -77,9 +115,10 @@ export async function generateOrcamentoPdf(data: OrcamentoPdfData): Promise<jsPD
   const logoY = (headerH - logoSize) / 2;
   if (logoDataUrl) {
     try {
-      doc.addImage(logoDataUrl, "PNG", logoX, logoY, logoSize, logoSize, undefined, "FAST");
-    } catch {
-      // ignore image errors
+      const fmt = detectImageFormat(logoDataUrl);
+      doc.addImage(logoDataUrl, fmt, logoX, logoY, logoSize, logoSize, undefined, "FAST");
+    } catch (err) {
+      console.warn("Falha ao inserir logo no PDF:", err);
     }
   }
 
