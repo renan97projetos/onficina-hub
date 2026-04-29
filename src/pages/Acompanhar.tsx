@@ -11,7 +11,6 @@ import Logo from "@/components/Logo";
 const STAGES_ORDER = [
   { key: "orcamento",        label: "Orçamento",  icon: FileText },
   { key: "criado",           label: "OS aberta",  icon: FileText },
-  { key: "alocado_patio",    label: "Na fila",    icon: LayoutGrid },
   { key: "aguardando_carro", label: "Aguardando", icon: Car },
   { key: "em_atendimento",   label: "Em serviço", icon: Wrench },
   { key: "pagamento",        label: "Pagamento",  icon: CreditCard },
