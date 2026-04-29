@@ -114,10 +114,14 @@ const OSSheetContent = ({ os, onClose }: Props) => {
     try {
       await supabase.from("os_servicos").delete().eq("os_id", os.id);
       await supabase.from("os_movimentacoes").delete().eq("os_id", os.id);
+      // Remove o orçamento vinculado (se houver) para não reaparecer como "aprovado" na lista
+      await supabase.from("orcamentos").delete().eq("os_id", os.id);
       const { error } = await supabase.from("ordens_servico").delete().eq("id", os.id);
       if (error) throw error;
       toast.success("OS excluída");
       queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
+      queryClient.invalidateQueries({ queryKey: ["orcamentos"] });
+      queryClient.invalidateQueries({ queryKey: ["orcamentos-count"] });
       setDeleteOpen(false);
       onClose();
     } catch (err: any) {
@@ -126,6 +130,7 @@ const OSSheetContent = ({ os, onClose }: Props) => {
       setDeleting(false);
     }
   }
+
 
   const { data: movimentacoes = [] } = useQuery({
     queryKey: ["os_movimentacoes", os.id],
