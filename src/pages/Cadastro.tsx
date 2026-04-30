@@ -361,7 +361,7 @@ const Cadastro = () => {
           </div>
 
           {/* Endereço */}
-          <div className="space-y-4 rounded-xl border border-border/60 bg-background/40 p-4">
+          <div className="space-y-4 rounded-xl bg-background/40 p-4">
             <h3 className="text-sm font-semibold">Endereço da oficina</h3>
 
             <div className="grid gap-4 sm:grid-cols-3">
