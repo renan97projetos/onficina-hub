@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Plus, ClipboardList } from "lucide-react";
-import { differenceInHours } from "date-fns";
+import { differenceInHours, isToday, isTomorrow } from "date-fns";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import OSFormModal from "./OSFormModal";
 import OSSheetContent from "./OSSheetContent";
@@ -36,12 +36,16 @@ export function getPrazoBadge(prazo: string | null, stage: string) {
   if (stage === "finalizado") return { label: "Entregue", color: "bg-green-900/30 text-green-400" };
   if (stage === "recusado") return { label: "Recusado", color: "bg-red-900/30 text-red-400" };
   if (!prazo) return null;
-  const diff = differenceInHours(new Date(prazo), new Date());
+  const prazoDate = new Date(prazo);
+  const diff = differenceInHours(prazoDate, new Date());
   if (diff < 0) {
     const dias = Math.abs(Math.ceil(diff / 24));
     return { label: `Atrasado ${dias}d`, color: "bg-red-900/30 text-red-400" };
   }
-  if (diff < 24) return { label: "Vence hoje", color: "bg-yellow-900/30 text-yellow-400" };
+  if (isToday(prazoDate))
+    return { label: "Vence hoje", color: "bg-yellow-900/30 text-yellow-400" };
+  if (isTomorrow(prazoDate))
+    return { label: "Vence amanhã", color: "bg-orange-900/30 text-orange-400" };
   const dias = Math.ceil(diff / 24);
   return { label: `${dias}d restantes`, color: "bg-blue-900/30 text-blue-400" };
 }
