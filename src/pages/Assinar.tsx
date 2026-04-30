@@ -184,15 +184,32 @@ const Assinar = () => {
                   </li>
                 ))}
               </ul>
-              <button
-                onClick={() => handleSelectPlan(p.priceId)}
-                disabled={loading}
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
-              >
-                {jaAssinante
-                  ? (planoAtual === p.priceId.replace("_monthly", "") ? "Plano atual" : "Gerenciar assinatura")
-                  : `Assinar ${p.name}`}
-              </button>
+              {(() => {
+                const planoDoCard = p.priceId.replace("_monthly", "");
+                const ehPlanoAtual = jaAssinante && planoAtual === planoDoCard;
+                const ehUpgrade = jaAssinante && planoAtual === "starter" && planoDoCard === "pro";
+                const ehDowngrade = jaAssinante && planoAtual === "pro" && planoDoCard === "starter";
+
+                let label: string;
+                if (ehPlanoAtual) label = "Plano atual";
+                else if (ehUpgrade) label = "Fazer upgrade";
+                else if (ehDowngrade) label = "Fazer downgrade";
+                else label = `Assinar ${p.name}`;
+
+                const disabled = loading || ehPlanoAtual || openingPortal;
+                return (
+                  <button
+                    onClick={() => handleSelectPlan(p.priceId)}
+                    disabled={disabled}
+                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {openingPortal && (ehUpgrade || ehDowngrade) && (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    )}
+                    {label}
+                  </button>
+                );
+              })()}
             </div>
           ))}
         </div>
