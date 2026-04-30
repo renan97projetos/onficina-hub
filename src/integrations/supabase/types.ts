@@ -503,6 +503,7 @@ export type Database = {
           total_pecas: number
           updated_at: string
           versao: string | null
+          whatsapp_enviado: boolean
         }
         Insert: {
           ano?: number | null
@@ -533,6 +534,7 @@ export type Database = {
           total_pecas?: number
           updated_at?: string
           versao?: string | null
+          whatsapp_enviado?: boolean
         }
         Update: {
           ano?: number | null
@@ -563,6 +565,7 @@ export type Database = {
           total_pecas?: number
           updated_at?: string
           versao?: string | null
+          whatsapp_enviado?: boolean
         }
         Relationships: [
           {
