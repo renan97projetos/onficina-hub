@@ -122,6 +122,7 @@ const DemoFinanceiro = () => {
     tipo: "entrada" | "saida";
     data: string;
     descricao: string;
+    id_pagamento?: string;
     valor: number;
     forma?: string | null;
   };
@@ -132,6 +133,7 @@ const DemoFinanceiro = () => {
       tipo: "entrada" as const,
       data: o.pagamento_confirmado_em || "",
       descricao: `${o.clientes?.nome || "Cliente"} — ${o.veiculos?.placa || ""}`,
+      id_pagamento: `#${o.id.slice(0, 8).toUpperCase()}`,
       valor: Number(o.valor_total),
       forma: o.pagamento_forma,
     }));
@@ -240,7 +242,14 @@ const DemoFinanceiro = () => {
                     <td className="px-4 py-3 text-foreground">
                       {l.data ? format(new Date(l.data), "dd/MM/yyyy", { locale: ptBR }) : "—"}
                     </td>
-                    <td className="px-4 py-3 text-foreground">{l.descricao}</td>
+                    <td className="px-4 py-3">
+                      {l.id_pagamento && (
+                        <span className="block font-mono text-xs text-muted-foreground">
+                          {l.id_pagamento}
+                        </span>
+                      )}
+                      <span className="text-foreground">{l.descricao}</span>
+                    </td>
                     <td className="px-4 py-3 text-muted-foreground capitalize">{l.forma || "—"}</td>
                     <td className={`px-4 py-3 text-right font-semibold ${l.tipo === "entrada" ? "text-green-400" : "text-red-400"}`}>
                       {l.tipo === "saida" ? "- " : "+ "}R$ {l.valor.toFixed(2)}
