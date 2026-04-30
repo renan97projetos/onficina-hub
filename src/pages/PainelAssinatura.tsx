@@ -130,6 +130,31 @@ const PainelAssinatura = () => {
     }
   };
 
+  const handleUpgrade = async (targetPlan: "pro") => {
+    setUpgradingTo(targetPlan);
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "upgrade-subscription",
+        {
+          body: {
+            targetPriceId: `${targetPlan}_monthly`,
+            environment: getStripeEnvironment(),
+          },
+        },
+      );
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error ?? "Falha no upgrade");
+
+      toast.success("Upgrade para Pro realizado! Atualizando...");
+      await new Promise((r) => setTimeout(r, 3000));
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      toast.error((err as Error)?.message ?? "Erro ao fazer upgrade. Tente novamente.");
+    } finally {
+      setUpgradingTo(null);
+    }
+  };
   return (
     <div className="min-h-screen bg-background">
       <PaymentTestModeBanner />
