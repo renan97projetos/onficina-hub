@@ -1257,6 +1257,22 @@ const DemoConfig = () => {
         )}
         </div>
       </div>
+
+      <Dialog open={!!checkoutPlano} onOpenChange={(open) => !open && setCheckoutPlano(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle>Finalizar assinatura</DialogTitle>
+          </DialogHeader>
+          <div className="p-2 sm:p-4">
+            {checkoutPlano && (
+              <StripeEmbeddedCheckout
+                priceId={checkoutPlano}
+                returnUrl={`${window.location.origin}/painel/assinatura?status=success&session_id={CHECKOUT_SESSION_ID}`}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
