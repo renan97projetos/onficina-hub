@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +19,21 @@ import {
   Settings,
   LayoutGrid,
   TrendingUp,
+  Bell,
+  AlertTriangle,
+  CalendarClock,
 } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+type Notif = {
+  id: string;
+  tipo: "lembrete" | "os_atrasada";
+  titulo: string;
+  descricao: string;
+  data: string; // ISO date
+  refId: string; // cliente_id (lembrete) or os_id (os_atrasada)
+};
 
 const baseNavItems = [
   { icon: FileText, label: "Gestão de OS", key: "os" },
