@@ -39,14 +39,6 @@ const Footer = () => {
                   Central de ajuda
                 </a>
               </li>
-              <li>
-                <a
-                  href="mailto:suporte@onficina.com"
-                  className="transition-colors hover:text-foreground"
-                >
-                  suporte@onficina.com
-                </a>
-              </li>
             </ul>
           </div>
         </div>
