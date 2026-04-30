@@ -35,8 +35,11 @@ export function StripeEmbeddedCheckout({ priceId, returnUrl }: Props) {
 
   const fetchClientSecret = async (): Promise<string> => {
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Sessão expirada. Faça login novamente.");
       const { data, error: fnError } = await supabase.functions.invoke("create-checkout", {
         body: { priceId, returnUrl, environment: getStripeEnvironment() },
+        headers: { Authorization: `Bearer ${session.access_token}` },
       });
       if (fnError) {
         console.error("[checkout] invoke error:", fnError);
