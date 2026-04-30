@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -77,7 +77,12 @@ function getClienteStatus(ultimaVisita: string | null, totalOs: number) {
   return { label: "Inativo", cls: "bg-red-500/15 text-red-400" };
 }
 
-const DemoClientes = () => {
+interface DemoClientesProps {
+  initialClienteId?: string | null;
+  onConsumeInitialClienteId?: () => void;
+}
+
+const DemoClientes = ({ initialClienteId, onConsumeInitialClienteId }: DemoClientesProps = {}) => {
   const { oficina_id } = useAuth();
   const [search, setSearch] = useState("");
   const [filtroStatus, setFiltroStatus] = useState<"todos" | "ativos" | "inativos">("todos");
@@ -85,6 +90,13 @@ const DemoClientes = () => {
   const [selectedClienteId, setSelectedClienteId] = useState<string | null>(null);
   const [osModalOpen, setOsModalOpen] = useState(false);
   const [osModalClienteId, setOsModalClienteId] = useState<string | undefined>();
+
+  useEffect(() => {
+    if (initialClienteId) {
+      setSelectedClienteId(initialClienteId);
+      onConsumeInitialClienteId?.();
+    }
+  }, [initialClienteId, onConsumeInitialClienteId]);
 
   const { data: clientes = [], isLoading } = useQuery({
     queryKey: ["clientes-crm", oficina_id],

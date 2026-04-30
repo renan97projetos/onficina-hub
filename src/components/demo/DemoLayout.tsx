@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,7 +19,21 @@ import {
   Settings,
   LayoutGrid,
   TrendingUp,
+  Bell,
+  AlertTriangle,
+  CalendarClock,
 } from "lucide-react";
+import { format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
+
+type Notif = {
+  id: string;
+  tipo: "lembrete" | "os_atrasada";
+  titulo: string;
+  descricao: string;
+  data: string; // ISO date
+  refId: string; // cliente_id (lembrete) or os_id (os_atrasada)
+};
 
 const baseNavItems = [
   { icon: FileText, label: "Gestão de OS", key: "os" },
@@ -117,6 +131,106 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
     };
   }, [oficina_id]);
 
+  // Notificações: lembretes vencendo + OS atrasadas
+  const [notifs, setNotifs] = useState<Notif[]>([]);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifReadAt, setNotifReadAt] = useState<number>(() => {
+    const v = typeof window !== "undefined" ? localStorage.getItem("notif_read_at") : null;
+    return v ? Number(v) : 0;
+  });
+  const notifRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!oficina_id) return;
+    let mounted = true;
+
+    const fetchNotifs = async () => {
+      const today = new Date();
+      const todayIso = today.toISOString().slice(0, 10);
+      const nowIso = today.toISOString();
+
+      const [lembretesRes, osRes] = await Promise.all([
+        supabase
+          .from("crm_lembretes")
+          .select("id, descricao, data_lembrete, cliente_id, clientes:cliente_id(nome)")
+          .eq("oficina_id", oficina_id)
+          .eq("concluido", false)
+          .lte("data_lembrete", todayIso)
+          .order("data_lembrete", { ascending: true }),
+        supabase
+          .from("ordens_servico")
+          .select("id, prazo_estimado, stage, cliente_id, clientes:cliente_id(nome)")
+          .eq("oficina_id", oficina_id)
+          .lt("prazo_estimado", nowIso)
+          .not("stage", "in", "(finalizado,recusado)")
+          .order("prazo_estimado", { ascending: true }),
+      ]);
+
+      const list: Notif[] = [];
+      (lembretesRes.data || []).forEach((l: any) => {
+        list.push({
+          id: `lemb-${l.id}`,
+          tipo: "lembrete",
+          titulo: l.clientes?.nome || "Cliente",
+          descricao: l.descricao,
+          data: l.data_lembrete,
+          refId: l.cliente_id,
+        });
+      });
+      (osRes.data || []).forEach((o: any) => {
+        list.push({
+          id: `os-${o.id}`,
+          tipo: "os_atrasada",
+          titulo: "OS atrasada",
+          descricao: `OS de ${o.clientes?.nome || "cliente"} está atrasada`,
+          data: o.prazo_estimado,
+          refId: o.id,
+        });
+      });
+      list.sort((a, b) => a.data.localeCompare(b.data));
+      if (mounted) setNotifs(list);
+    };
+
+    fetchNotifs();
+    const interval = setInterval(fetchNotifs, 60_000);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, [oficina_id]);
+
+  // Fechar dropdown ao clicar fora
+  useEffect(() => {
+    if (!notifOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [notifOpen]);
+
+  const unread = notifs.filter((n) => new Date(n.data).getTime() >= notifReadAt).length;
+
+  const toggleNotifs = () => {
+    setNotifOpen((o) => {
+      const next = !o;
+      if (next) {
+        const ts = Date.now();
+        setNotifReadAt(ts);
+        localStorage.setItem("notif_read_at", String(ts));
+      }
+      return next;
+    });
+  };
+
+  const handleNotifClick = (n: Notif) => {
+    setNotifOpen(false);
+    if (n.tipo === "lembrete") onNavigate("clientes", n.refId);
+    else onNavigate("os", n.refId);
+  };
+
   const handleLogout = async () => {
     await signOut();
     navigate("/login");
@@ -131,6 +245,76 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
             <span className="text-sm font-medium text-muted-foreground">Sistema ONficina</span>
           </div>
           <div className="flex items-center gap-2">
+            <div className="relative" ref={notifRef}>
+              <button
+                type="button"
+                onClick={toggleNotifs}
+                className="relative rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                title="Notificações"
+                aria-label="Notificações"
+              >
+                <Bell className="h-4 w-4" />
+                {unread > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground">
+                    {unread > 9 ? "9+" : unread}
+                  </span>
+                )}
+              </button>
+              {notifOpen && (
+                <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-lg border border-border bg-card shadow-xl">
+                  <div className="flex items-center justify-between border-b border-border px-3 py-2">
+                    <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                      Notificações
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {notifs.length} no total
+                    </span>
+                  </div>
+                  {notifs.length === 0 ? (
+                    <div className="px-3 py-8 text-center text-xs text-muted-foreground">
+                      Tudo em dia! Nenhuma notificação pendente.
+                    </div>
+                  ) : (
+                    <ul className="max-h-96 divide-y divide-border overflow-y-auto">
+                      {notifs.map((n) => {
+                        const Icon = n.tipo === "lembrete" ? CalendarClock : AlertTriangle;
+                        const iconCls =
+                          n.tipo === "lembrete" ? "text-amber-400" : "text-red-400";
+                        let dataLabel = "";
+                        try {
+                          const d = n.data.length === 10 ? parseISO(n.data) : new Date(n.data);
+                          dataLabel = format(d, "dd/MM/yyyy", { locale: ptBR });
+                        } catch {
+                          dataLabel = n.data;
+                        }
+                        return (
+                          <li key={n.id}>
+                            <button
+                              type="button"
+                              onClick={() => handleNotifClick(n)}
+                              className="flex w-full items-start gap-2 px-3 py-2 text-left transition-colors hover:bg-muted"
+                            >
+                              <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${iconCls}`} />
+                              <div className="min-w-0 flex-1">
+                                <div className="truncate text-sm font-semibold text-foreground">
+                                  {n.titulo}
+                                </div>
+                                <div className="truncate text-xs text-muted-foreground">
+                                  {n.descricao}
+                                </div>
+                                <div className="mt-0.5 text-[10px] text-muted-foreground">
+                                  {dataLabel}
+                                </div>
+                              </div>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
             <button type="button" className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
               <RefreshCw className="h-4 w-4" />
             </button>
