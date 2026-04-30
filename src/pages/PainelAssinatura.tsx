@@ -77,6 +77,26 @@ const PainelAssinatura = () => {
   const plano = oficina?.plano ?? "trial";
   const meta = PLAN_META[plano] ?? PLAN_META.trial;
 
+  // Carrega subscription para detectar past_due / cancel_at_period_end
+  const { data: subscription } = useQuery({
+    queryKey: ["subscription", oficina_id, getStripeEnvironment()],
+    enabled: !!oficina_id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("status, current_period_end, cancel_at_period_end")
+        .eq("oficina_id", oficina_id!)
+        .eq("environment", getStripeEnvironment())
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const isPastDue = subscription?.status === "past_due";
+  const willCancel = subscription?.cancel_at_period_end && subscription?.current_period_end;
+
   const diasRestantes = (() => {
     if (plano !== "trial" || !oficina?.trial_expires_at) return null;
     const ms = new Date(oficina.trial_expires_at).getTime() - Date.now();
