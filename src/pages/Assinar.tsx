@@ -88,6 +88,28 @@ const Assinar = () => {
     }
   };
 
+  const handleUpgradeDireto = async (targetPlan: "starter" | "pro") => {
+    if (upgradingTo) return;
+    setUpgradingTo(targetPlan);
+    try {
+      const { data, error } = await supabase.functions.invoke("upgrade-subscription", {
+        body: {
+          targetPriceId: `${targetPlan}_monthly`,
+          environment: getStripeEnvironment(),
+        },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error ?? "Falha no upgrade");
+      toast.success("Plano alterado com sucesso! Atualizando...");
+      await new Promise((r) => setTimeout(r, 3000));
+      window.location.href = "/painel/assinatura";
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Erro ao alterar plano";
+      toast.error(`Não foi possível alterar o plano: ${msg}`);
+      setUpgradingTo(null);
+    }
+  };
+
   const handleSelectPlan = (priceId: string) => {
     if (loading) return;
 
@@ -96,12 +118,12 @@ const Assinar = () => {
       return;
     }
 
-    const planoDoCard = priceId.replace("_monthly", "");
+    const planoDoCard = priceId.replace("_monthly", "") as "starter" | "pro";
 
-    // Se já é assinante: trocar de plano abre o Portal Stripe
+    // Se já é assinante: trocar de plano = upgrade/downgrade direto via API
     if (jaAssinante) {
-      if (planoDoCard === planoAtual) return; // botão será "Plano atual" desabilitado
-      abrirPortal();
+      if (planoDoCard === planoAtual) return;
+      handleUpgradeDireto(planoDoCard);
       return;
     }
 
