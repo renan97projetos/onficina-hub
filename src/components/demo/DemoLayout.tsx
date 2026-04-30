@@ -245,6 +245,76 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
             <span className="text-sm font-medium text-muted-foreground">Sistema ONficina</span>
           </div>
           <div className="flex items-center gap-2">
+            <div className="relative" ref={notifRef}>
+              <button
+                type="button"
+                onClick={toggleNotifs}
+                className="relative rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                title="Notificações"
+                aria-label="Notificações"
+              >
+                <Bell className="h-4 w-4" />
+                {unread > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold leading-none text-destructive-foreground">
+                    {unread > 9 ? "9+" : unread}
+                  </span>
+                )}
+              </button>
+              {notifOpen && (
+                <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-lg border border-border bg-card shadow-xl">
+                  <div className="flex items-center justify-between border-b border-border px-3 py-2">
+                    <span className="text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                      Notificações
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {notifs.length} no total
+                    </span>
+                  </div>
+                  {notifs.length === 0 ? (
+                    <div className="px-3 py-8 text-center text-xs text-muted-foreground">
+                      Tudo em dia! Nenhuma notificação pendente.
+                    </div>
+                  ) : (
+                    <ul className="max-h-96 divide-y divide-border overflow-y-auto">
+                      {notifs.map((n) => {
+                        const Icon = n.tipo === "lembrete" ? CalendarClock : AlertTriangle;
+                        const iconCls =
+                          n.tipo === "lembrete" ? "text-amber-400" : "text-red-400";
+                        let dataLabel = "";
+                        try {
+                          const d = n.data.length === 10 ? parseISO(n.data) : new Date(n.data);
+                          dataLabel = format(d, "dd/MM/yyyy", { locale: ptBR });
+                        } catch {
+                          dataLabel = n.data;
+                        }
+                        return (
+                          <li key={n.id}>
+                            <button
+                              type="button"
+                              onClick={() => handleNotifClick(n)}
+                              className="flex w-full items-start gap-2 px-3 py-2 text-left transition-colors hover:bg-muted"
+                            >
+                              <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${iconCls}`} />
+                              <div className="min-w-0 flex-1">
+                                <div className="truncate text-sm font-semibold text-foreground">
+                                  {n.titulo}
+                                </div>
+                                <div className="truncate text-xs text-muted-foreground">
+                                  {n.descricao}
+                                </div>
+                                <div className="mt-0.5 text-[10px] text-muted-foreground">
+                                  {dataLabel}
+                                </div>
+                              </div>
+                            </button>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  )}
+                </div>
+              )}
+            </div>
             <button type="button" className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
               <RefreshCw className="h-4 w-4" />
             </button>
