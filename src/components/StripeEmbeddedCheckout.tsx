@@ -40,6 +40,8 @@ export function StripeEmbeddedCheckout({ priceId, returnUrl }: Props) {
       );
 
       const data = await response.json().catch(() => ({}));
+      console.log("[checkout] status:", response.status);
+      console.log("[checkout] response data:", JSON.stringify(data));
 
       if (!response.ok) {
         console.error("[checkout] http error:", response.status, data);
@@ -53,6 +55,11 @@ export function StripeEmbeddedCheckout({ priceId, returnUrl }: Props) {
       return data.clientSecret;
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Erro desconhecido";
+      console.error("[StripeEmbeddedCheckout] erro completo:", e);
+      console.error("[StripeEmbeddedCheckout] mensagem:", msg);
+      console.error("[StripeEmbeddedCheckout] environment:", getStripeEnvironment());
+      console.error("[StripeEmbeddedCheckout] VITE_PAYMENTS_CLIENT_TOKEN existe?",
+        !!import.meta.env.VITE_PAYMENTS_CLIENT_TOKEN);
       setError(msg);
       throw e;
     }
