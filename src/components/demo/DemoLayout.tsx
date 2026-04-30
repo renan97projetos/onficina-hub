@@ -131,6 +131,106 @@ const DemoLayout = ({ activeKey, onNavigate, children }: DemoLayoutProps) => {
     };
   }, [oficina_id]);
 
+  // Notificações: lembretes vencendo + OS atrasadas
+  const [notifs, setNotifs] = useState<Notif[]>([]);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifReadAt, setNotifReadAt] = useState<number>(() => {
+    const v = typeof window !== "undefined" ? localStorage.getItem("notif_read_at") : null;
+    return v ? Number(v) : 0;
+  });
+  const notifRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!oficina_id) return;
+    let mounted = true;
+
+    const fetchNotifs = async () => {
+      const today = new Date();
+      const todayIso = today.toISOString().slice(0, 10);
+      const nowIso = today.toISOString();
+
+      const [lembretesRes, osRes] = await Promise.all([
+        supabase
+          .from("crm_lembretes")
+          .select("id, descricao, data_lembrete, cliente_id, clientes:cliente_id(nome)")
+          .eq("oficina_id", oficina_id)
+          .eq("concluido", false)
+          .lte("data_lembrete", todayIso)
+          .order("data_lembrete", { ascending: true }),
+        supabase
+          .from("ordens_servico")
+          .select("id, prazo_estimado, stage, cliente_id, clientes:cliente_id(nome)")
+          .eq("oficina_id", oficina_id)
+          .lt("prazo_estimado", nowIso)
+          .not("stage", "in", "(finalizado,recusado)")
+          .order("prazo_estimado", { ascending: true }),
+      ]);
+
+      const list: Notif[] = [];
+      (lembretesRes.data || []).forEach((l: any) => {
+        list.push({
+          id: `lemb-${l.id}`,
+          tipo: "lembrete",
+          titulo: l.clientes?.nome || "Cliente",
+          descricao: l.descricao,
+          data: l.data_lembrete,
+          refId: l.cliente_id,
+        });
+      });
+      (osRes.data || []).forEach((o: any) => {
+        list.push({
+          id: `os-${o.id}`,
+          tipo: "os_atrasada",
+          titulo: "OS atrasada",
+          descricao: `OS de ${o.clientes?.nome || "cliente"} está atrasada`,
+          data: o.prazo_estimado,
+          refId: o.id,
+        });
+      });
+      list.sort((a, b) => a.data.localeCompare(b.data));
+      if (mounted) setNotifs(list);
+    };
+
+    fetchNotifs();
+    const interval = setInterval(fetchNotifs, 60_000);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, [oficina_id]);
+
+  // Fechar dropdown ao clicar fora
+  useEffect(() => {
+    if (!notifOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setNotifOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [notifOpen]);
+
+  const unread = notifs.filter((n) => new Date(n.data).getTime() >= notifReadAt).length;
+
+  const toggleNotifs = () => {
+    setNotifOpen((o) => {
+      const next = !o;
+      if (next) {
+        const ts = Date.now();
+        setNotifReadAt(ts);
+        localStorage.setItem("notif_read_at", String(ts));
+      }
+      return next;
+    });
+  };
+
+  const handleNotifClick = (n: Notif) => {
+    setNotifOpen(false);
+    if (n.tipo === "lembrete") onNavigate("clientes", n.refId);
+    else onNavigate("os", n.refId);
+  };
+
   const handleLogout = async () => {
     await signOut();
     navigate("/login");
