@@ -8,6 +8,7 @@ import DemoColaboradores from "@/components/demo/DemoColaboradores";
 import DemoAgenda from "@/components/demo/DemoAgenda";
 import DemoVeiculos from "@/components/demo/DemoVeiculos";
 import DemoFinanceiro from "@/components/demo/DemoFinanceiro";
+import DemoDadosOrcamento from "@/components/demo/DemoDadosOrcamento";
 import DemoRelatorios from "@/components/demo/DemoRelatorios";
 import DemoTreinamentos from "@/components/demo/DemoTreinamentos";
 import DemoConfig from "@/components/demo/DemoConfig";
