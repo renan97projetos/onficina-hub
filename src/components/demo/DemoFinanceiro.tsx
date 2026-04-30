@@ -6,8 +6,11 @@ import { toast } from "sonner";
 import { format, startOfMonth, endOfMonth, startOfDay, endOfDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import {
-  DollarSign, TrendingUp, Clock, CheckCircle2, Trash2,
+  DollarSign, TrendingUp, Clock, CheckCircle2, Trash2, CalendarIcon,
 } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 const MESES = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
