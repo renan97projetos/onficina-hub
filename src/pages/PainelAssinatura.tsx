@@ -25,6 +25,7 @@ const PainelAssinatura = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [openingPortal, setOpeningPortal] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [upgradingTo, setUpgradingTo] = useState<"pro" | null>(null);
 
   const status = searchParams.get("status");
 
