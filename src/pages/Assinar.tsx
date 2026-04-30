@@ -60,6 +60,7 @@ const Assinar = () => {
     plans.some((plan) => plan.priceId === requestedPlan) ? requestedPlan : null,
   );
   const [openingPortal, setOpeningPortal] = useState(false);
+  const [upgradingTo, setUpgradingTo] = useState<string | null>(null);
 
   const returnUrl = `${window.location.origin}/painel/assinatura?status=success&session_id={CHECKOUT_SESSION_ID}`;
 
