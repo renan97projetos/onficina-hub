@@ -36,23 +36,33 @@ const Admin = () => {
   const { isDono } = useAuth();
   const [activeKey, setActiveKey] = useState("os");
   const [pendingOsId, setPendingOsId] = useState<string | null>(null);
+  const [pendingClienteId, setPendingClienteId] = useState<string | null>(null);
 
   const safeKey = !isDono && OPERADOR_BLOCKED.has(activeKey) ? "os" : activeKey;
   const Page = pages[safeKey] || DemoOS;
 
-  const handleNavigate = (key: string, osId?: string) => {
+  const handleNavigate = (key: string, refId?: string) => {
     setActiveKey(key);
-    if (osId) setPendingOsId(osId);
+    if (refId) {
+      if (key === "os") setPendingOsId(refId);
+      else if (key === "clientes") setPendingClienteId(refId);
+    }
   };
 
-  const pageProps =
-    safeKey === "os"
-      ? {
-          initialOsId: pendingOsId,
-          onConsumeInitialOsId: () => setPendingOsId(null),
-          onNavigate: handleNavigate,
-        }
-      : { onNavigate: handleNavigate };
+  let pageProps: any = { onNavigate: handleNavigate };
+  if (safeKey === "os") {
+    pageProps = {
+      ...pageProps,
+      initialOsId: pendingOsId,
+      onConsumeInitialOsId: () => setPendingOsId(null),
+    };
+  } else if (safeKey === "clientes") {
+    pageProps = {
+      ...pageProps,
+      initialClienteId: pendingClienteId,
+      onConsumeInitialClienteId: () => setPendingClienteId(null),
+    };
+  }
 
   return (
     <DemoLayout activeKey={safeKey} onNavigate={handleNavigate}>
