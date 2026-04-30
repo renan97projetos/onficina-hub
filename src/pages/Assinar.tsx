@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { AlertTriangle, ArrowLeft, Check } from "lucide-react";
 import Logo from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
@@ -49,12 +49,28 @@ const plans = [
 ];
 
 const Assinar = () => {
-  const { trialExpired, oficina } = useAuth();
-  const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
+  const { trialExpired, oficina, session, loading } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const requestedPlan = searchParams.get("plan");
+  const [selectedPriceId, setSelectedPriceId] = useState<string | null>(
+    plans.some((plan) => plan.priceId === requestedPlan) ? requestedPlan : null,
+  );
 
   const returnUrl = `${window.location.origin}/painel/assinatura?status=success&session_id={CHECKOUT_SESSION_ID}`;
 
-  if (selectedPriceId) {
+  const handleSelectPlan = (priceId: string) => {
+    if (loading) return;
+
+    if (!session) {
+      navigate(`/login?returnUrl=${encodeURIComponent(`/assinar?plan=${priceId}`)}`);
+      return;
+    }
+
+    setSelectedPriceId(priceId);
+  };
+
+  if (selectedPriceId && session) {
     return (
       <div className="min-h-screen bg-background">
         <PaymentTestModeBanner />
@@ -132,7 +148,8 @@ const Assinar = () => {
                 ))}
               </ul>
               <button
-                onClick={() => setSelectedPriceId(p.priceId)}
+                onClick={() => handleSelectPlan(p.priceId)}
+                disabled={loading}
                 className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
               >
                 Assinar {p.name}

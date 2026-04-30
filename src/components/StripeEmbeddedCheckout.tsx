@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   EmbeddedCheckoutProvider,
   EmbeddedCheckout,
 } from "@stripe/react-stripe-js";
 import { Loader2, AlertTriangle } from "lucide-react";
 import { getStripe, getStripeEnvironment } from "@/lib/stripe";
-import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Props {
   priceId: string;
@@ -13,38 +13,39 @@ interface Props {
 }
 
 export function StripeEmbeddedCheckout({ priceId, returnUrl }: Props) {
+  const { session, loading } = useAuth();
   const [error, setError] = useState<string | null>(null);
-  const [ready, setReady] = useState(false);
-
-  // Pré-checa sessão antes de montar o provider (evita tela preta silenciosa)
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (cancelled) return;
-      if (!session) {
-        setError("Você precisa estar logado para assinar. Faça login e tente novamente.");
-        return;
-      }
-      setReady(true);
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   const fetchClientSecret = async (): Promise<string> => {
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Sessão expirada. Faça login novamente.");
-      const { data, error: fnError } = await supabase.functions.invoke("create-checkout", {
-        body: { priceId, returnUrl, environment: getStripeEnvironment() },
-        headers: { Authorization: `Bearer ${session.access_token}` },
-      });
-      if (fnError) {
-        console.error("[checkout] invoke error:", fnError);
-        throw new Error(fnError.message || "Falha ao iniciar checkout");
+      if (!session?.access_token) {
+        throw new Error("Você precisa estar logado para assinar. Faça login e tente novamente.");
       }
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-checkout`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            priceId,
+            returnUrl,
+            environment: getStripeEnvironment(),
+          }),
+        },
+      );
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        console.error("[checkout] http error:", response.status, data);
+        throw new Error(data?.error || "Falha ao iniciar checkout");
+      }
+
       if (!data?.clientSecret) {
         console.error("[checkout] no clientSecret:", data);
         throw new Error(data?.error || "Resposta inválida do servidor");
@@ -67,10 +68,22 @@ export function StripeEmbeddedCheckout({ priceId, returnUrl }: Props) {
     );
   }
 
-  if (!ready) {
+  if (loading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!session) {
+    return (
+      <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 p-6 text-center">
+        <AlertTriangle className="h-8 w-8 text-destructive" />
+        <h3 className="text-base font-semibold text-foreground">Não foi possível abrir o checkout</h3>
+        <p className="max-w-md text-sm text-muted-foreground">
+          Você precisa estar logado para assinar. Faça login e tente novamente.
+        </p>
       </div>
     );
   }
