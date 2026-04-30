@@ -59,11 +59,20 @@ const Assinar = () => {
 
   const returnUrl = `${window.location.origin}/painel/assinatura?status=success&session_id={CHECKOUT_SESSION_ID}`;
 
+  const planoAtual = (oficina?.plano || "trial").toLowerCase();
+  const jaAssinante = planoAtual === "starter" || planoAtual === "pro";
+
   const handleSelectPlan = (priceId: string) => {
     if (loading) return;
 
     if (!session) {
       navigate(`/login?returnUrl=${encodeURIComponent(`/assinar?plan=${priceId}`)}`);
+      return;
+    }
+
+    // Bloqueia dupla-assinatura: já assinante deve usar Portal Stripe
+    if (jaAssinante) {
+      navigate("/painel/assinatura");
       return;
     }
 
