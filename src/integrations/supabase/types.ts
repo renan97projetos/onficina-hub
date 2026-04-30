@@ -1059,6 +1059,7 @@ export type Database = {
         Args: { _env?: string; _oficina_id: string }
         Returns: boolean
       }
+      has_pro_plan: { Args: { _oficina_id: string }; Returns: boolean }
       move_to_dlq: {
         Args: {
           dlq_name: string

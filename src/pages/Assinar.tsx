@@ -59,11 +59,20 @@ const Assinar = () => {
 
   const returnUrl = `${window.location.origin}/painel/assinatura?status=success&session_id={CHECKOUT_SESSION_ID}`;
 
+  const planoAtual = (oficina?.plano || "trial").toLowerCase();
+  const jaAssinante = planoAtual === "starter" || planoAtual === "pro";
+
   const handleSelectPlan = (priceId: string) => {
     if (loading) return;
 
     if (!session) {
       navigate(`/login?returnUrl=${encodeURIComponent(`/assinar?plan=${priceId}`)}`);
+      return;
+    }
+
+    // Bloqueia dupla-assinatura: já assinante deve usar Portal Stripe
+    if (jaAssinante) {
+      navigate("/painel/assinatura");
       return;
     }
 
@@ -152,7 +161,9 @@ const Assinar = () => {
                 disabled={loading}
                 className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
               >
-                Assinar {p.name}
+                {jaAssinante
+                  ? (planoAtual === p.priceId.replace("_monthly", "") ? "Plano atual" : "Gerenciar assinatura")
+                  : `Assinar ${p.name}`}
               </button>
             </div>
           ))}

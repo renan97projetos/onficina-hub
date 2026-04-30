@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getStripeEnvironment } from "@/lib/stripe";
@@ -9,6 +9,7 @@ import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
+import { useQuery } from "@tanstack/react-query";
 
 const PLAN_META: Record<
   string,
@@ -76,6 +77,26 @@ const PainelAssinatura = () => {
   const plano = oficina?.plano ?? "trial";
   const meta = PLAN_META[plano] ?? PLAN_META.trial;
 
+  // Carrega subscription para detectar past_due / cancel_at_period_end
+  const { data: subscription } = useQuery({
+    queryKey: ["subscription", oficina_id, getStripeEnvironment()],
+    enabled: !!oficina_id,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("status, current_period_end, cancel_at_period_end")
+        .eq("oficina_id", oficina_id!)
+        .eq("environment", getStripeEnvironment())
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data;
+    },
+  });
+
+  const isPastDue = subscription?.status === "past_due";
+  const willCancel = subscription?.cancel_at_period_end && subscription?.current_period_end;
+
   const diasRestantes = (() => {
     if (plano !== "trial" || !oficina?.trial_expires_at) return null;
     const ms = new Date(oficina.trial_expires_at).getTime() - Date.now();
@@ -135,6 +156,29 @@ const PainelAssinatura = () => {
           </Card>
         )}
 
+        {isPastDue && (
+          <Card className="flex items-start gap-3 p-4 border-destructive/40 bg-destructive/5">
+            <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium text-destructive">Pagamento pendente</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Seu último pagamento falhou e estamos tentando cobrar novamente. Atualize seu cartão clicando em <strong>Gerenciar assinatura</strong> abaixo para evitar a interrupção do serviço.
+              </p>
+            </div>
+          </Card>
+        )}
+
+        {willCancel && !isPastDue && (
+          <Card className="flex items-start gap-3 p-4 border-amber-500/40 bg-amber-500/5">
+            <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium text-amber-600 dark:text-amber-400">Assinatura cancelada</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Você ainda tem acesso até {new Date(subscription!.current_period_end!).toLocaleDateString("pt-BR")}. Reative pelo Portal a qualquer momento.
+              </p>
+            </div>
+          </Card>
+        )}
         <Card className="space-y-6 p-8">
           <div className="text-center">
             <h1 className="text-xl font-bold">Sua assinatura</h1>
