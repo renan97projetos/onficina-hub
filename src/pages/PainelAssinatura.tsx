@@ -25,6 +25,7 @@ const PainelAssinatura = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [openingPortal, setOpeningPortal] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [upgradingTo, setUpgradingTo] = useState<"pro" | null>(null);
 
   const status = searchParams.get("status");
 
@@ -129,6 +130,31 @@ const PainelAssinatura = () => {
     }
   };
 
+  const handleUpgrade = async (targetPlan: "pro") => {
+    setUpgradingTo(targetPlan);
+    try {
+      const { data, error } = await supabase.functions.invoke(
+        "upgrade-subscription",
+        {
+          body: {
+            targetPriceId: `${targetPlan}_monthly`,
+            environment: getStripeEnvironment(),
+          },
+        },
+      );
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error ?? "Falha no upgrade");
+
+      toast.success("Upgrade para Pro realizado! Atualizando...");
+      await new Promise((r) => setTimeout(r, 3000));
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      toast.error((err as Error)?.message ?? "Erro ao fazer upgrade. Tente novamente.");
+    } finally {
+      setUpgradingTo(null);
+    }
+  };
   return (
     <div className="min-h-screen bg-background">
       <PaymentTestModeBanner />
@@ -209,16 +235,45 @@ const PainelAssinatura = () => {
             {meta.price && <p className="text-2xl font-bold">{meta.price}</p>}
           </div>
 
-          <div className="space-y-2">
-            {podeUpgrade && (
+          <div className="space-y-3">
+            {/* Upgrade direto: Starter → Pro (sem sair do sistema) */}
+            {plano === "starter" && (
+              <div className="rounded-lg border border-purple-500/30 bg-purple-500/5 p-4 space-y-3">
+                <div>
+                  <p className="text-sm font-semibold">Fazer upgrade para Pro</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    R$ 197/mês — Gestão de Pátio, Analytics avançado, Site da oficina e muito mais.
+                  </p>
+                </div>
+                <Button
+                  className="w-full"
+                  onClick={() => handleUpgrade("pro")}
+                  disabled={upgradingTo !== null}
+                >
+                  {upgradingTo === "pro" ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Processando upgrade...
+                    </>
+                  ) : (
+                    "Fazer upgrade para Pro — R$ 197/mês"
+                  )}
+                </Button>
+                <p className="text-[11px] text-muted-foreground text-center">
+                  Cobrado proporcionalmente. Sem cancelar o plano atual.
+                </p>
+              </div>
+            )}
+
+            {/* Nova assinatura: trial → starter ou pro */}
+            {plano === "trial" && (
               <Button asChild className="w-full">
-                <Link to="/assinar">
-                  {plano === "trial" ? "Assinar agora" : "Fazer upgrade"}
-                </Link>
+                <Link to="/assinar">Assinar agora</Link>
               </Button>
             )}
 
-            {stripeCustomerId && (
+            {/* Atualizar cartão (não cancelamento) */}
+            {stripeCustomerId && plano !== "trial" && (
               <Button
                 variant="outline"
                 className="w-full"
@@ -226,18 +281,23 @@ const PainelAssinatura = () => {
                 disabled={openingPortal}
               >
                 {openingPortal && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Gerenciar assinatura
+                Atualizar cartão de pagamento
               </Button>
             )}
 
-            <div className="pt-2 text-center">
-              <Link
-                to="/assinar"
-                className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-              >
-                Ver planos
-              </Link>
-            </div>
+            {/* Cancelamento via suporte */}
+            {plano !== "trial" && (
+              <div className="pt-2 text-center">
+                <a
+                  href="https://wa.me/5527992373501?text=Ol%C3%A1%2C%20gostaria%20de%20solicitar%20o%20cancelamento%20da%20minha%20assinatura%20ONficina."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+                >
+                  Solicitar cancelamento via suporte
+                </a>
+              </div>
+            )}
           </div>
         </Card>
       </div>
