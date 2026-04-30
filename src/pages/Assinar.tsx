@@ -219,17 +219,16 @@ const Assinar = () => {
                 else if (ehDowngrade) label = "Fazer downgrade";
                 else label = `Assinar ${p.name}`;
 
-                const disabled = loading || ehPlanoAtual || openingPortal;
+                const isProcessing = upgradingTo === planoDoCard;
+                const disabled = loading || ehPlanoAtual || upgradingTo !== null;
                 return (
                   <button
                     onClick={() => handleSelectPlan(p.priceId)}
                     disabled={disabled}
                     className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {openingPortal && (ehUpgrade || ehDowngrade) && (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    )}
-                    {label}
+                    {isProcessing && <Loader2 className="h-4 w-4 animate-spin" />}
+                    {isProcessing ? "Processando..." : label}
                   </button>
                 );
               })()}
