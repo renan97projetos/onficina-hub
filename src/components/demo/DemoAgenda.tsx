@@ -475,4 +475,94 @@ const AgendaFormDialog = ({
   );
 };
 
+const OSEmAndamentoSection = ({ agendamentos }: { agendamentos: Agendamento[] }) => {
+  const emAndamento = agendamentos.filter(
+    (a: any) => a.status === "em_andamento" && a.data_prevista_saida,
+  );
+
+  if (emAndamento.length === 0) return null;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  return (
+    <div className="mb-6 rounded-lg border border-border bg-card">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <h3 className="text-sm font-semibold text-foreground">
+          <Wrench className="mr-1.5 inline h-4 w-4 text-primary" />
+          OS em andamento
+        </h3>
+        <span className="text-xs text-muted-foreground">
+          {emAndamento.length} em execução
+        </span>
+      </div>
+      <ul className="divide-y divide-border">
+        {emAndamento.map((a: any) => {
+          const entrada = parseISO(a.data_entrada);
+          const saida = parseISO(a.data_prevista_saida);
+          const totalMs = Math.max(saida.getTime() - entrada.getTime(), 24 * 60 * 60 * 1000);
+          const decorridoMs = today.getTime() - entrada.getTime();
+          const pct = Math.min(Math.max((decorridoMs / totalMs) * 100, 0), 100);
+          const totalDias = Math.max(
+            Math.round(totalMs / (24 * 60 * 60 * 1000)),
+            1,
+          );
+          const diasDecorridos = Math.max(
+            Math.round(decorridoMs / (24 * 60 * 60 * 1000)),
+            0,
+          );
+          const atrasada = today.getTime() > saida.getTime();
+          const barCls = atrasada
+            ? "bg-red-500"
+            : pct >= 80
+              ? "bg-amber-500"
+              : "bg-emerald-500";
+
+          return (
+            <li key={a.id} className="px-4 py-3">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate font-semibold text-foreground">
+                      {a.cliente_nome || "Cliente"}
+                    </span>
+                    {atrasada && (
+                      <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[10px] font-semibold text-red-400">
+                        Atrasada
+                      </span>
+                    )}
+                  </div>
+                  <div className="mt-0.5 flex flex-wrap gap-x-3 text-xs text-muted-foreground">
+                    {a.veiculo_placa && (
+                      <span>
+                        <Car className="mr-1 inline h-3 w-3" />
+                        {a.veiculo_placa}
+                      </span>
+                    )}
+                    <span>
+                      Entrada: {format(entrada, "dd/MM", { locale: ptBR })}
+                    </span>
+                    <span>
+                      Saída prevista: {format(saida, "dd/MM", { locale: ptBR })}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right text-xs text-muted-foreground">
+                  Dia {Math.min(diasDecorridos, totalDias)} de {totalDias}
+                </div>
+              </div>
+              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
+                <div
+                  className={`h-full ${barCls} transition-all`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  );
+};
+
 export default DemoAgenda;
