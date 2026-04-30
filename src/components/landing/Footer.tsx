@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import Logo from "@/components/Logo";
 
-const WHATSAPP_SUPORTE = "5527992373501";
+const WHATSAPP_SUPORTE = "5527997750964";
 
 const Footer = () => {
   return (

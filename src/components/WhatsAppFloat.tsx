@@ -1,4 +1,4 @@
-const WHATSAPP_SUPORTE = "5527992373501";
+const WHATSAPP_SUPORTE = "5527997750964";
 const MENSAGEM = "Olá, tenho interesse no ONficina";
 
 const WhatsAppFloat = () => {
