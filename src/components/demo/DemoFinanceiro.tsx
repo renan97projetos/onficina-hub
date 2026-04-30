@@ -189,12 +189,32 @@ const DemoFinanceiro = () => {
           </div>
 
           {periodo === "dia" ? (
-            <input
-              type="date"
-              value={dia}
-              onChange={(e) => setDia(e.target.value)}
-              className="h-9 rounded-lg border border-border bg-background px-3 text-sm outline-none focus:border-primary"
-            />
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    "inline-flex h-9 items-center gap-2 rounded-lg border border-border bg-background px-3 text-sm outline-none transition-colors hover:border-primary focus:border-primary",
+                    !dia && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                  {dia
+                    ? format(new Date(`${dia}T12:00:00`), "dd 'de' MMMM 'de' yyyy", { locale: ptBR })
+                    : "Selecionar data"}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="end">
+                <Calendar
+                  mode="single"
+                  selected={new Date(`${dia}T12:00:00`)}
+                  onSelect={(d) => d && setDia(format(d, "yyyy-MM-dd"))}
+                  initialFocus
+                  locale={ptBR}
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
           ) : (
             <>
               <select value={mes} onChange={(e) => setMes(Number(e.target.value))}
