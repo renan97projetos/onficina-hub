@@ -157,6 +157,9 @@ const DemoAgenda = () => {
         </div>
       </div>
 
+      {/* OS em andamento - barra de progresso de dias */}
+      <OSEmAndamentoSection agendamentos={agendamentos} />
+
       {/* Grade semanal */}
       <div className="mb-6 grid grid-cols-5 gap-2">
         {days.map((d) => {
