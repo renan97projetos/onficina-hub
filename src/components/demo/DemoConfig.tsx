@@ -18,12 +18,37 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 
 const DemoConfig = () => {
-  const { oficina_id, user, isDono } = useAuth();
+  const { oficina_id, user, isDono, session } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
+  const [checkoutPlano, setCheckoutPlano] = useState<"starter_monthly" | "pro_monthly" | null>(null);
+  const [loadingCheckout, setLoadingCheckout] = useState<"starter" | "pro" | null>(null);
+
+  const handleContratarPlano = async (plano: "starter" | "pro") => {
+    setLoadingCheckout(plano);
+    try {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (!currentSession?.access_token) {
+        toast.error("Sessão expirada. Faça login novamente.");
+        return;
+      }
+      if (!oficina_id) {
+        toast.error("Oficina não encontrada. Faça login novamente.");
+        return;
+      }
+      setCheckoutPlano(plano === "starter" ? "starter_monthly" : "pro_monthly");
+    } catch (err: any) {
+      console.error("Erro ao abrir checkout:", err);
+      toast.error(err?.message ?? "Erro ao iniciar checkout. Tente novamente.");
+    } finally {
+      setLoadingCheckout(null);
+    }
+  };
 
   const { data: oficina, isLoading } = useQuery({
     queryKey: ["oficina-config", oficina_id],
@@ -658,10 +683,11 @@ const DemoConfig = () => {
 
                 {(isTrial || isStarter) && (
                   <button
-                    onClick={() => navigate("/assinar")}
-                    className="mt-4 w-full rounded-lg border border-border bg-background py-2 text-sm font-medium text-foreground transition-all hover:bg-muted"
+                    onClick={() => isTrial ? handleContratarPlano("starter") : navigate("/painel-assinatura")}
+                    disabled={loadingCheckout !== null}
+                    className="mt-4 w-full rounded-lg border border-border bg-background py-2 text-sm font-medium text-foreground transition-all hover:bg-muted disabled:opacity-50"
                   >
-                    {isTrial ? "Contratar plano agora" : "Gerenciar assinatura"}
+                    {loadingCheckout === "starter" ? "Aguarde..." : isTrial ? "Contratar plano agora" : "Gerenciar assinatura"}
                   </button>
                 )}
                 {isPro && (
@@ -711,10 +737,11 @@ const DemoConfig = () => {
                   </ul>
 
                   <button
-                    onClick={() => navigate("/assinar")}
-                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
+                    onClick={() => handleContratarPlano("pro")}
+                    disabled={loadingCheckout !== null}
+                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50"
                   >
-                    Fazer upgrade para Pro
+                    {loadingCheckout === "pro" ? "Aguarde..." : "Fazer upgrade para Pro"}
                     <ArrowUpRight className="h-4 w-4" />
                   </button>
                 </div>
@@ -1230,6 +1257,22 @@ const DemoConfig = () => {
         )}
         </div>
       </div>
+
+      <Dialog open={!!checkoutPlano} onOpenChange={(open) => !open && setCheckoutPlano(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle>Finalizar assinatura</DialogTitle>
+          </DialogHeader>
+          <div className="p-2 sm:p-4">
+            {checkoutPlano && (
+              <StripeEmbeddedCheckout
+                priceId={checkoutPlano}
+                returnUrl={`${window.location.origin}/painel/assinatura?status=success&session_id={CHECKOUT_SESSION_ID}`}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
