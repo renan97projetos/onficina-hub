@@ -759,7 +759,7 @@ export type Database = {
           iniciado_em: string | null
           nome_servico: string
           os_id: string
-          servico_id: string
+          servico_id: string | null
           status: string
           valor: number
         }
@@ -772,7 +772,7 @@ export type Database = {
           iniciado_em?: string | null
           nome_servico?: string
           os_id: string
-          servico_id: string
+          servico_id?: string | null
           status?: string
           valor?: number
         }
@@ -785,7 +785,7 @@ export type Database = {
           iniciado_em?: string | null
           nome_servico?: string
           os_id?: string
-          servico_id?: string
+          servico_id?: string | null
           status?: string
           valor?: number
         }
