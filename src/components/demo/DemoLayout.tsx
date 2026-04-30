@@ -22,6 +22,7 @@ import {
   Bell,
   AlertTriangle,
   CalendarClock,
+  FileBarChart2,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -43,6 +44,7 @@ const baseNavItems = [
   { icon: Calendar, label: "Agenda", key: "agenda" },
   { icon: Car, label: "Veículos", key: "veiculos" },
   { icon: DollarSign, label: "Financeiro", key: "financeiro" },
+  { icon: FileBarChart2, label: "Dados de Orçamento", key: "dados-orcamento" },
   { icon: BarChart3, label: "Relatórios", key: "relatorios" },
   { icon: Settings, label: "Configurações", key: "config" },
 ];
