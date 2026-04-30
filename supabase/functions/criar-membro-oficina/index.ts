@@ -50,6 +50,16 @@ Deno.serve(async (req) => {
       return json(403, { error: "Apenas o dono pode cadastrar membros." });
     }
 
+    // Equipe é feature Pro: bloqueia se não for Pro nem trial ativo
+    const { data: temPro } = await admin.rpc("has_pro_plan", {
+      _oficina_id: caller.oficina_id,
+    });
+    if (!temPro) {
+      return json(403, {
+        error: "Cadastrar membros é uma funcionalidade do plano Pro. Faça upgrade para liberar.",
+      });
+    }
+
     const body = await req.json().catch(() => ({}));
     const email = String(body.email ?? "").trim().toLowerCase();
     const senha = String(body.senha ?? "");
