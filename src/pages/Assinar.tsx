@@ -161,7 +161,9 @@ const Assinar = () => {
                 disabled={loading}
                 className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
               >
-                Assinar {p.name}
+                {jaAssinante
+                  ? (planoAtual === p.priceId.replace("_monthly", "") ? "Plano atual" : "Gerenciar assinatura")
+                  : `Assinar ${p.name}`}
               </button>
             </div>
           ))}
