@@ -190,6 +190,36 @@ const OSSheetContent = ({ os, onClose }: Props) => {
       stage_novo: stageNovo,
       descricao,
     });
+
+    // Ao entrar em atendimento, criar/atualizar agendamento na agenda
+    if (stageNovo === "em_atendimento") {
+      const prazo = extra?.prazo_estimado ?? os.prazo_estimado;
+      if (prazo) {
+        await supabase.from("agendamentos").upsert(
+          {
+            oficina_id: os.oficina_id,
+            os_id: os.id,
+            data_entrada: new Date(os.created_at).toISOString().split("T")[0],
+            data_prevista_saida: new Date(prazo).toISOString().split("T")[0],
+            cliente_nome: os.clientes?.nome ?? null,
+            veiculo_placa: os.veiculos?.placa ?? null,
+            status: "em_andamento",
+          } as any,
+          { onConflict: "os_id" },
+        );
+        queryClient.invalidateQueries({ queryKey: ["agendamentos"] });
+      }
+    }
+
+    // Ao finalizar, marcar agendamento como concluído
+    if (stageNovo === "finalizado") {
+      await supabase
+        .from("agendamentos")
+        .update({ status: "concluido" } as any)
+        .eq("os_id", os.id);
+      queryClient.invalidateQueries({ queryKey: ["agendamentos"] });
+    }
+
     queryClient.invalidateQueries({ queryKey: ["ordens_servico"] });
     queryClient.invalidateQueries({ queryKey: ["os_movimentacoes", os.id] });
     toast.success(descricao);
