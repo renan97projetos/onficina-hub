@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   XCircle,
   Wrench,
+  Check,
 } from "lucide-react";
 import OrcamentoFormModal from "./OrcamentoFormModal";
 import EmptyModuleState from "./EmptyModuleState";
