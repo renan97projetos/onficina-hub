@@ -498,13 +498,7 @@ Qualquer dúvida estamos à disposição. Obrigado pela confiança! 🚗`;
     const placa = os.veiculos?.placa || "";
     const tel = os.clientes?.telefone?.replace(/\D/g, "") || "";
 
-    const msg = `Olá, ${nome}! 🚗✨
-
-Boa notícia! Seu veículo *${marca} ${modelo} - ${placa}* está *pronto para retirada* aqui na *${oficinaNome}*.
-
-Pode vir buscar quando preferir — estamos te esperando! 😊
-
-Qualquer dúvida, é só chamar.`;
+    const msg = `Olá, ${nome}!\n\nBoa notícia! Seu veículo *${marca} ${modelo} - ${placa}* está *pronto para retirada* aqui na *${oficinaNome}*.\n\nPode vir buscar quando preferir — estamos te esperando!\n\nQualquer dúvida, é só chamar.`;
 
     if (!tel) return null;
     return `https://wa.me/55${tel}?text=${encodeURIComponent(msg)}`;
@@ -521,7 +515,7 @@ Qualquer dúvida, é só chamar.`;
 
 O serviço do seu *${marca} ${modelo} - ${placa}* foi concluído com sucesso!
 
-Pode vir buscar seu veículo. Estamos te esperando aqui na *${oficinaNome}*. 😊
+Pode vir buscar seu veículo. Estamos te esperando aqui na *${oficinaNome}*.
 
 Sua opinião é muito importante pra nós. Leva só 30 segundos — avalie nosso atendimento:
 
