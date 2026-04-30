@@ -18,12 +18,37 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 
 const DemoConfig = () => {
-  const { oficina_id, user, isDono } = useAuth();
+  const { oficina_id, user, isDono, session } = useAuth();
   const navigate = useNavigate();
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
+  const [checkoutPlano, setCheckoutPlano] = useState<"starter_monthly" | "pro_monthly" | null>(null);
+  const [loadingCheckout, setLoadingCheckout] = useState<"starter" | "pro" | null>(null);
+
+  const handleContratarPlano = async (plano: "starter" | "pro") => {
+    setLoadingCheckout(plano);
+    try {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (!currentSession?.access_token) {
+        toast.error("Sessão expirada. Faça login novamente.");
+        return;
+      }
+      if (!oficina_id) {
+        toast.error("Oficina não encontrada. Faça login novamente.");
+        return;
+      }
+      setCheckoutPlano(plano === "starter" ? "starter_monthly" : "pro_monthly");
+    } catch (err: any) {
+      console.error("Erro ao abrir checkout:", err);
+      toast.error(err?.message ?? "Erro ao iniciar checkout. Tente novamente.");
+    } finally {
+      setLoadingCheckout(null);
+    }
+  };
 
   const { data: oficina, isLoading } = useQuery({
     queryKey: ["oficina-config", oficina_id],
