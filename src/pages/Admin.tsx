@@ -24,6 +24,7 @@ const pages: Record<string, React.ComponentType<any>> = {
   agenda: DemoAgenda,
   veiculos: DemoVeiculos,
   financeiro: DemoFinanceiro,
+  "dados-orcamento": DemoDadosOrcamento,
   relatorios: DemoRelatorios,
   treinamentos: DemoTreinamentos,
   config: DemoConfig,
