@@ -737,10 +737,11 @@ const DemoConfig = () => {
                   </ul>
 
                   <button
-                    onClick={() => navigate("/assinar")}
-                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
+                    onClick={() => handleContratarPlano("pro")}
+                    disabled={loadingCheckout !== null}
+                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-50"
                   >
-                    Fazer upgrade para Pro
+                    {loadingCheckout === "pro" ? "Aguarde..." : "Fazer upgrade para Pro"}
                     <ArrowUpRight className="h-4 w-4" />
                   </button>
                 </div>
