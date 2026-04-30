@@ -690,7 +690,7 @@ const DemoConfig = () => {
 
                 {(isTrial || isStarter) && (
                   <button
-                    onClick={() => isTrial ? handleContratarPlano("starter") : navigate("/painel-assinatura")}
+                    onClick={() => isTrial ? handleContratarPlano("starter") : navigate("/painel/assinatura")}
                     disabled={loadingCheckout !== null}
                     className="mt-4 w-full rounded-lg border border-border bg-background py-2 text-sm font-medium text-foreground transition-all hover:bg-muted disabled:opacity-50"
                   >
@@ -699,7 +699,7 @@ const DemoConfig = () => {
                 )}
                 {isPro && (
                   <button
-                    onClick={() => navigate("/painel-assinatura")}
+                    onClick={() => navigate("/painel/assinatura")}
                     className="mt-4 w-full rounded-lg border border-border bg-background py-2 text-sm font-medium text-foreground transition-all hover:bg-muted"
                   >
                     Gerenciar assinatura
