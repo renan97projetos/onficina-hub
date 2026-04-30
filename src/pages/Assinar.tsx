@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { AlertTriangle, ArrowLeft, Check } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Check, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import Logo from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { getStripeEnvironment } from "@/lib/stripe";
 import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
 import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
@@ -56,11 +59,33 @@ const Assinar = () => {
   const [selectedPriceId, setSelectedPriceId] = useState<string | null>(
     plans.some((plan) => plan.priceId === requestedPlan) ? requestedPlan : null,
   );
+  const [openingPortal, setOpeningPortal] = useState(false);
 
   const returnUrl = `${window.location.origin}/painel/assinatura?status=success&session_id={CHECKOUT_SESSION_ID}`;
 
   const planoAtual = (oficina?.plano || "trial").toLowerCase();
   const jaAssinante = planoAtual === "starter" || planoAtual === "pro";
+
+  const abrirPortal = async () => {
+    if (openingPortal) return;
+    setOpeningPortal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-portal-session", {
+        body: {
+          environment: getStripeEnvironment(),
+          returnUrl: `${window.location.origin}/painel/assinatura`,
+        },
+      });
+      if (error) throw error;
+      if (!data?.url) throw new Error("URL do portal não recebida");
+      window.open(data.url, "_blank");
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Erro ao abrir portal";
+      toast.error(`Não foi possível abrir o portal: ${msg}`);
+    } finally {
+      setOpeningPortal(false);
+    }
+  };
 
   const handleSelectPlan = (priceId: string) => {
     if (loading) return;
@@ -70,9 +95,12 @@ const Assinar = () => {
       return;
     }
 
-    // Bloqueia dupla-assinatura: já assinante deve usar Portal Stripe
+    const planoDoCard = priceId.replace("_monthly", "");
+
+    // Se já é assinante: trocar de plano abre o Portal Stripe
     if (jaAssinante) {
-      navigate("/painel/assinatura");
+      if (planoDoCard === planoAtual) return; // botão será "Plano atual" desabilitado
+      abrirPortal();
       return;
     }
 
@@ -156,15 +184,32 @@ const Assinar = () => {
                   </li>
                 ))}
               </ul>
-              <button
-                onClick={() => handleSelectPlan(p.priceId)}
-                disabled={loading}
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
-              >
-                {jaAssinante
-                  ? (planoAtual === p.priceId.replace("_monthly", "") ? "Plano atual" : "Gerenciar assinatura")
-                  : `Assinar ${p.name}`}
-              </button>
+              {(() => {
+                const planoDoCard = p.priceId.replace("_monthly", "");
+                const ehPlanoAtual = jaAssinante && planoAtual === planoDoCard;
+                const ehUpgrade = jaAssinante && planoAtual === "starter" && planoDoCard === "pro";
+                const ehDowngrade = jaAssinante && planoAtual === "pro" && planoDoCard === "starter";
+
+                let label: string;
+                if (ehPlanoAtual) label = "Plano atual";
+                else if (ehUpgrade) label = "Fazer upgrade";
+                else if (ehDowngrade) label = "Fazer downgrade";
+                else label = `Assinar ${p.name}`;
+
+                const disabled = loading || ehPlanoAtual || openingPortal;
+                return (
+                  <button
+                    onClick={() => handleSelectPlan(p.priceId)}
+                    disabled={disabled}
+                    className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {openingPortal && (ehUpgrade || ehDowngrade) && (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    )}
+                    {label}
+                  </button>
+                );
+              })()}
             </div>
           ))}
         </div>
