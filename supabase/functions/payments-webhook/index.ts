@@ -19,6 +19,106 @@ function planoFromPriceId(priceId: string | undefined): string | null {
   return null;
 }
 
+function planoNomeFromPriceId(priceId: string | undefined): string {
+  if (priceId === "starter_monthly") return "Starter";
+  if (priceId === "pro_monthly") return "Pro";
+  return "Plano";
+}
+
+function formatBRL(cents: number | null | undefined): string {
+  if (cents == null) return "0,00";
+  return (cents / 100).toFixed(2).replace(".", ",");
+}
+
+function formatDateBR(unix: number | null | undefined): string {
+  if (!unix) return "";
+  return new Date(unix * 1000).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+async function sendSubscriptionReceiptEmail(params: {
+  oficinaId: string;
+  invoice: any;
+  isRenovacao: boolean;
+}) {
+  try {
+    const { oficinaId, invoice, isRenovacao } = params;
+
+    const { data: oficina } = await getSupabase()
+      .from("oficinas")
+      .select("id, nome, auth_user_id")
+      .eq("id", oficinaId)
+      .maybeSingle();
+
+    if (!oficina?.auth_user_id) {
+      console.error("[email] oficina sem auth_user_id:", oficinaId);
+      return;
+    }
+
+    const { data: userResp } = await (getSupabase() as any).auth.admin.getUserById(
+      oficina.auth_user_id,
+    );
+    const userEmail = userResp?.user?.email;
+    const userName =
+      userResp?.user?.user_metadata?.nome ||
+      userResp?.user?.user_metadata?.full_name ||
+      "";
+
+    if (!userEmail) {
+      console.error("[email] user sem email:", oficina.auth_user_id);
+      return;
+    }
+
+    const line = invoice.lines?.data?.[0];
+    const priceId =
+      line?.price?.metadata?.lovable_external_id ?? line?.price?.id;
+    const planoNome = planoNomeFromPriceId(priceId);
+
+    const idempotencyKey = `sub-receipt-${invoice.id}`;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+    const resp = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${serviceKey}`,
+        apikey: serviceKey,
+      },
+      body: JSON.stringify({
+        templateName: "subscription-receipt",
+        recipientEmail: userEmail,
+        idempotencyKey,
+        templateData: {
+          clienteNome: userName || undefined,
+          oficinaNome: oficina.nome,
+          planoNome,
+          valor: formatBRL(invoice.amount_paid),
+          dataPagamento: formatDateBR(
+            invoice.status_transitions?.paid_at ?? invoice.created,
+          ),
+          proximaCobranca: formatDateBR(line?.period?.end),
+          numeroFatura: invoice.number || undefined,
+          invoiceUrl: invoice.hosted_invoice_url || undefined,
+          isRenovacao,
+        },
+      }),
+    });
+
+    if (!resp.ok) {
+      const txt = await resp.text();
+      console.error("[email] falha ao enviar:", resp.status, txt);
+    } else {
+      console.log("[email] recibo enviado para:", userEmail);
+    }
+  } catch (e) {
+    console.error("[email] erro inesperado:", e);
+  }
+}
+
 async function upsertSubscription(subscription: any, env: StripeEnv) {
   const oficinaId = subscription.metadata?.oficina_id;
   if (!oficinaId) {
