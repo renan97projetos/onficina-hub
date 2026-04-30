@@ -212,6 +212,9 @@ const DemoOS = ({ initialOsId, onConsumeInitialOsId }: DemoOSProps = {}) => {
               >
                 <div className="flex items-start justify-between">
                   <div>
+                    <p className="font-mono text-[10px] uppercase text-muted-foreground">
+                      #{os.id.slice(0, 8).toUpperCase()}
+                    </p>
                     <p className="font-semibold text-foreground">{os.clientes?.nome || "—"}</p>
                     <p className="text-xs text-muted-foreground">
                       {os.veiculos?.placa} • {os.veiculos?.marca} {os.veiculos?.modelo}
