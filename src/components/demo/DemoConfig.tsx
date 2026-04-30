@@ -41,6 +41,13 @@ const DemoConfig = () => {
         toast.error("Oficina não encontrada. Faça login novamente.");
         return;
       }
+      // Bloqueia dupla-assinatura: se já tem plano pago, manda pro Portal Stripe
+      const planoAtual = (oficina?.plano || "trial").toLowerCase();
+      if (planoAtual === "pro" || planoAtual === "starter") {
+        toast.info("Você já tem uma assinatura ativa. Use 'Gerenciar assinatura' para mudar de plano.");
+        navigate("/painel/assinatura");
+        return;
+      }
       setCheckoutPlano(plano === "starter" ? "starter_monthly" : "pro_monthly");
     } catch (err: any) {
       console.error("Erro ao abrir checkout:", err);
