@@ -1,30 +1,51 @@
-// Shared Stripe utility for Lovable Payments (Stripe seamless).
-// Reads gateway-managed keys from secrets.
+// Shared Stripe utility — Lovable Payments seamless (gateway-proxied).
+// CRITICAL: STRIPE_SANDBOX_API_KEY / STRIPE_LIVE_API_KEY são identificadores
+// de gateway, NÃO chaves Stripe reais. Toda chamada precisa passar pelo gateway.
 
-import Stripe from "https://esm.sh/stripe@17.5.0?target=denonext";
-import { encode } from "https://deno.land/std@0.224.0/encoding/hex.ts";
+import Stripe from "https://esm.sh/stripe@22.0.2";
+import { encode } from "https://deno.land/std@0.168.0/encoding/hex.ts";
+
+const getEnv = (key: string): string => {
+  const value = Deno.env.get(key);
+  if (!value) throw new Error(`${key} is not configured`);
+  return value;
+};
 
 export type StripeEnv = "sandbox" | "live";
 
-function getEnv(name: string): string {
-  const v = Deno.env.get(name);
-  if (!v) throw new Error(`Missing env var: ${name}`);
-  return v;
+const GATEWAY_STRIPE_BASE = "https://connector-gateway.lovable.dev/stripe";
+
+export function getConnectionApiKey(env: StripeEnv): string {
+  return env === "sandbox"
+    ? getEnv("STRIPE_SANDBOX_API_KEY")
+    : getEnv("STRIPE_LIVE_API_KEY");
 }
 
 export function createStripeClient(env: StripeEnv): Stripe {
-  const apiKey =
-    env === "sandbox"
-      ? getEnv("STRIPE_SANDBOX_API_KEY")
-      : getEnv("STRIPE_LIVE_API_KEY");
+  const connectionApiKey = getConnectionApiKey(env);
+  const lovableApiKey = getEnv("LOVABLE_API_KEY");
 
-  return new Stripe(apiKey, {
-    apiVersion: "2024-11-20.acacia",
-    httpClient: Stripe.createFetchHttpClient(),
+  return new Stripe(connectionApiKey, {
+    apiVersion: "2026-03-25.dahlia" as any,
+    httpClient: Stripe.createFetchHttpClient(
+      (url: string | URL, init?: RequestInit) => {
+        const gatewayUrl = url
+          .toString()
+          .replace("https://api.stripe.com", GATEWAY_STRIPE_BASE);
+        return fetch(gatewayUrl, {
+          ...init,
+          headers: {
+            ...Object.fromEntries(new Headers(init?.headers).entries()),
+            "X-Connection-Api-Key": connectionApiKey,
+            "Lovable-API-Key": lovableApiKey,
+          },
+        });
+      },
+    ),
   });
 }
 
-// Webhook signature verification (HMAC-SHA256), no SDK dependency.
+// Verifica assinatura HMAC-SHA256 do webhook sem depender da SDK.
 export async function verifyWebhook(
   req: Request,
   env: StripeEnv,
