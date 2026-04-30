@@ -194,6 +194,12 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
     );
     const tel = orc.telefone_cliente.replace(/\D/g, "");
     window.open(`https://wa.me/${tel}?text=${msg}`, "_blank");
+
+    await supabase
+      .from("orcamentos")
+      .update({ whatsapp_enviado: true })
+      .eq("id", orc.id);
+    qc.invalidateQueries({ queryKey: ["orcamentos"] });
   }
 
   function copiarLink(orc: any) {
