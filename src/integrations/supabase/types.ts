@@ -405,7 +405,15 @@ export type Database = {
           tipo?: string
           valor?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "financeiro_lancamentos_oficina_id_fkey"
+            columns: ["oficina_id"]
+            isOneToOne: false
+            referencedRelation: "oficinas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       oficinas: {
         Row: {
@@ -574,6 +582,13 @@ export type Database = {
           whatsapp_enviado?: boolean
         }
         Relationships: [
+          {
+            foreignKeyName: "orcamentos_oficina_id_fkey"
+            columns: ["oficina_id"]
+            isOneToOne: false
+            referencedRelation: "oficinas"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orcamentos_os_id_fkey"
             columns: ["os_id"]
@@ -878,7 +893,15 @@ export type Database = {
           stripe_subscription_id?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_oficina_id_fkey"
+            columns: ["oficina_id"]
+            isOneToOne: false
+            referencedRelation: "oficinas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       suppressed_emails: {
         Row: {
@@ -1018,7 +1041,15 @@ export type Database = {
           oficina_id?: string
           tipo?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "veiculos_customizados_oficina_id_fkey"
+            columns: ["oficina_id"]
+            isOneToOne: false
+            referencedRelation: "oficinas"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
