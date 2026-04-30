@@ -62,11 +62,13 @@ export type Database = {
           confirmado: boolean
           created_at: string
           data_entrada: string
+          data_prevista_saida: string | null
           id: string
           observacao: string | null
           oficina_id: string
           origem: string
           os_id: string | null
+          status: string
           updated_at: string
           veiculo_modelo: string | null
           veiculo_placa: string | null
@@ -77,11 +79,13 @@ export type Database = {
           confirmado?: boolean
           created_at?: string
           data_entrada: string
+          data_prevista_saida?: string | null
           id?: string
           observacao?: string | null
           oficina_id: string
           origem?: string
           os_id?: string | null
+          status?: string
           updated_at?: string
           veiculo_modelo?: string | null
           veiculo_placa?: string | null
@@ -92,11 +96,13 @@ export type Database = {
           confirmado?: boolean
           created_at?: string
           data_entrada?: string
+          data_prevista_saida?: string | null
           id?: string
           observacao?: string | null
           oficina_id?: string
           origem?: string
           os_id?: string | null
+          status?: string
           updated_at?: string
           veiculo_modelo?: string | null
           veiculo_placa?: string | null
