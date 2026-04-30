@@ -218,6 +218,19 @@ Deno.serve(async (req) => {
       case "customer.subscription.deleted":
         await handleSubscriptionDeleted(event.data.object, env);
         break;
+      case "invoice.payment_succeeded": {
+        const invoice = event.data.object;
+        const oficinaId =
+          invoice.subscription_details?.metadata?.oficina_id ||
+          invoice.metadata?.oficina_id;
+        if (oficinaId) {
+          const isRenovacao = invoice.billing_reason === "subscription_cycle";
+          await sendSubscriptionReceiptEmail({ oficinaId, invoice, isRenovacao });
+        } else {
+          console.log("[invoice] sem oficina_id, ignorando");
+        }
+        break;
+      }
       default:
         console.log("Evento ignorado:", event.type);
     }
