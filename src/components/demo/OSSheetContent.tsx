@@ -536,6 +536,9 @@ Obrigado pela preferência! Até a próxima. 🙏`;
       <div className="border-b border-border bg-card px-6 py-4 pr-14">
         <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
+            <p className="font-mono text-[11px] uppercase text-muted-foreground">
+              #{os.id.slice(0, 8).toUpperCase()}
+            </p>
             <h2 className="text-lg font-bold text-foreground truncate">{os.clientes?.nome || "—"}</h2>
             <p className="text-sm text-muted-foreground truncate">
               {os.veiculos?.placa} • {os.veiculos?.marca} {os.veiculos?.modelo}
