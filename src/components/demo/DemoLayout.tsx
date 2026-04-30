@@ -22,6 +22,7 @@ import {
   Bell,
   AlertTriangle,
   CalendarClock,
+  FileBarChart2,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
