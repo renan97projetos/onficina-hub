@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { AlertTriangle, Check, Loader2 } from "lucide-react";
+import { AlertTriangle, ArrowLeft, Check } from "lucide-react";
 import Logo from "@/components/Logo";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { StripeEmbeddedCheckout } from "@/components/StripeEmbeddedCheckout";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 const plans = [
   {
     name: "Starter",
+    priceId: "starter_monthly",
     desc: "Para digitalizar sua oficina do jeito certo",
     monthlyPrice: 97,
     popular: false,
@@ -30,6 +31,7 @@ const plans = [
   },
   {
     name: "Pro",
+    priceId: "pro_monthly",
     desc: "Para oficinas que querem crescer com controle",
     monthlyPrice: 197,
     popular: true,
@@ -48,30 +50,33 @@ const plans = [
 
 const Assinar = () => {
   const { trialExpired, oficina } = useAuth();
-  const [loadingPlano, setLoadingPlano] = useState<string | null>(null);
+  const [selectedPriceId, setSelectedPriceId] = useState<string | null>(null);
 
-  const handleAssinar = async (plano: "starter" | "pro") => {
-    setLoadingPlano(plano);
-    try {
-      const { data, error } = await supabase.functions.invoke(
-        "create-checkout-session",
-        { body: { plano } },
-      );
-      if (error) throw error;
-      if (!data?.url) throw new Error("URL de checkout não retornada");
-      window.location.href = data.url as string;
-    } catch (err) {
-      console.error(err);
-      toast.error(
-        (err as Error).message ?? "Erro ao iniciar checkout. Tente novamente.",
-      );
-      setLoadingPlano(null);
-    }
-  };
+  const returnUrl = `${window.location.origin}/painel/assinatura?status=success&session_id={CHECKOUT_SESSION_ID}`;
+
+  if (selectedPriceId) {
+    return (
+      <div className="min-h-screen bg-background">
+        <PaymentTestModeBanner />
+        <div className="mx-auto max-w-2xl px-4 py-8">
+          <button
+            onClick={() => setSelectedPriceId(null)}
+            className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" /> Voltar
+          </button>
+          <div className="rounded-xl border border-border bg-card p-2 sm:p-4">
+            <StripeEmbeddedCheckout priceId={selectedPriceId} returnUrl={returnUrl} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background px-4 py-12">
-      <div className="mx-auto max-w-3xl space-y-8">
+    <div className="min-h-screen bg-background">
+      <PaymentTestModeBanner />
+      <div className="mx-auto max-w-3xl space-y-8 px-4 py-12">
         <div className="text-center">
           <Link to="/" className="inline-block">
             <Logo size="lg" />
@@ -97,7 +102,7 @@ const Assinar = () => {
           )}
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 mx-auto max-w-2xl">
+        <div className="mx-auto grid max-w-2xl gap-4 sm:grid-cols-2">
           {plans.map((p) => (
             <div
               key={p.name}
@@ -127,13 +132,9 @@ const Assinar = () => {
                 ))}
               </ul>
               <button
-                onClick={() => handleAssinar(p.name.toLowerCase() as "starter" | "pro")}
-                disabled={loadingPlano !== null}
-                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed"
+                onClick={() => setSelectedPriceId(p.priceId)}
+                className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:brightness-110"
               >
-                {loadingPlano === p.name.toLowerCase() && (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                )}
                 Assinar {p.name}
               </button>
             </div>

@@ -1,37 +1,77 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getStripeEnvironment } from "@/lib/stripe";
 import { toast } from "sonner";
 import Logo from "@/components/Logo";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { PaymentTestModeBanner } from "@/components/PaymentTestModeBanner";
 
 const PLAN_META: Record<
   string,
   { label: string; badge: string; price: string | null }
 > = {
-  trial: {
-    label: "Trial",
-    badge: "bg-muted text-muted-foreground",
-    price: null,
-  },
-  starter: {
-    label: "Starter",
-    badge: "bg-emerald-500/15 text-emerald-500",
-    price: "R$ 97/mês",
-  },
-  pro: {
-    label: "Pro",
-    badge: "bg-purple-500/15 text-purple-500",
-    price: "R$ 197/mês",
-  },
+  trial: { label: "Trial", badge: "bg-muted text-muted-foreground", price: null },
+  starter: { label: "Starter", badge: "bg-emerald-500/15 text-emerald-500", price: "R$ 97/mês" },
+  pro: { label: "Pro", badge: "bg-purple-500/15 text-purple-500", price: "R$ 197/mês" },
 };
 
 const PainelAssinatura = () => {
-  const { oficina, loading } = useAuth();
+  const { oficina, oficina_id, loading } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [openingPortal, setOpeningPortal] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+
+  const status = searchParams.get("status");
+
+  // Polling após retorno do checkout: aguarda webhook atualizar oficina
+  useEffect(() => {
+    if (status !== "success" || !oficina_id) return;
+
+    let cancelled = false;
+    let attempts = 0;
+    setSyncing(true);
+
+    const poll = async () => {
+      while (!cancelled && attempts < 15) {
+        attempts++;
+        const { data } = await supabase
+          .from("oficinas")
+          .select("plano")
+          .eq("id", oficina_id)
+          .maybeSingle();
+
+        if (data?.plano && data.plano !== "trial") {
+          if (!cancelled) {
+            setSyncing(false);
+            toast.success("Assinatura ativada!");
+            // limpa querystring
+            const np = new URLSearchParams(searchParams);
+            np.delete("status");
+            np.delete("session_id");
+            setSearchParams(np, { replace: true });
+            window.location.reload();
+          }
+          return;
+        }
+        await new Promise((r) => setTimeout(r, 2000));
+      }
+      if (!cancelled) {
+        setSyncing(false);
+        toast.error(
+          "Pagamento confirmado, mas a sincronização está demorando. Recarregue em alguns segundos.",
+        );
+      }
+    };
+
+    poll();
+    return () => {
+      cancelled = true;
+    };
+  }, [status, oficina_id, searchParams, setSearchParams]);
 
   const plano = oficina?.plano ?? "trial";
   const meta = PLAN_META[plano] ?? PLAN_META.trial;
@@ -50,26 +90,50 @@ const PainelAssinatura = () => {
     try {
       const { data, error } = await supabase.functions.invoke(
         "create-portal-session",
-        { body: {} },
+        {
+          body: {
+            environment: getStripeEnvironment(),
+            returnUrl: `${window.location.origin}/painel/assinatura`,
+          },
+        },
       );
       if (error) throw error;
       if (!data?.url) throw new Error("URL do portal não retornada");
-      window.location.href = data.url as string;
+      window.open(data.url, "_blank");
     } catch (err) {
       console.error(err);
-      toast.error(
-        (err as Error).message ?? "Erro ao abrir portal. Tente novamente.",
-      );
+      toast.error((err as Error).message ?? "Erro ao abrir portal.");
+    } finally {
       setOpeningPortal(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background px-4 py-12">
-      <div className="mx-auto w-full max-w-md space-y-8">
+    <div className="min-h-screen bg-background">
+      <PaymentTestModeBanner />
+      <div className="mx-auto w-full max-w-md space-y-8 px-4 py-12">
         <div className="flex justify-center">
           <Logo size="md" />
         </div>
+
+        {syncing && (
+          <Card className="flex items-center gap-3 p-4 border-primary/40 bg-primary/5">
+            <Loader2 className="h-5 w-5 animate-spin text-primary" />
+            <div className="text-sm">
+              <p className="font-medium">Confirmando seu pagamento…</p>
+              <p className="text-xs text-muted-foreground">
+                Pode levar alguns segundos.
+              </p>
+            </div>
+          </Card>
+        )}
+
+        {status === "success" && !syncing && plano !== "trial" && (
+          <Card className="flex items-center gap-3 p-4 border-emerald-500/30 bg-emerald-500/5">
+            <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+            <p className="text-sm font-medium">Plano ativo!</p>
+          </Card>
+        )}
 
         <Card className="space-y-6 p-8">
           <div className="text-center">
@@ -98,15 +162,15 @@ const PainelAssinatura = () => {
               <p className="text-sm text-muted-foreground">Plano ativo</p>
             )}
 
-            {meta.price && (
-              <p className="text-2xl font-bold">{meta.price}</p>
-            )}
+            {meta.price && <p className="text-2xl font-bold">{meta.price}</p>}
           </div>
 
           <div className="space-y-2">
             {podeUpgrade && (
               <Button asChild className="w-full">
-                <Link to="/assinar">Fazer upgrade</Link>
+                <Link to="/assinar">
+                  {plano === "trial" ? "Assinar agora" : "Fazer upgrade"}
+                </Link>
               </Button>
             )}
 
@@ -117,10 +181,8 @@ const PainelAssinatura = () => {
                 onClick={handleAbrirPortal}
                 disabled={openingPortal}
               >
-                {openingPortal && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                )}
-                Gerenciar assinatura via Stripe
+                {openingPortal && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Gerenciar assinatura
               </Button>
             )}
 
