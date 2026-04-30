@@ -156,6 +156,29 @@ const PainelAssinatura = () => {
           </Card>
         )}
 
+        {isPastDue && (
+          <Card className="flex items-start gap-3 p-4 border-destructive/40 bg-destructive/5">
+            <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium text-destructive">Pagamento pendente</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Seu último pagamento falhou e estamos tentando cobrar novamente. Atualize seu cartão clicando em <strong>Gerenciar assinatura</strong> abaixo para evitar a interrupção do serviço.
+              </p>
+            </div>
+          </Card>
+        )}
+
+        {willCancel && !isPastDue && (
+          <Card className="flex items-start gap-3 p-4 border-amber-500/40 bg-amber-500/5">
+            <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium text-amber-600 dark:text-amber-400">Assinatura cancelada</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Você ainda tem acesso até {new Date(subscription!.current_period_end!).toLocaleDateString("pt-BR")}. Reative pelo Portal a qualquer momento.
+              </p>
+            </div>
+          </Card>
+        )}
         <Card className="space-y-6 p-8">
           <div className="text-center">
             <h1 className="text-xl font-bold">Sua assinatura</h1>
