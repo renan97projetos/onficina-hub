@@ -15,9 +15,9 @@ project_id = "yzjliinoeliqlxduhrds"
     verify_jwt = false
   [functions.daily-digest]
     verify_jwt = true
-  [functions.stripe-webhook]
+  [functions.payments-webhook]
     verify_jwt = false
-  [functions.create-checkout-session]
+  [functions.create-checkout]
     verify_jwt = false
   [functions.create-portal-session]
     verify_jwt = false
