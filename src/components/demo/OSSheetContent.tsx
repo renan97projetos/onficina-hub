@@ -515,7 +515,7 @@ Qualquer dúvida estamos à disposição. Obrigado pela confiança! 🚗`;
 
 O serviço do seu *${marca} ${modelo} - ${placa}* foi concluído com sucesso!
 
-Pode vir buscar seu veículo. Estamos te esperando aqui na *${oficinaNome}*. 😊
+Pode vir buscar seu veículo. Estamos te esperando aqui na *${oficinaNome}*.
 
 Sua opinião é muito importante pra nós. Leva só 30 segundos — avalie nosso atendimento:
 
