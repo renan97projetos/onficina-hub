@@ -68,7 +68,6 @@ export function StripeEmbeddedCheckout({ priceId, returnUrl }: Props) {
     );
   }
 
-  if (!ready) {
   if (loading) {
     return (
       <div className="flex min-h-[300px] items-center justify-center">
