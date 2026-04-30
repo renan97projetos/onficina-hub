@@ -1,0 +1,1 @@
+ALTER TABLE public.orcamentos ADD COLUMN IF NOT EXISTS whatsapp_enviado boolean NOT NULL DEFAULT false;

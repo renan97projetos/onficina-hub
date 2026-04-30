@@ -15,6 +15,7 @@ import {
   CheckCircle2,
   XCircle,
   Wrench,
+  Check,
 } from "lucide-react";
 import OrcamentoFormModal from "./OrcamentoFormModal";
 import EmptyModuleState from "./EmptyModuleState";
@@ -193,6 +194,12 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
     );
     const tel = orc.telefone_cliente.replace(/\D/g, "");
     window.open(`https://wa.me/${tel}?text=${msg}`, "_blank");
+
+    await supabase
+      .from("orcamentos")
+      .update({ whatsapp_enviado: true })
+      .eq("id", orc.id);
+    qc.invalidateQueries({ queryKey: ["orcamentos"] });
   }
 
   function copiarLink(orc: any) {
@@ -468,15 +475,39 @@ const DemoOrcamentos = ({ onNavigate, embedded = false }: DemoOrcamentosProps = 
                       <IconBtn title="Baixar PDF" onClick={() => handleDownloadPdf(o)}>
                         <Download className="h-3.5 w-3.5" />
                       </IconBtn>
-                      <button
-                        type="button"
-                        onClick={() => handleEnviarWhatsApp(o)}
-                        title="Enviar orçamento ao cliente pelo WhatsApp"
-                        className="inline-flex items-center gap-1 rounded-md border border-[#25D366]/40 bg-[#25D366]/10 px-2 py-1 text-xs font-semibold text-[#25D366] transition-colors hover:bg-[#25D366]/20"
-                      >
-                        <Send className="h-3.5 w-3.5" />
-                        Enviar WhatsApp →
-                      </button>
+                      {(() => {
+                        const wppDisabled = o.status === "aprovado" || o.whatsapp_enviado;
+                        const wppTitle = o.status === "aprovado"
+                          ? "Orçamento já aprovado"
+                          : o.whatsapp_enviado
+                            ? "WhatsApp já enviado"
+                            : "Enviar orçamento ao cliente pelo WhatsApp";
+                        return (
+                          <button
+                            type="button"
+                            onClick={() => handleEnviarWhatsApp(o)}
+                            disabled={wppDisabled}
+                            title={wppTitle}
+                            className={
+                              wppDisabled
+                                ? "inline-flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2 py-1 text-xs font-semibold text-emerald-400 cursor-not-allowed"
+                                : "inline-flex items-center gap-1 rounded-md border border-[#25D366]/40 bg-[#25D366]/10 px-2 py-1 text-xs font-semibold text-[#25D366] transition-colors hover:bg-[#25D366]/20"
+                            }
+                          >
+                            {wppDisabled ? (
+                              <>
+                                <Check className="h-3.5 w-3.5" />
+                                Enviado ✓
+                              </>
+                            ) : (
+                              <>
+                                <Send className="h-3.5 w-3.5" />
+                                Enviar WhatsApp →
+                              </>
+                            )}
+                          </button>
+                        );
+                      })()}
                       {o.status === "aprovado" && (
                         <button
                           type="button"
