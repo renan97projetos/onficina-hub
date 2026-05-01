@@ -1117,7 +1117,7 @@ const DemoConfig = () => {
           </div>
 
           <a
-            href="https://wa.me/5527992373501?text=Ol%C3%A1%2C%20gostaria%20de%20um%20site%20personalizado%20para%20minha%20oficina"
+            href="https://wa.me/5527997750964?text=Ol%C3%A1%2C%20gostaria%20de%20um%20site%20personalizado%20para%20minha%20oficina"
             target="_blank"
             rel="noreferrer"
             className="mt-3 flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 px-4 py-3 text-sm transition hover:bg-primary/10"
