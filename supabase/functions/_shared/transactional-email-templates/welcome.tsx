@@ -7,7 +7,7 @@ import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = 'ONficina'
 const SITE_URL = 'https://onficina.com'
-const WHATSAPP_NUMERO = '5527992373501' // Renan
+const WHATSAPP_NUMERO = '5527997750964' // Renan
 const WHATSAPP_MENSAGEM = encodeURIComponent(
   'Oi Renan! Acabei de cadastrar minha oficina no ONficina e preciso de uma ajuda.'
 )

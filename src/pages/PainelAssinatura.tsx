@@ -289,7 +289,7 @@ const PainelAssinatura = () => {
             {plano !== "trial" && (
               <div className="pt-2 text-center">
                 <a
-                  href="https://wa.me/5527992373501?text=Ol%C3%A1%2C%20gostaria%20de%20solicitar%20o%20cancelamento%20da%20minha%20assinatura%20ONficina."
+                  href="https://wa.me/5527997750964?text=Ol%C3%A1%2C%20gostaria%20de%20solicitar%20o%20cancelamento%20da%20minha%20assinatura%20ONficina."
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
